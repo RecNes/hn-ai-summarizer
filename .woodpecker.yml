@@ -7,13 +7,18 @@ steps:
     image: docker:27-cli
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      DOCKER_REGISTRY:
-        from_secret: DOCKER_REGISTRY
     commands:
-      - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
-      - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
-      - docker push ${DOCKER_REGISTRY}/hn-reader:latest
+      - docker build -t 192.168.1.16:5000/hn-reader:${CI_COMMIT_SHA:0:8} -t 192.168.1.16:5000/hn-reader:latest .
+      - docker push 192.168.1.16:5000/hn-reader:${CI_COMMIT_SHA:0:8}
+      - docker push 192.168.1.16:5000/hn-reader:latest
+    when:
+      event: [push]
+      branch: [main, master]
+
+  debug-env:
+    image: alpine:3
+    commands:
+      - env | sort
     when:
       event: [push]
       branch: [main, master]
@@ -28,25 +33,23 @@ steps:
 
   deploy:
     image: alpine:3
-    environment:
-      DOCKER_REGISTRY:
-        from_secret: DOCKER_REGISTRY
-      DEPLOY_HOST:
-        from_secret: DEPLOY_HOST
-      DEPLOY_USER:
-        from_secret: DEPLOY_USER
-      DEPLOY_KEY:
-        from_secret: DEPLOY_KEY
-      HN_READER_ENV_FILE:
-        from_secret: HN_READER_ENV_FILE
     commands:
-      - apk add --no-cache openssh-client docker-cli docker-compose
+      - apk add --no-cache openssh-client git
       - mkdir -p ~/.ssh
-      - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+      - echo "${DEPLOY_KEY}" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-      - echo "$HN_READER_ENV_FILE" | ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > /app/hn-reader/.env"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && docker compose pull && docker compose up -d --remove-orphans --no-build && docker image prune -af"
+      - ssh-keyscan -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+      - >
+        ssh "${DEPLOY_USER}@${DEPLOY_HOST}"
+        "
+        set -e
+        cd /app/hn-reader
+        git pull
+        echo '${HN_READER_ENV_FILE}' > .env
+        docker compose pull
+        docker compose up -d --remove-orphans --no-build
+        docker image prune -af
+        "
     when:
       event: [push]
       branch: [main, master]
