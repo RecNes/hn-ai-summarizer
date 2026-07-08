@@ -22,9 +22,9 @@ steps:
     commands:
       - echo "registry=[$DOCKER_REGISTRY]"
       - echo "sha=[$CI_COMMIT_SHA]"
-      - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
-      - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
-      - docker push ${DOCKER_REGISTRY}/hn-reader:latest
+      - docker build -t $DOCKER_REGISTRY/hn-reader:${CI_COMMIT_SHA:0:8} -t $DOCKER_REGISTRY/hn-reader:latest .
+      - docker push $DOCKER_REGISTRY/hn-reader:${CI_COMMIT_SHA:0:8}
+      - docker push $DOCKER_REGISTRY/hn-reader:latest
     when:
       event: [push]
       branch: [main, master]
