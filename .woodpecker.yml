@@ -7,6 +7,9 @@ steps:
     image: docker:27-cli
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DOCKER_REGISTRY:
+        from_secret: DOCKER_REGISTRY
     commands:
       - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
       - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
@@ -25,6 +28,17 @@ steps:
 
   deploy:
     image: alpine:3
+    environment:
+      DOCKER_REGISTRY:
+        from_secret: DOCKER_REGISTRY
+      DEPLOY_HOST:
+        from_secret: DEPLOY_HOST
+      DEPLOY_USER:
+        from_secret: DEPLOY_USER
+      DEPLOY_KEY:
+        from_secret: DEPLOY_KEY
+      HN_READER_ENV_FILE:
+        from_secret: HN_READER_ENV_FILE
     commands:
       - apk add --no-cache openssh-client docker-cli docker-compose
       - mkdir -p ~/.ssh
