@@ -1,0 +1,29 @@
+/* Custom styles for accessibility */
+.font-atkinson {
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+}
+
+.font-merriweather {
+    font-family: 'Merriweather', serif;
+}
+
+.text-small { font-size: 0.875rem; }
+.text-medium { font-size: 1rem; }
+.text-large { font-size: 1.125rem; }
+.text-xlarge { font-size: 1.25rem; }
+
+.contrast-light { background-color: #ffffff; color: #000000; }
+.contrast-dark { background-color: #1a202c; color: #e2e8f0; }
+.contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
+.contrast-high { background-color: #000000; color: #ffffff; }
+
+/* Highlight and dim styles */
+.highlighted {
+    border-left: 4px solid #3b82f6;
+    padding-left: 1rem;
+}
+
+.dimmed {
+    filter: grayscale(100%);
+    opacity: 0.5;
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HN AI Summerizer{% endblock %}</title>
+    
+    <!-- High-legibility fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom styles based on user preferences -->
+    <style id="custom-styles">
+        body {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+        
+        .font-merriweather {
+            font-family: 'Merriweather', serif;
+        }
+        
+        .font-atkinson {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+        
+        .text-small { font-size: 0.875rem; }
+        .text-medium { font-size: 1rem; }
+        .text-large { font-size: 1.125rem; }
+        .text-xlarge { font-size: 1.25rem; }
+        
+        .contrast-light { background-color: #ffffff; color: #000000; }
+        .contrast-dark { background-color: #1a202c; color: #e2e8f0; }
+        .contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
+        .contrast-high { background-color: #000000; color: #ffffff; }
+        
+        /* Progress bar styling */
+        #worker-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background-color: #10b981; /* green-500 */
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 0 2px rgba(16, 185, 129, 0.8);
+        }
+        
+        #worker-progress-bar.visible {
+            display: block;
+        }
+        
+        /* Toast notification styling */
+        #toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 24rem;
+        }
+        
+        .toast {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            animation: toast-in 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .toast-success { background-color: #10b981; }
+        .toast-error   { background-color: #ef4444; }
+        .toast-warning { background-color: #f59e0b; color: #1a202c; }
+        .toast-info    { background-color: #3b82f6; }
+        
+        .toast .toast-icon { flex-shrink: 0; font-size: 1.1rem; }
+        
+        @keyframes toast-in {
+            from { opacity: 0; transform: translateX(100%); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes toast-out {
+            from { opacity: 1; transform: translateX(0); }
+            to   { opacity: 0; transform: translateX(100%); }
+        }
+    </style>
+    
+    <!-- Service Worker for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body class="contrast-light text-medium">
+    <!-- Toast container -->
+    <div id="toast-container"></div>
+    
+    <!-- Progress bar for worker status (available on all pages) -->
+    <div id="worker-progress-bar"></div>
+    
+    <!-- Display Settings Modal -->
+    <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4">Görüntüleme Ayarları</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Yazı Tipi</label>
+                <select id="font-family" class="w-full p-2 border rounded">
+                    <option value="atkinson">Atkinson Hyperlegible</option>
+                    <option value="merriweather">Merriweather</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Yazı Boyutu</label>
+                <select id="font-size" class="w-full p-2 border rounded">
+                    <option value="small">Küçük</option>
+                    <option value="medium" selected>Orta</option>
+                    <option value="large">Büyük</option>
+                    <option value="xlarge">Çok Büyük</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2">Kontrast</label>
+                <select id="contrast" class="w-full p-2 border rounded">
+                    <option value="light">Açık</option>
+                    <option value="dark">Koyu</option>
+                    <option value="sepia">Sepya</option>
+                    <option value="high">Yüksek Kontrast</option>
+                </select>
+            </div>
+            
+            <div class="flex justify-between">
+                <button id="reset-settings" class="px-4 py-2 bg-gray-300 rounded">Varsayılanlara Dön</button>
+                <button id="save-settings" class="px-4 py-2 bg-blue-500 text-white rounded">Kaydet</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">HN AI Summerizer</h1>
+            <nav class="flex space-x-4">
+                <a href="/" class="hover:underline">Ana Sayfa</a>
+                <a href="/settings" class="hover:underline">Ayarlar</a>
+            </nav>
+            <div>
+                <button id="settings-button" class="mr-4 p-2 rounded hover:bg-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+                <button id="refresh-button" class="p-2 rounded hover:bg-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-100 p-4 mt-8">
+        <div class="container mx-auto text-center text-gray-600">
+            <p>HN AI Summerizer - AI ile güçlendirilmiş Hacker News özetleyici</p>
+        </div>
+    </footer>
+    
+    <!-- JavaScript for accessibility features and worker progress -->
+    <script>
+        // Load saved settings from localStorage
+        function loadSettings() {
+            const fontFamily = localStorage.getItem('fontFamily') || 'atkinson';
+            const fontSize = localStorage.getItem('fontSize') || 'medium';
+            const contrast = localStorage.getItem('contrast') || 'light';
+            
+            applySettings(fontFamily, fontSize, contrast);
+        }
+        
+        // Apply settings to the page
+        function applySettings(fontFamily, fontSize, contrast) {
+            document.body.className = `${fontFamily} text-${fontSize} contrast-${contrast}`;
+        }
+        
+        // Save settings to localStorage
+        function saveSettings() {
+            const fontFamily = document.getElementById('font-family').value;
+            const fontSize = document.getElementById('font-size').value;
+            const contrast = document.getElementById('contrast').value;
+            
+            localStorage.setItem('fontFamily', fontFamily);
+            localStorage.setItem('fontSize', fontSize);
+            localStorage.setItem('contrast', contrast);
+            
+            applySettings(fontFamily, fontSize, contrast);
+            closeSettingsModal();
+        }
+        
+        // Reset to default settings
+        function resetSettings() {
+            localStorage.removeItem('fontFamily');
+            localStorage.removeItem('fontSize');
+            localStorage.removeItem('contrast');
+            
+            document.getElementById('font-family').value = 'atkinson';
+            document.getElementById('font-size').value = 'medium';
+            document.getElementById('contrast').value = 'light';
+            
+            applySettings('atkinson', 'medium', 'light');
+            closeSettingsModal();
+        }
+        
+        // Open settings modal
+        function openSettingsModal() {
+            // Load current settings into form
+            document.getElementById('font-family').value = localStorage.getItem('fontFamily') || 'atkinson';
+            document.getElementById('font-size').value = localStorage.getItem('fontSize') || 'medium';
+            document.getElementById('contrast').value = localStorage.getItem('contrast') || 'light';
+            
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+        
+        // Close settings modal
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+        
+        // ──────────────────────────────────────────
+        // Toast notification system (global)
+        // ──────────────────────────────────────────
+        const icons = {
+            success: '✓',
+            error:   '✗',
+            warning: '⚠',
+            info:    'ℹ'
+        };
+
+        /**
+         * Show a toast notification.
+         * @param {'success'|'error'|'warning'|'info'} type
+         * @param {string} message
+         * @param {number} duration - ms, default 4000
+         */
+        window.showToast = function(type, message, duration) {
+            duration = duration || 4000;
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const el = document.createElement('div');
+            el.className = 'toast toast-' + type;
+            el.innerHTML = '<span class="toast-icon">' + (icons[type] || 'ℹ') + '</span> ' + message;
+            container.appendChild(el);
+
+            // Auto-dismiss
+            setTimeout(() => {
+                el.style.animation = 'toast-out 0.3s ease-in forwards';
+                setTimeout(() => el.remove(), 300);
+            }, duration);
+        };
+
+        // Worker progress functions - globally available with forced reflow
+        window.showWorkerProgress = function() {
+            const progressBar = document.getElementById('worker-progress-bar');
+            if (progressBar) {
+                console.log('Showing progress bar');
+                progressBar.classList.add('visible');
+                progressBar.style.width = '0%';
+                // Force reflow
+                progressBar.offsetHeight;
+            }
+        };
+        
+        window.updateWorkerProgress = function(percent) {
+            const progressBar = document.getElementById('worker-progress-bar');
+            if (progressBar) {
+                console.log('Updating progress to:', percent + '%');
+                progressBar.style.width = percent + '%';
+                // Force reflow to ensure the update is visible
+                progressBar.offsetHeight;
+            }
+        };
+        
+        window.hideWorkerProgress = function() {
+            const progressBar = document.getElementById('worker-progress-bar');
+            if (progressBar) {
+                console.log('Hiding progress bar');
+                progressBar.style.width = '100%';
+                // Force reflow
+                progressBar.offsetHeight;
+                setTimeout(() => {
+                    progressBar.classList.remove('visible');
+                    progressBar.style.width = '0%';
+                }, 500);
+            }
+        };
+        
+        // ──────────────────────────────────────────
+        // Polling — check every 30s if new stories arrived
+        // (SSE disabled because keep-alive connections block initial page load)
+        // ──────────────────────────────────────────
+        let lastStoryCount = 0; // updated after initial load
+
+        function initPolling() {
+            setInterval(async () => {
+                try {
+                    const res = await fetch('/api/stories/?skip=0&limit=5');
+                    const stories = await res.json();
+                    if (stories.length > lastStoryCount && lastStoryCount > 0) {
+                        // New stories detected
+                        const newStories = stories.slice(0, stories.length - lastStoryCount);
+                        if (typeof window.onNewStoryPoll === 'function') {
+                            newStories.forEach(s => window.onNewStoryPoll(s));
+                        }
+                        // Reload if big gap
+                        if (stories.length > lastStoryCount + 3) {
+                            console.log('[Poll] Significant change, refreshing...');
+                            location.reload();
+                        }
+                    }
+                    lastStoryCount = stories.length;
+                } catch (e) {
+                    // Ignore polling errors
+                }
+            }, 30000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            
+            // Settings modal events
+            const settingsButton = document.getElementById('settings-button');
+            if (settingsButton) {
+                settingsButton.addEventListener('click', openSettingsModal);
+            }
+            
+            const saveSettingsButton = document.getElementById('save-settings');
+            if (saveSettingsButton) {
+                saveSettingsButton.addEventListener('click', saveSettings);
+            }
+            
+            const resetSettingsButton = document.getElementById('reset-settings');
+            if (resetSettingsButton) {
+                resetSettingsButton.addEventListener('click', resetSettings);
+            }
+            
+            // Close modal when clicking outside
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) {
+                settingsModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeSettingsModal();
+                    }
+                });
+            }
+            
+            // Refresh button
+            const refreshButton = document.getElementById('refresh-button');
+            if (refreshButton) {
+                refreshButton.addEventListener('click', function() {
+                    location.reload();
+                });
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,57 @@
+# ============================================================
+# External servisler için override
+# Kullanım: docker compose -f docker-compose.yml -f docker-compose.external.yml up
+#
+# .env dosyasında şu değişkenler tanımlı olmalı:
+#   DATABASE_HOST=your-db-host
+#   DATABASE_PORT=5432
+#   DATABASE_USER=postgres
+#   DATABASE_PASSWORD=your-password
+#   DATABASE_NAME=hn_ai_summerizer_db
+#   REDIS_URL=redis://your-redis-host:6379/0
+# ============================================================
+
+services:
+  # Internal db/redis servislerini devre dışı bırak
+  db:
+    profiles: ["disabled"]
+
+  redis:
+    profiles: ["disabled"]
+
+  # Uygulama servisleri external bağlantılara yönlendirilir
+  app:
+    depends_on: []   # db/redis healthcheck bekleme
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - REDIS_URL=${REDIS_URL}
+    env_file:
+      - .env
+
+  worker:
+    depends_on: []
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - REDIS_URL=${REDIS_URL}
+    env_file:
+      - .env
+
+  scheduler:
+    depends_on: []
+    environment:
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT:-5432}
+      - REDIS_URL=${REDIS_URL}
+    env_file:
+      - .env

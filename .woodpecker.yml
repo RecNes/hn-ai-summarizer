@@ -1,0 +1,49 @@
+when:
+  event: [push, pull_request]
+  branch: [main, master]
+
+steps:
+  build-and-push:
+    image: docker:27-cli
+    secrets:
+      - docker_registry
+    commands:
+      - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
+      - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
+      - docker push ${DOCKER_REGISTRY}/hn-reader:latest
+    when:
+      event: [push]
+      branch: [main, master]
+
+  test:
+    image: python:3.11-slim
+    commands:
+      - pip install --no-cache-dir -e ".[dev]"
+      - pytest tests/ -v --tb=short
+    when:
+      event: [push, pull_request]
+
+  deploy:
+    image: docker:27-cli
+    secrets:
+      - deploy_host
+      - deploy_user
+      - deploy_key
+      - docker_registry
+    commands:
+      - apk add --no-cache openssh-client
+      - mkdir -p ~/.ssh
+      - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+      - chmod 600 ~/.ssh/id_rsa
+      - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - >
+        ssh "$DEPLOY_USER@$DEPLOY_HOST"
+        "cd /app/hn-reader
+        && echo $DOCKER_REGISTRY
+        && docker compose pull
+        && docker compose up -d --remove-orphans
+        && docker image prune -af"
+    when:
+      event: [push]
+      branch: [main, master]
+      status: [success]
