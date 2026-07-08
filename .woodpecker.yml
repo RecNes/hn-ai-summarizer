@@ -37,15 +37,19 @@ steps:
         from_secret: DEPLOY_KEY
       HN_READER_ENV_FILE:
         from_secret: HN_READER_ENV_FILE
+      CI_REPO_CLONE_URL:
+        from_secret: CI_REPO_CLONE_URL
     commands:
       - apk add --no-cache openssh-client git docker-cli docker-compose
       - mkdir -p ~/.ssh
       - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /app/hn-reader"
+      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && if [ ! -d .git ]; then git clone $CI_REPO_CLONE_URL .; else git pull; fi"
       - printf '%s' "$HN_READER_ENV_FILE" | ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > /app/hn-reader/.env"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "docker compose -f /app/hn-reader/docker-compose.yml pull"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "docker compose -f /app/hn-reader/docker-compose.yml up -d --remove-orphans --no-build"
+      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && docker compose pull"
+      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && docker compose up -d --remove-orphans --no-build"
       - ssh "$DEPLOY_USER@$DEPLOY_HOST" "docker image prune -af"
     when:
       event: [push]
