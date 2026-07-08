@@ -1,12 +1,12 @@
 services:
   # ============================================================
-  # Internal servisler (external ayarı yapılmamışsa kullanılır)
-  # Eğer dış PostgreSQL/Redis kullanılacaksa:
-  #   docker compose -f docker-compose.yml -f docker-compose.external.yml up
+  # Internal servisler (profile ile kontrol edilir)
+  #   docker compose --profile internal up   → db/redis dahil (local development)
+  #   docker compose up                      → db/redis hariç (external bağlantı)
   # ============================================================
 
   db:
-    profiles: ["", "default", "internal"]
+    profiles: ["internal"]
     image: postgres:13
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-hn_ai_summerizer_db}
@@ -24,7 +24,7 @@ services:
     restart: unless-stopped
 
   redis:
-    profiles: ["", "default", "internal"]
+    profiles: ["internal"]
     image: redis:6-alpine
     volumes:
       - redis_data:/data
@@ -43,6 +43,9 @@ services:
 
   app:
     build: .
+    image: ${DOCKER_REGISTRY:-192.168.1.16:5000}/hn-reader:latest
+    env_file:
+      - .env
     ports:
       - "8000:8000"
     environment:
@@ -56,11 +59,6 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}
       - DB_ECHO=${DB_ECHO:-False}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
       - .:/app
     command: >
@@ -72,6 +70,9 @@ services:
 
   worker:
     build: .
+    image: ${DOCKER_REGISTRY:-192.168.1.16:5000}/hn-reader:latest
+    env_file:
+      - .env
     environment:
       - DATABASE_HOST=${DATABASE_HOST:-db}
       - DATABASE_USER=${DATABASE_USER:-postgres}
@@ -82,11 +83,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
       - .:/app
     command: arq app.tasks.worker.WorkerSettings
@@ -94,6 +90,9 @@ services:
 
   scheduler:
     build: .
+    image: ${DOCKER_REGISTRY:-192.168.1.16:5000}/hn-reader:latest
+    env_file:
+      - .env
     environment:
       - DATABASE_HOST=${DATABASE_HOST:-db}
       - DATABASE_USER=${DATABASE_USER:-postgres}
@@ -104,11 +103,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
       - .:/app
     command: python -m app.cli scheduler

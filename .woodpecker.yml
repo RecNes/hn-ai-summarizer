@@ -30,18 +30,19 @@ steps:
       - deploy_user
       - deploy_key
       - docker_registry
+      - hn_reader_env_file
     commands:
       - apk add --no-cache openssh-client
       - mkdir -p ~/.ssh
       - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
       - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - echo "$HN_READER_ENV_FILE" | ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > /app/hn-reader/.env"
       - >
         ssh "$DEPLOY_USER@$DEPLOY_HOST"
         "cd /app/hn-reader
-        && echo $DOCKER_REGISTRY
         && docker compose pull
-        && docker compose up -d --remove-orphans
+        && docker compose up -d --remove-orphans --no-build
         && docker image prune -af"
     when:
       event: [push]

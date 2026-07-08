@@ -1,5 +1,6 @@
 services:
   db:
+    profiles: ["internal"]
     image: postgres:13
     environment:
       POSTGRES_DB: hn_ai_summerizer_db
@@ -16,6 +17,7 @@ services:
       retries: 5
 
   redis:
+    profiles: ["internal"]
     image: redis:6-alpine
     ports:
       - "6379:6379"
@@ -26,6 +28,7 @@ services:
       retries: 3
 
   app:
+    profiles: ["internal"]
     build: .
     ports:
       - "8000:8000"
@@ -51,6 +54,7 @@ services:
       "
 
   worker:
+    profiles: ["internal"]
     build: .
     environment:
       - DATABASE_HOST=db
@@ -69,6 +73,7 @@ services:
     command: arq app.tasks.worker.WorkerSettings
 
   scheduler:
+    profiles: ["internal"]
     build: .
     environment:
       - DATABASE_HOST=db
