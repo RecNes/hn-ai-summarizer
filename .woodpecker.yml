@@ -7,6 +7,8 @@ steps:
     image: docker:27-cli
     secrets:
       - docker_registry
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     commands:
       - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
       - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
