@@ -3,58 +3,58 @@ when:
   branch: [main, master]
 
 steps:
+  debug-secret:
+    image: alpine:3
+    environment:
+      DR:
+        from_secret: DOCKER_REGISTRY
+    commands:
+      - env | sort
+      - test -n "$DR"
+    
   build-and-push:
     image: docker:27-cli
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      DOCKER_REGISTRY:
+      DR:
         from_secret: DOCKER_REGISTRY
     commands:
-      - docker build -t ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DOCKER_REGISTRY}/hn-reader:latest .
-      - docker push ${DOCKER_REGISTRY}/hn-reader:${CI_COMMIT_SHA:0:8}
-      - docker push ${DOCKER_REGISTRY}/hn-reader:latest
-    when:
-      event: [push]
-      branch: [main, master]
+      - docker build -t ${DR}/hn-reader:${CI_COMMIT_SHA:0:8} -t ${DR}/hn-reader:latest .
+      - docker push ${DR}/hn-reader:${CI_COMMIT_SHA:0:8}
+      - docker push ${DR}/hn-reader:latest
 
   test:
     image: python:3.11-slim
     commands:
       - pip install --no-cache-dir -e ".[dev]"
       - pytest tests/ -v --tb=short
-    when:
-      event: [push, pull_request]
 
   deploy:
     image: alpine:3
     environment:
-      DEPLOY_HOST:
+      DH:
         from_secret: DEPLOY_HOST
-      DEPLOY_USER:
+      DU:
         from_secret: DEPLOY_USER
-      DEPLOY_KEY:
+      DK:
         from_secret: DEPLOY_KEY
-      HN_READER_ENV_FILE:
+      HN_ENV:
         from_secret: HN_READER_ENV_FILE
     commands:
       - apk add --no-cache openssh-client git
       - mkdir -p ~/.ssh
-      - echo "${DEPLOY_KEY}" > ~/.ssh/id_rsa
+      - echo "${DK}" > ~/.ssh/id_rsa
       - chmod 600 ~/.ssh/id_rsa
-      - ssh-keyscan -H "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+      - ssh-keyscan -H "${DH}" >> ~/.ssh/known_hosts
       - >
-        ssh "${DEPLOY_USER}@${DEPLOY_HOST}"
+        ssh "${DU}@${DH}"
         "
         set -e
         cd /app/hn-reader
         git pull
-        echo '${HN_READER_ENV_FILE}' > .env
+        echo '${HN_ENV}' > .env
         docker compose pull
         docker compose up -d --remove-orphans --no-build
         docker image prune -af
         "
-    when:
-      event: [push]
-      branch: [main, master]
-      status: [success]
