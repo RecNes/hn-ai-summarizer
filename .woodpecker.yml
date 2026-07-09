@@ -27,28 +27,19 @@ steps:
       event: [push, pull_request]
 
   deploy:
-    image: alpine:3
+    image: docker:27-cli
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      DEPLOY_HOST:
-        from_secret: DEPLOY_HOST
-      DEPLOY_USER:
-        from_secret: DEPLOY_USER
-      DEPLOY_KEY:
-        from_secret: DEPLOY_KEY
       HN_READER_ENV_FILE:
         from_secret: HN_READER_ENV_FILE
+      DOCKER_REGISTRY:
+        from_secret: DOCKER_REGISTRY
     commands:
-      - apk add --no-cache openssh-client git docker-cli docker-compose
-      - mkdir -p ~/.ssh
-      - echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
-      - chmod 600 ~/.ssh/id_rsa
-      - ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p /app/hn-reader"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && if [ ! -d .git ]; then git clone $CI_REPO_CLONE_SSH_URL .; else git pull; fi"
-      - printf '%s' "$HN_READER_ENV_FILE" | ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > /app/hn-reader/.env"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && docker compose pull"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd /app/hn-reader && docker compose up -d --remove-orphans --no-build"
-      - ssh "$DEPLOY_USER@$DEPLOY_HOST" "docker image prune -af"
+      - printf '%s' "$HN_READER_ENV_FILE" > .env
+      - docker compose pull
+      - docker compose up -d --remove-orphans --no-build
+      - docker image prune -af
     when:
       event: [push]
       branch: [main, master]
