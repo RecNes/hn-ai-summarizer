@@ -78,7 +78,9 @@ async def process_story(ctx, story_data):
 
                     # Process comments summary if needed
                     if not existing_story.comments_summary:
-                        comments_summary = await ai_service.summarize_comments([])
+                        comments_summary = await ai_service.summarize_comments(
+                            story_data.get("comments", [])
+                        )
                         existing_story.comments_summary = comments_summary
 
                     await db.commit()
