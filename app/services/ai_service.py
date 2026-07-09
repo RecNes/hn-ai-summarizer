@@ -274,8 +274,11 @@ class AIService:
         return False
 
     async def translate_title(self, title: str) -> str:
-        """Translate title to Turkish with natural, grammatically correct output."""
-        # Dual-language prompt for better quality
+        """Translate title to Turkish with natural, grammatically correct output.
+        
+        Returns the translated title if successful, otherwise the original title
+        without any [TR] prefix.
+        """
         prompt = (
             f"Aşağıdaki İngilizce başlığı doğal ve akıcı bir Türkçeye çevir. "
             f"SADECE çeviriyi yaz, açıklama, yorum, madde işareti, ek metin KESİNLİKLE EKLEME. "
@@ -294,17 +297,24 @@ class AIService:
             ),
             user_prompt=prompt,
         )
-        # Sanity check: if result is much longer than title, wrong
-        if result and len(result) > len(title) * 3:
-            print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
-            return f"[TR] {title}"
-        
-        # Detect garbage translations
-        if result and self._is_bad_translation(title, result):
-            print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
-            return f"[TR] {title}"
 
-        return result if result else f"[TR] {title}"
+        # Sonuç yoksa orijinal title'ı döndür
+        if not result:
+            print(f"Warning: translate_title returned empty. Title={title!r}")
+            return title
+
+        # Çeviri aşırı uzunsa kırp
+        if len(result) > len(title) * 3:
+            print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
+            trimmed = result[:len(title) * 3 - 3] + "..."
+            return trimmed
+
+        # Anlamsız/hatalı çeviri tespit edilirse orijinal title'ı döndür
+        if self._is_bad_translation(title, result):
+            print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
+            return title
+
+        return result
 
     async def summarize_content(self, content: str) -> str:
         """Summarize content into bullet points in Turkish."""
