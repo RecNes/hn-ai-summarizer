@@ -1,4 +1,4 @@
-"""Worker tasks for processing stories with AI services"""
+  """Worker tasks for processing stories with AI services"""
 
 import os
 
@@ -25,8 +25,8 @@ redis_host = os.getenv("REDIS_HOST", "localhost")
 redis_port = int(os.getenv("REDIS_PORT", "6379"))
 redis_db = int(os.getenv("REDIS_DB", "0"))
 
-# Use REDIS_URL from config if available (reads from .env)
-redis_url = app_settings.REDIS_URL
+# Use REDIS_CONNECTION_URL from config (reads from .env)
+redis_url = app_settings.REDIS_CONNECTION_URL
 if redis_url:
     redis_settings = RedisSettings.from_dsn(redis_url)
 else:
@@ -366,7 +366,7 @@ class WorkerSettings:
     ]
 
     # Redis settings — resolved from config.py (reads .env)
-    _redis_url = app_settings.REDIS_URL
+    _redis_url = app_settings.REDIS_CONNECTION_URL
     if _redis_url:
         redis_settings = RedisSettings.from_dsn(_redis_url)
     else:
