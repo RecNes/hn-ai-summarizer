@@ -105,13 +105,14 @@ class AIService:
             "openrouter": "openai/gpt-3.5-turbo",
             "lmstudio": "local-model",
             "ollama": "llama2",
+            "gemini": "gemini-2.5-flash",
         }
         return defaults.get(provider_id, "gpt-3.5-turbo")
 
     def _detect_available_from_env(self) -> List[str]:
         """Detect which providers have API keys set in .env."""
         available = []
-        for pid in ["openai", "anthropic", "deepseek", "openrouter"]:
+        for pid in ["openai", "anthropic", "deepseek", "openrouter", "gemini"]:
             prov = get_provider(pid)
             if prov:
                 env_val = getattr(settings, prov["env_key"], None)

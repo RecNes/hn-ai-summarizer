@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = Field("")
     DEEPSEEK_API_KEY: Optional[str] = Field("")
     OPENROUTER_API_KEY: Optional[str] = Field("")
+    GEMINI_API_KEY: Optional[str] = Field("")
 
     # Legacy
     LOCAL_AI_BROKER: Optional[str] = Field("")

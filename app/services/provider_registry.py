@@ -55,6 +55,13 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
         "configurable_url": True,
         "env_key": None,  # local, no key needed
     },
+    "gemini": {
+        "name": "Gemini",
+        "type": "openai-compat",
+        "base_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "configurable_url": False,
+        "env_key": "GEMINI_API_KEY",
+    },
 }
 
 
