@@ -58,6 +58,7 @@ steps:
         from_secret: DOCKER_REGISTRY
     commands:
       - printf '%s' "$HN_READER_ENV_FILE" > .env
+      - echo "=== .env API_KEY kontrol ===" && grep API_KEY .env || echo "API_KEY bulunamadi!"
       - docker compose pull
       - docker compose up -d --remove-orphans --no-build
       - docker image prune -af
