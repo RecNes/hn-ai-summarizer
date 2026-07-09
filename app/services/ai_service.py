@@ -384,6 +384,34 @@ class AIService:
         return False
 
     # ────────────────────────────────────────────
+    # Translation status check
+    # ────────────────────────────────────────────
+
+    def check_translation_complete(self, story) -> bool:
+        """Check if all translation fields on a story are fully and correctly translated.
+
+        Returns True only when title_tr, content_tr, and comments_summary
+        all contain genuine translated content (not placeholder/garbage).
+        """
+        if not story:
+            return False
+
+        title_ok = (
+            bool(story.title_tr)
+            and not story.title_tr.startswith("[TR]")
+        )
+        content_ok = (
+            bool(story.content_tr)
+            and story.content_tr != "İçerik özeti mevcut değil."
+            and story.content_tr != "Özet oluşturulamadı."
+        )
+        comments_ok = (
+            bool(story.comments_summary)
+            and story.comments_summary != "Yorum özeti mevcut değil."
+        )
+        return title_ok and content_ok and comments_ok
+
+    # ────────────────────────────────────────────
     # Provider & Model listing (for API endpoint)
     # ────────────────────────────────────────────
 

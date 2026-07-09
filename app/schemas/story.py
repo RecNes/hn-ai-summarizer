@@ -21,6 +21,7 @@ class StoryBase(BaseModel):
     is_highlighted: bool = False
     is_dimmed: bool = False
     is_blocked: bool = False
+    is_translated: bool = False
 
 
 class StoryCreate(StoryBase):
