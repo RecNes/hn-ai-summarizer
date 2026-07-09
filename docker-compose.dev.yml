@@ -37,7 +37,10 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=hn_ai_summerizer_db
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=
+      - REDIS_PASSWORD=
       - DEVELOPMENT=True
       - DB_ECHO=True
     depends_on:
@@ -61,7 +64,10 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=hn_ai_summerizer_db
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=
+      - REDIS_PASSWORD=
       - DEVELOPMENT=True
     depends_on:
       db:
@@ -78,9 +84,12 @@ services:
     environment:
       - DATABASE_HOST=db
       - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
+      - ps1PASSWORD=postgres
       - DATABASE_NAME=hn_ai_summerizer_db
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_USERNAME=
+      - REDIS_PASSWORD=
       - DEVELOPMENT=True
     depends_on:
       db:

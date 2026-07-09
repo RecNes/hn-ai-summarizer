@@ -49,17 +49,19 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-localhost}
-      - DATABASE_USER=${DATABASE_USER:-postgres}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
-      - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
-      - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_HOST=${REDIS_HOST:-localhost}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - DEVELOPMENT=${DEVELOPMENT:-False}
-      - DB_ECHO=${DB_ECHO:-False}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DEVELOPMENT=${DEVELOPMENT}
+      - DB_ECHO=${DB_ECHO}
     command: >
       sh -c "
         alembic upgrade head &&
@@ -75,16 +77,18 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-localhost}
-      - DATABASE_USER=${DATABASE_USER:-postgres}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
-      - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
-      - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_HOST=${REDIS_HOST:-localhost}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - DEVELOPMENT=${DEVELOPMENT:-False}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DEVELOPMENT=${DEVELOPMENT}
     command: arq app.tasks.worker.WorkerSettings
     restart: unless-stopped
 
@@ -96,16 +100,18 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-localhost}
-      - DATABASE_USER=${DATABASE_USER:-postgres}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
-      - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
-      - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_HOST=${REDIS_HOST:-localhost}
-      - REDIS_PORT=${REDIS_PORT:-6379}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - DEVELOPMENT=${DEVELOPMENT:-False}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DEVELOPMENT=${DEVELOPMENT}
     command: python -m app.cli scheduler
     restart: unless-stopped
 

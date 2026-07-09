@@ -21,17 +21,6 @@ from app.services.ai_service import AIService
 from app.services.fetcher import FetcherService
 
 
-redis_host = os.getenv("REDIS_HOST", "localhost")
-redis_port = int(os.getenv("REDIS_PORT", "6379"))
-redis_db = int(os.getenv("REDIS_DB", "0"))
-
-# Use REDIS_CONNECTION_URL from config (reads from .env)
-redis_url = app_settings.REDIS_CONNECTION_URL
-if redis_url:
-    redis_settings = RedisSettings.from_dsn(redis_url)
-else:
-    redis_settings = RedisSettings(host=redis_host, port=redis_port, database=redis_db)
-
 # Set job timeout for AI processing (10 minutes)
 job_timeout = 600  # 10 minutes in seconds
 
@@ -373,7 +362,9 @@ class WorkerSettings:
         rh = os.getenv("REDIS_HOST", "localhost")
         rp = int(os.getenv("REDIS_PORT", "6379"))
         rd = int(os.getenv("REDIS_DB", "0"))
-        redis_settings = RedisSettings(host=rh, port=rp, database=rd)
+        ru = os.getenv("REDIS_USERNAME", "") or None
+        rpwd = os.getenv("REDIS_PASSWORD", "") or None
+        redis_settings = RedisSettings(host=rh, port=rp, database=rd, username=ru, password=rpwd)
 
     max_jobs = 10
     job_timeout = job_timeout  # 10 minutes for AI processing jobs

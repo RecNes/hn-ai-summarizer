@@ -22,7 +22,7 @@ cd "$PROJECT_ROOT"
 # Varsayılanlar
 # ──────────────────────────────────────────────
 MODE="${1:-server}"
-ENV_FILE="${ENV_FILE:-.env}"
+ENV_FILE="${ENV_FILE}"
 NO_MIGRATION=false
 [[ "$*" == *--no-mig* ]] && NO_MIGRATION=true
 
@@ -77,7 +77,7 @@ source "$ENV_FILE_PATH"
 set +a
 
 # DEVELOPMENT modu kontrolü
-if [ "${DEVELOPMENT:-false}" = "true" ]; then
+if [ "${DEVELOPMENT}" = "true" ]; then
     ok "MOD: Geliştirme (DEVELOPMENT=true) → SQLite kullanılacak"
 else
     info "MOD: Üretim (DEVELOPMENT=false) → PostgreSQL gerekli"
@@ -86,8 +86,20 @@ fi
 # ──────────────────────────────────────────────
 # Redis kontrolü
 # ──────────────────────────────────────────────
-REDIS_HOST="${REDIS_HOST:-localhost}"
-REDIS_PORT="${REDIS_PORT:-6379}"
+REDIS_HOST="${REDIS_HOST}"
+REDIS_PORT="${REDIS_PORT}"
+REDIS_USERNAME="${REDIS_USERNAME}"
+REDIS_PASSWORD="${REDIS_PASSWORD}"
+
+# REDIS_CONNECTION_URL oluştur (config.py ile aynı mantık)
+if [ -n "$REDIS_USERNAME" ] && [ -n "$REDIS_PASSWORD" ]; then
+    REDIS_AUTH="${REDIS_USERNAME}:${REDIS_PASSWORD}@"
+elif [ -n "$REDIS_PASSWORD" ]; then
+    REDIS_AUTH=":${REDIS_PASSWORD}@"
+else
+    REDIS_AUTH=""
+fi
+export REDIS_CONNECTION_URL="redis://${REDIS_AUTH}${REDIS_HOST}:${REDIS_PORT}/0"
 
 if command -v timeout &>/dev/null; then
     if timeout 2 bash -c "echo > /dev/tcp/$REDIS_HOST/$REDIS_PORT" 2>/dev/null; then

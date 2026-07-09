@@ -106,7 +106,6 @@ Get-Content $EnvFilePath | ForEach-Object {
 }
 
 $DevMode = [Environment]::GetEnvironmentVariable("DEVELOPMENT", "Process")
-$RedisUrl = [Environment]::GetEnvironmentVariable("REDIS_URL", "Process")
 
 if ($DevMode -and $DevMode -eq "true") {
     Write-Success "MOD: Geliştirme (DEVELOPMENT=true) → SQLite kullanılacak"
@@ -117,14 +116,25 @@ if ($DevMode -and $DevMode -eq "true") {
 # ──────────────────────────────────────────────
 # Redis kontrolü / otomatik başlatma
 # ──────────────────────────────────────────────
-$RedisHost = "localhost"
-$RedisPort = 6379
+$RedisHost = [Environment]::GetEnvironmentVariable("REDIS_HOST", "Process")
+if (-not $RedisHost) { $RedisHost = "localhost" }
 
-# REDIS_URL'den host:port çözümle
-if ($RedisUrl -match "redis://([^:]+):(\d+)/") {
-    $RedisHost = $matches[1]
-    $RedisPort = [int]$matches[2]
+$RedisPortStr = [Environment]::GetEnvironmentVariable("REDIS_PORT", "Process")
+$RedisPort = 6379
+if ($RedisPortStr) { $RedisPort = [int]$RedisPortStr }
+
+$RedisUsername = [Environment]::GetEnvironmentVariable("REDIS_USERNAME", "Process")
+$RedisPassword = [Environment]::GetEnvironmentVariable("REDIS_PASSWORD", "Process")
+
+# REDIS_CONNECTION_URL oluştur (config.py'nin computed field'ı ile aynı mantık)
+$RedisAuth = ""
+if ($RedisUsername -and $RedisPassword) {
+    $RedisAuth = "${RedisUsername}:${RedisPassword}@"
+} elseif ($RedisPassword) {
+    $RedisAuth = ":${RedisPassword}@"
 }
+$RedisUrl = "redis://${RedisAuth}${RedisHost}:${RedisPort}/0"
+[Environment]::SetEnvironmentVariable("REDIS_CONNECTION_URL", $RedisUrl, "Process")
 
 function Test-RedisConnection {
     param($TargetHost, $TargetPort)
