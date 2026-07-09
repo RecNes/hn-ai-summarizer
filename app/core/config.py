@@ -1,4 +1,5 @@
 """Uygulama yapılandırma ayarları."""
+
 import os
 from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -6,6 +7,7 @@ from pydantic import Field, computed_field
 
 # Force-load .env into environment before Pydantic reads it
 from dotenv import load_dotenv
+
 load_dotenv(".env")
 
 

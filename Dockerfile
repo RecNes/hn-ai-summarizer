@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+# Install uv (Rust-based, ~10-100x faster than pip)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
 
 # Install system dependencies
@@ -10,10 +13,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-# Copy project files and install package
+# Copy project files and install package with uv (Rust-based, ~10-100x faster than pip)
 COPY pyproject.toml .
 COPY app/ app/
-RUN pip install --no-cache-dir .
+RUN uv pip install --system . && uv cache clean
 
 # Copy remaining files
 COPY . .

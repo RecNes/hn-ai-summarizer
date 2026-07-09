@@ -75,7 +75,7 @@ $PythonPath = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 
 if (-not (Test-Path $PythonPath)) {
     Write-Error "Python environment bulunamadı: $PythonPath"
-    Write-Info "Kurulum için: .venv\Scripts\pip install -e ."
+    Write-Info "Kurulum için: .venv\Scripts\uv pip install -e ."
     exit 1
 }
 Write-Success "Python: $PythonPath"

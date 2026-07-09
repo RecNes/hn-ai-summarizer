@@ -40,10 +40,10 @@ steps:
       branch: [main, master]
 
   test:
-    image: python:3.11-slim
+    image: ghcr.io/astral-sh/uv:latest
     commands:
-      - pip install --no-cache-dir -e ".[dev]"
-      - pytest tests/ -v --tb=short
+      - uv pip install --system -e ".[dev]"
+      - uv run pytest tests/ -v --tb=short
     when:
       event: [pull_request]
 

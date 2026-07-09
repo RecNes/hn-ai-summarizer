@@ -17,75 +17,77 @@ depends_on = None
 
 
 def upgrade():
-    op.create_table('settings',
-        sa.Column('id', sa.Integer(), nullable=False),
-        # AI Provider settings
-        sa.Column('ai_provider', sa.String(), nullable=True),
-        sa.Column('ai_model', sa.String(), nullable=True),
-        sa.Column('ai_provider_config', sa.Text(), nullable=True),
-        # Legacy Ollama fields
-        sa.Column('ollama_api_url', sa.String(), nullable=True),
-        sa.Column('ollama_model', sa.String(), nullable=True),
-        # Schedule
-        sa.Column('cron_schedule', sa.String(), nullable=True),
-        sa.Column('min_score', sa.Integer(), nullable=True),
-        sa.Column('retention_days', sa.Integer(), nullable=True),
-        sa.Column('scheduled_hour', sa.Integer(), nullable=True),
-        sa.Column('scheduled_minute', sa.Integer(), nullable=True),
-        sa.Column('scheduled_days', sa.String(), nullable=True),
-        # SMTP
-        sa.Column('smtp_host', sa.String(), nullable=True),
-        sa.Column('smtp_port', sa.Integer(), nullable=True),
-        sa.Column('smtp_username', sa.String(), nullable=True),
-        sa.Column('smtp_password', sa.String(), nullable=True),
-        sa.Column('smtp_from', sa.String(), nullable=True),
-        # Display
-        sa.Column('display_font_family', sa.String(), nullable=True),
-        sa.Column('display_font_size', sa.String(), nullable=True),
-        sa.Column('display_contrast', sa.String(), nullable=True),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_settings_id'), 'settings', ['id'], unique=False)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            id SERIAL NOT NULL,
+            ai_provider VARCHAR,
+            ai_model VARCHAR,
+            ai_provider_config TEXT,
+            ollama_api_url VARCHAR,
+            ollama_model VARCHAR,
+            cron_schedule VARCHAR,
+            min_score INTEGER,
+            retention_days INTEGER,
+            scheduled_hour INTEGER,
+            scheduled_minute INTEGER,
+            scheduled_days VARCHAR,
+            smtp_host VARCHAR,
+            smtp_port INTEGER,
+            smtp_username VARCHAR,
+            smtp_password VARCHAR,
+            smtp_from VARCHAR,
+            display_font_family VARCHAR,
+            display_font_size VARCHAR,
+            display_contrast VARCHAR,
+            PRIMARY KEY (id)
+        )
+    """)
+    op.execute("CREATE INDEX IF NOT EXISTS ix_settings_id ON settings (id)")
 
-    op.create_table('user_preferences',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('highlight_keywords', sa.Text(), nullable=True),
-        sa.Column('blocklist_keywords', sa.Text(), nullable=True),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_user_preferences_id'), 'user_preferences', ['id'], unique=False)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS user_preferences (
+            id SERIAL NOT NULL,
+            highlight_keywords TEXT,
+            blocklist_keywords TEXT,
+            PRIMARY KEY (id)
+        )
+    """)
+    op.execute("CREATE INDEX IF NOT EXISTS ix_user_preferences_id ON user_preferences (id)")
 
-    op.create_table('stories',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('hacker_news_id', sa.String(), nullable=True),
-        sa.Column('title', sa.String(), nullable=False),
-        sa.Column('title_tr', sa.String(), nullable=True),
-        sa.Column('url', sa.String(), nullable=True),
-        sa.Column('score', sa.Integer(), nullable=True),
-        sa.Column('author', sa.String(), nullable=True),
-        sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-        sa.Column('content', sa.Text(), nullable=True),
-        sa.Column('content_tr', sa.Text(), nullable=True),
-        sa.Column('comments_summary', sa.Text(), nullable=True),
-        sa.Column('image_url', sa.String(), nullable=True),
-        sa.Column('is_highlighted', sa.Boolean(), nullable=True),
-        sa.Column('is_dimmed', sa.Boolean(), nullable=True),
-        sa.Column('is_blocked', sa.Boolean(), nullable=True),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_stories_hacker_news_id'), 'stories', ['hacker_news_id'], unique=True)
-    op.create_index(op.f('ix_stories_id'), 'stories', ['id'], unique=False)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS stories (
+            id SERIAL NOT NULL,
+            hacker_news_id VARCHAR,
+            title VARCHAR NOT NULL,
+            title_tr VARCHAR,
+            url VARCHAR,
+            score INTEGER,
+            author VARCHAR,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITH TIME ZONE,
+            content TEXT,
+            content_tr TEXT,
+            comments_summary TEXT,
+            image_url VARCHAR,
+            is_highlighted BOOLEAN,
+            is_dimmed BOOLEAN,
+            is_blocked BOOLEAN,
+            PRIMARY KEY (id)
+        )
+    """)
+    op.execute("CREATE UNIQUE INDEX IF NOT EXISTS ix_stories_hacker_news_id ON stories (hacker_news_id)")
+    op.execute("CREATE INDEX IF NOT EXISTS ix_stories_id ON stories (id)")
 
-    op.create_table('negative_feedback',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('story_id', sa.Integer(), nullable=True),
-        sa.Column('keywords', sa.Text(), nullable=True),
-        sa.Column('embedding', sa.Text(), nullable=True),
-        sa.ForeignKeyConstraint(['story_id'], ['stories.id'], ),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_negative_feedback_id'), 'negative_feedback', ['id'], unique=False)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS negative_feedback (
+            id SERIAL NOT NULL,
+            story_id INTEGER REFERENCES stories(id),
+            keywords TEXT,
+            embedding TEXT,
+            PRIMARY KEY (id)
+        )
+    """)
+    op.execute("CREATE INDEX IF NOT EXISTS ix_negative_feedback_id ON negative_feedback (id)")
 
 
 def downgrade():

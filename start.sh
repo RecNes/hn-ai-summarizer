@@ -53,7 +53,7 @@ done
 
 if [ -z "$PYTHON" ]; then
     err "Python environment bulunamadı: $PROJECT_ROOT/.venv/"
-    info "Kurulum için: python3 -m venv .venv && .venv/bin/pip install -e ."
+    info "Kurulum için: python3 -m venv .venv && .venv/bin/uv pip install -e ."
     exit 1
 fi
 

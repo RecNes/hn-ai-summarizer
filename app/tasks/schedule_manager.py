@@ -33,7 +33,7 @@ class ScheduleManager:
     async def initialize(self):
         """Initialize Redis connection."""
         if not self._is_initialized:
-            redis_url = settings.REDIS_URL or "redis://localhost:6379/0"
+            redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
             redis_settings = RedisSettings.from_dsn(redis_url)
             self.redis_pool = await create_pool(redis_settings)
             self._is_initialized = True
@@ -145,7 +145,7 @@ class ScheduleManager:
                 return True
 
             # Connect to Redis for job execution
-            redis_url = settings.REDIS_URL or "redis://localhost:6379/0"
+            redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
             redis_settings = RedisSettings.from_dsn(redis_url)
             redis_pool = await create_pool(redis_settings)
 
