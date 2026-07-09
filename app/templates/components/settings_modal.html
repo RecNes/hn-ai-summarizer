@@ -1,0 +1,39 @@
+<!-- Display Settings Modal -->
+<div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+        <h2 class="text-xl font-bold mb-4">Görüntüleme Ayarları</h2>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Yazı Tipi</label>
+            <select id="font-family" class="w-full p-2 border rounded">
+                <option value="atkinson">Atkinson Hyperlegible</option>
+                <option value="merriweather">Merriweather</option>
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Yazı Boyutu</label>
+            <select id="font-size" class="w-full p-2 border rounded">
+                <option value="small">Küçük</option>
+                <option value="medium" selected>Orta</option>
+                <option value="large">Büyük</option>
+                <option value="xlarge">Çok Büyük</option>
+            </select>
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Kontrast</label>
+            <select id="contrast" class="w-full p-2 border rounded">
+                <option value="light">Açık</option>
+                <option value="dark">Koyu</option>
+                <option value="sepia">Sepya</option>
+                <option value="high">Yüksek Kontrast</option>
+            </select>
+        </div>
+        
+        <div class="flex justify-between">
+            <button id="reset-settings" class="px-4 py-2 bg-gray-300 rounded">Varsayılanlara Dön</button>
+            <button id="save-settings" class="px-4 py-2 bg-blue-500 text-white rounded">Kaydet</button>
+        </div>
+    </div>
+</div>
