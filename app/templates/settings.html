@@ -1,52 +1,74 @@
 {% extends "base.html" %}
 
-{% block title %}HN AI Summerizer - Ayarlar{% endblock %}
+{% block title %}HN AI Summarizer - Settings{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <h2 class="text-2xl font-bold mb-6">Ayarlar</h2>
-    
-    <!-- Worker Control Section -->
-    <div class="bg-white p-4 rounded-lg shadow mb-6">
-        <h3 class="text-lg font-bold mb-4">Veri İşleme</h3>
-        <p class="text-gray-600 mb-4">Hacker News verilerini manuel olarak çekmek ve işlemek için aşağıdaki butonu kullanabilirsiniz.</p>
-        
-        <div class="flex flex-wrap gap-2 mb-4">
-            <button id="trigger-worker" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 inline-flex items-center gap-2">
-                <span id="trigger-worker-text">Veri Çekimini Başlat</span>
-                <span id="trigger-worker-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            </button>
-            <button id="reprocess-untranslated" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 inline-flex items-center gap-2">
-                <span id="reprocess-text">Çevrilmemişleri Yeniden İşle</span>
-                <span id="reprocess-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            </button>
-        </div>
-        
-        <p id="worker-status" class="mt-2 text-sm text-gray-500 hidden">İşlem devam ediyor... Lütfen bekleyin.</p>
-    </div>
+    <h2 class="text-2xl font-bold mb-6" data-i18n="settings.title">Settings</h2>
     
     <form id="settings-form" class="space-y-6">
+        <!-- Language Settings -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-lg font-bold mb-4" data-i18n="settings.language.title">Language Settings</h3>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="ui_language" data-i18n="settings.language.uiLabel">Application Language</label>
+                <select id="ui_language" name="ui_language" class="w-full p-2 border rounded">
+                    <!-- filled by JS -->
+                </select>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.uiDescription">Language for the user interface, menus, and buttons</p>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="translation_language" data-i18n="settings.language.translationLabel">Content Translation Language</label>
+                <select id="translation_language" name="translation_language" class="w-full p-2 border rounded">
+                    <!-- filled by JS -->
+                </select>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.translationDescription">Language that Hacker News content will be translated to</p>
+            </div>
+            
+            <p class="text-xs text-gray-400 italic" data-i18n="settings.language.independentNote">These two settings are completely independent</p>
+        </div>
+        
+        <!-- Worker Control Section -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h3 class="text-lg font-bold mb-4" data-i18n="settings.data.title">Data Processing</h3>
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.data.description">Manually fetch and process Hacker News data.</p>
+            
+            <div class="flex flex-wrap gap-2 mb-4">
+                <button id="trigger-worker" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 inline-flex items-center gap-2">
+                    <span id="trigger-worker-text" data-i18n="settings.data.fetchButton">Start Data Fetch</span>
+                    <span id="trigger-worker-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                </button>
+                <button id="reprocess-untranslated" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 inline-flex items-center gap-2">
+                    <span id="reprocess-text" data-i18n="settings.data.reprocessButton">Reprocess Untranslated</span>
+                    <span id="reprocess-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                </button>
+            </div>
+            
+            <p id="worker-status" class="mt-2 text-sm text-gray-500 hidden" data-i18n="settings.data.statusText">Processing... Please wait.</p>
+        </div>
+        
         <!-- AI Provider Selection -->
         <div class="bg-white p-4 rounded-lg shadow">
-            <h3 class="text-lg font-bold mb-4">Yapay Zeka Sağlayıcısı</h3>
-            <p class="text-gray-600 mb-4 text-sm">
-                API anahtarları sadece <code>.env</code> dosyası üzerinden yapılandırılır.
-                Aşağıda sadece anahtarı tanımlanmış sağlayıcılar listelenir.
+            <h3 class="text-lg font-bold mb-4" data-i18n="settings.ai.title">AI Provider</h3>
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.ai.description">
+                API keys are configured via .env file. Only providers with configured keys are listed.
             </p>
             
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="ai_provider">AI Sağlayıcısı</label>
+                <label class="block text-gray-700 mb-2" for="ai_provider" data-i18n="settings.ai.providerLabel">AI Provider</label>
                 <select id="ai_provider" name="ai_provider" class="w-full p-2 border rounded">
-                    <option value="">-- Sağlayıcı Seçin --</option>
+                    <option value="" data-i18n="settings.ai.providerPlaceholder">-- Select Provider --</option>
                 </select>
                 <p id="provider-key-status" class="text-sm mt-1"></p>
             </div>
             
             <div id="provider-config-section" class="hidden mb-4">
-                <label class="block text-gray-700 mb-2" for="ai_provider_config">Sağlayıcı Adresi (opsiyonel)</label>
+                <label class="block text-gray-700 mb-2" for="ai_provider_config" data-i18n="settings.ai.configLabel">Provider Address (optional)</label>
                 <input type="text" id="ai_provider_config" name="ai_provider_config" 
-                       class="w-full p-2 border rounded" placeholder="http://localhost:11434">
-                <p class="text-sm text-gray-500 mt-1">LM Studio veya Ollama gibi yerel sağlayıcılar için adres girin</p>
+                       class="w-full p-2 border rounded" data-i18n-placeholder="settings.ai.configPlaceholder" placeholder="http://localhost:11434">
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.ai.configHelp">Enter address for local providers like LM Studio or Ollama</p>
             </div>
             
             <div class="mb-4">
@@ -56,11 +78,11 @@
         
         <!-- Fetching Settings -->
         <div class="bg-white p-4 rounded-lg shadow">
-            <h3 class="text-lg font-bold mb-4">Veri Çekme Ayarları</h3>
+            <h3 class="text-lg font-bold mb-4" data-i18n="settings.fetch.title">Fetch Settings</h3>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 mb-2" for="scheduled_hour">Saat</label>
+                    <label class="block text-gray-700 mb-2" for="scheduled_hour" data-i18n="settings.fetch.hour">Hour</label>
                     <select id="scheduled_hour" name="scheduled_hour"
                             class="w-full p-2 border rounded">
                         {% for hour in range(24) %}
@@ -69,7 +91,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2" for="scheduled_minute">Dakika</label>
+                    <label class="block text-gray-700 mb-2" for="scheduled_minute" data-i18n="settings.fetch.minute">Minute</label>
                     <select id="scheduled_minute" name="scheduled_minute"
                             class="w-full p-2 border rounded">
                         {% for minute in range(0, 60, 5) %}
@@ -78,71 +100,71 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 mb-2" for="scheduled_days">Günler</label>
+                    <label class="block text-gray-700 mb-2" data-i18n="settings.fetch.days">Days</label>
                     <div id="scheduled_days" class="space-y-2 max-h-40 overflow-y-auto border rounded p-2">
                         {% set days = [
-                            ('1', 'Pazartesi'),
-                            ('2', 'Salı'),
-                            ('3', 'Çarşamba'),
-                            ('4', 'Perşembe'),
-                            ('5', 'Cuma'),
-                            ('6', 'Cumartesi'),
-                            ('0', 'Pazar')
+                            ('1', 'settings.fetch.monday'),
+                            ('2', 'settings.fetch.tuesday'),
+                            ('3', 'settings.fetch.wednesday'),
+                            ('4', 'settings.fetch.thursday'),
+                            ('5', 'settings.fetch.friday'),
+                            ('6', 'settings.fetch.saturday'),
+                            ('0', 'settings.fetch.sunday')
                         ] %}
-                        {% for day_code, day_name in days %}
+                        {% for day_code, day_name_key in days %}
                             <label class="flex items-center">
                                 <input type="checkbox"
                                        name="scheduled_days"
                                        value="{{ day_code }}"
                                        class="mr-2">
-                                <span>{{ day_name }}</span>
+                                <span data-i18n="{{ day_name_key }}">{{ day_name_key.split('.')[-1]|capitalize }}</span>
                             </label>
                         {% endfor %}
                     </div>
-                    <p class="text-sm text-gray-500 mt-1">İşlem yapılacak günleri seçin</p>
+                    <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.daysHelp">Select days to run</p>
                 </div>
             </div>
             
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="min_score">Minimum Puan</label>
+                <label class="block text-gray-700 mb-2" for="min_score" data-i18n="settings.fetch.minScore">Minimum Score</label>
                 <input type="number" id="min_score" name="min_score"
                        class="w-full p-2 border rounded" placeholder="100" value="100">
-                <p class="text-sm text-gray-500 mt-1">Bu puandan yüksek olan haberler işlenecek</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.minScoreHelp">Only stories with score above this will be processed</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="retention_days">Veri Saklama Süresi (gün)</label>
+                <label class="block text-gray-700 mb-2" for="retention_days" data-i18n="settings.fetch.retentionDays">Data Retention (days)</label>
                 <input type="number" id="retention_days" name="retention_days"
                        class="w-full p-2 border rounded" placeholder="30" value="30">
-                <p class="text-sm text-gray-500 mt-1">Bu günden eski veriler otomatik olarak silinecek</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.retentionDaysHelp">Data older than this will be automatically deleted</p>
             </div>
         </div>
         
         <!-- User Preferences -->
         <div class="bg-white p-4 rounded-lg shadow">
-            <h3 class="text-lg font-bold mb-4">Kullanıcı Tercihleri</h3>
+            <h3 class="text-lg font-bold mb-4" data-i18n="settings.preferences.title">User Preferences</h3>
             
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="highlight_keywords">Vurgulanacak Kelimeler</label>
+                <label class="block text-gray-700 mb-2" for="highlight_keywords" data-i18n="settings.preferences.highlightKeywords">Highlight Keywords</label>
                 <textarea id="highlight_keywords" name="highlight_keywords" 
                           class="w-full p-2 border rounded" rows="3" 
-                          placeholder="yapay zeka, makine öğrenimi, veri bilimi"></textarea>
-                <p class="text-sm text-gray-500 mt-1">Virgülle ayrılmış şekilde girin</p>
+                          data-i18n-placeholder="settings.preferences.highlightPlaceholder" placeholder="AI, machine learning, data science"></textarea>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.preferences.highlightHelp">Enter comma-separated keywords</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-gray-700 mb-2" for="blocklist_keywords">Engellenecek Kelimeler</label>
+                <label class="block text-gray-700 mb-2" for="blocklist_keywords" data-i18n="settings.preferences.blocklistKeywords">Blocked Keywords</label>
                 <textarea id="blocklist_keywords" name="blocklist_keywords" 
                           class="w-full p-2 border rounded" rows="3" 
-                          placeholder="politika, gündem, tartışma"></textarea>
-                <p class="text-sm text-gray-500 mt-1">Bu kelimeleri içeren içerikler soluk gösterilecek</p>
+                          data-i18n-placeholder="settings.preferences.blocklistPlaceholder" placeholder="politics, agenda, debate"></textarea>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.preferences.blocklistHelp">Content containing these keywords will be dimmed</p>
             </div>
         </div>
         
         <!-- Save Button -->
         <div class="flex justify-end">
             <button type="submit" id="save-btn" class="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 inline-flex items-center gap-2">
-                <span id="save-btn-text">Ayarları Kaydet</span>
+                <span id="save-btn-text" data-i18n="settings.save">Save Settings</span>
                 <span id="save-btn-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             </button>
         </div>

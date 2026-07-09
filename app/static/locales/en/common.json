@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI Summarizer",
+    "description": "AI-powered Hacker News summarizer",
+    "footer": "HN AI Summarizer - AI-powered Hacker News summarizer"
+  },
+  "nav": {
+    "home": "Home",
+    "settings": "Settings",
+    "themeToggle": "Toggle theme",
+    "displaySettings": "Display Settings",
+    "refresh": "Refresh page"
+  },
+  "home": {
+    "title": "Latest Stories",
+    "noStories": "No stories available yet.",
+    "loading": "Loading stories...",
+    "error": "Failed to load stories",
+    "score": "Score",
+    "author": "Author",
+    "comments": "Comments",
+    "readMore": "Read more",
+    "summaryNotAvailable": "Summary not available",
+    "commentSummaryNotAvailable": "Comment summary not available",
+    "contentNotAvailable": "Content summary not available",
+    "originalTitle": "Original title"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language Settings",
+      "uiLabel": "Application Language",
+      "translationLabel": "Content Translation Language",
+      "uiDescription": "Language for the user interface, menus, and buttons",
+      "translationDescription": "Language that Hacker News content will be translated to",
+      "independentNote": "These two settings are completely independent"
+    },
+    "ai": {
+      "title": "AI Provider",
+      "description": "API keys are configured via .env file. Only providers with configured keys are listed.",
+      "providerLabel": "AI Provider",
+      "providerPlaceholder": "-- Select Provider --",
+      "configLabel": "Provider Address (optional)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Enter address for local providers like LM Studio or Ollama",
+      "keyConfigured": "✓ API key configured in .env",
+      "keyLocal": "ℹ Local provider (no API key needed)",
+      "modelLabel": "AI Model",
+      "modelPlaceholder": "-- Select Model --",
+      "modelSelectFirst": "-- Select a provider first --",
+      "modelLoading": "Loading models...",
+      "modelRefresh": "Refresh models",
+      "modelSearch": "Search models...",
+      "modelNotFound": "No matching model found",
+      "modelCount": "{count} models found",
+      "modelError": "Failed to load models"
+    },
+    "data": {
+      "title": "Data Processing",
+      "description": "Manually fetch and process Hacker News data.",
+      "fetchButton": "Start Data Fetch",
+      "reprocessButton": "Reprocess Untranslated",
+      "statusText": "Processing... Please wait."
+    },
+    "fetch": {
+      "title": "Fetch Settings",
+      "hour": "Hour",
+      "minute": "Minute",
+      "days": "Days",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "daysHelp": "Select days to run",
+      "minScore": "Minimum Score",
+      "minScoreHelp": "Only stories with score above this will be processed",
+      "retentionDays": "Data Retention (days)",
+      "retentionDaysHelp": "Data older than this will be automatically deleted"
+    },
+    "preferences": {
+      "title": "User Preferences",
+      "highlightKeywords": "Highlight Keywords",
+      "highlightPlaceholder": "AI, machine learning, data science",
+      "highlightHelp": "Enter comma-separated keywords",
+      "blocklistKeywords": "Blocked Keywords",
+      "blocklistPlaceholder": "politics, agenda, debate",
+      "blocklistHelp": "Content containing these keywords will be dimmed"
+    },
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "saveSuccess": "Settings saved successfully!",
+    "saveError": "An error occurred while saving settings."
+  },
+  "display": {
+    "title": "Display Settings",
+    "fontFamily": "Font Family",
+    "fontSize": "Font Size",
+    "contrast": "Contrast",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "xlarge": "Extra Large"
+    },
+    "contrasts": {
+      "light": "Light",
+      "dark": "Dark",
+      "sepia": "Sepia",
+      "high": "High Contrast"
+    },
+    "reset": "Reset to Defaults",
+    "save": "Save"
+  },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "system": "Auto (system)"
+  },
+  "worker": {
+    "started": "Data fetch started! Processing may take a few minutes.",
+    "reprocessStarted": "Reprocessing started! Content and comments are being refreshed.",
+    "error": "Worker could not be started.",
+    "reprocessError": "Reprocessing could not be started."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back"
+  }
+}

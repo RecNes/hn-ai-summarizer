@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI Özetleyici",
+    "description": "AI ile güçlendirilmiş Hacker News özetleyici",
+    "footer": "HN AI Özetleyici - AI ile güçlendirilmiş Hacker News özetleyici"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "settings": "Ayarlar",
+    "themeToggle": "Tema değiştir",
+    "displaySettings": "Görüntüleme Ayarları",
+    "refresh": "Sayfayı yenile"
+  },
+  "home": {
+    "title": "Son Haberler",
+    "noStories": "Henüz haber bulunmuyor.",
+    "loading": "Haberler yükleniyor...",
+    "error": "Haberler yüklenemedi",
+    "score": "Puan",
+    "author": "Yazar",
+    "comments": "Yorumlar",
+    "readMore": "Devamını oku",
+    "summaryNotAvailable": "Özet mevcut değil",
+    "commentSummaryNotAvailable": "Yorum özeti mevcut değil",
+    "contentNotAvailable": "İçerik özeti mevcut değil",
+    "originalTitle": "Orijinal başlık"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": {
+      "title": "Dil Ayarları",
+      "uiLabel": "Arayüz Dili",
+      "translationLabel": "İçerik Çeviri Dili",
+      "uiDescription": "Arayüz, menüler ve butonlar için kullanılacak dil",
+      "translationDescription": "Haber içeriklerinin çevrileceği dil",
+      "independentNote": "Bu iki ayar birbirinden tamamen bağımsızdır"
+    },
+    "ai": {
+      "title": "Yapay Zeka Sağlayıcısı",
+      "description": "API anahtarları sadece .env dosyası üzerinden yapılandırılır. Aşağıda sadece anahtarı tanımlanmış sağlayıcılar listelenir.",
+      "providerLabel": "AI Sağlayıcısı",
+      "providerPlaceholder": "-- Sağlayıcı Seçin --",
+      "configLabel": "Sağlayıcı Adresi (opsiyonel)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "LM Studio veya Ollama gibi yerel sağlayıcılar için adres girin",
+      "keyConfigured": "✓ API anahtarı .env dosyasında tanımlı",
+      "keyLocal": "ℹ Yerel sağlayıcı (API anahtarı gerekmez)",
+      "modelLabel": "AI Modeli",
+      "modelPlaceholder": "-- Model Seçin --",
+      "modelSelectFirst": "-- Önce sağlayıcı seçin --",
+      "modelLoading": "Modeller yükleniyor...",
+      "modelRefresh": "Modelleri yenile",
+      "modelSearch": "Model ara...",
+      "modelNotFound": "Eşleşen model yok",
+      "modelCount": "{count} model bulundu",
+      "modelError": "Modeller yüklenemedi"
+    },
+    "data": {
+      "title": "Veri İşleme",
+      "description": "Hacker News verilerini manuel olarak çekmek ve işlemek için kullanabilirsiniz.",
+      "fetchButton": "Veri Çekimini Başlat",
+      "reprocessButton": "Çevrilmemişleri Yeniden İşle",
+      "statusText": "İşlem devam ediyor... Lütfen bekleyin."
+    },
+    "fetch": {
+      "title": "Veri Çekme Ayarları",
+      "hour": "Saat",
+      "minute": "Dakika",
+      "days": "Günler",
+      "monday": "Pazartesi",
+      "tuesday": "Salı",
+      "wednesday": "Çarşamba",
+      "thursday": "Perşembe",
+      "friday": "Cuma",
+      "saturday": "Cumartesi",
+      "sunday": "Pazar",
+      "daysHelp": "İşlem yapılacak günleri seçin",
+      "minScore": "Minimum Puan",
+      "minScoreHelp": "Bu puandan yüksek olan haberler işlenecek",
+      "retentionDays": "Veri Saklama Süresi (gün)",
+      "retentionDaysHelp": "Bu günden eski veriler otomatik olarak silinecek"
+    },
+    "preferences": {
+      "title": "Kullanıcı Tercihleri",
+      "highlightKeywords": "Vurgulanacak Kelimeler",
+      "highlightPlaceholder": "yapay zeka, makine öğrenimi, veri bilimi",
+      "highlightHelp": "Virgülle ayrılmış şekilde girin",
+      "blocklistKeywords": "Engellenecek Kelimeler",
+      "blocklistPlaceholder": "politika, gündem, tartışma",
+      "blocklistHelp": "Bu kelimeleri içeren içerikler soluk gösterilecek"
+    },
+    "save": "Ayarları Kaydet",
+    "saving": "Kaydediliyor...",
+    "saveSuccess": "Ayarlar başarıyla kaydedildi!",
+    "saveError": "Ayarlar kaydedilirken bir hata oluştu."
+  },
+  "display": {
+    "title": "Görüntüleme Ayarları",
+    "fontFamily": "Yazı Tipi",
+    "fontSize": "Yazı Boyutu",
+    "contrast": "Kontrast",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Küçük",
+      "medium": "Orta",
+      "large": "Büyük",
+      "xlarge": "Çok Büyük"
+    },
+    "contrasts": {
+      "light": "Açık",
+      "dark": "Koyu",
+      "sepia": "Sepya",
+      "high": "Yüksek Kontrast"
+    },
+    "reset": "Varsayılanlara Dön",
+    "save": "Kaydet"
+  },
+  "theme": {
+    "light": "Açık mod",
+    "dark": "Koyu mod",
+    "system": "Otomatik (sistem)"
+  },
+  "worker": {
+    "started": "Veri çekimi başlatıldı! İşlem birkaç dakika sürebilir.",
+    "reprocessStarted": "Yeniden işleme başlatıldı! İçerik ve yorumlar tazeleniyor...",
+    "error": "Worker başlatılamadı.",
+    "reprocessError": "Yeniden işleme başlatılamadı."
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "close": "Kapat",
+    "back": "Geri"
+  }
+}

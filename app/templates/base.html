@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}HN AI Summerizer{% endblock %}</title>
+    <title data-i18n="app.title">{% block title %}HN AI Summarizer{% endblock %}</title>
     
     <!-- High-legibility fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -11,6 +11,9 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- i18next CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/i18next@23.16.4/dist/umd/i18next.min.js"></script>
     
     <!-- Custom styles -->
     <link rel="stylesheet" href="/static/css/style.css">
@@ -107,15 +110,15 @@
     <!-- Header -->
     <header class="bg-blue-600 text-white p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">HN AI Summerizer</h1>
+            <h1 class="text-2xl font-bold" data-i18n="app.title">HN AI Summarizer</h1>
             <div class="flex items-center gap-2">
                 <nav class="flex items-center gap-1">
-                    <a href="/" class="p-2 rounded hover:bg-blue-700" title="Ana Sayfa">
+                    <a href="/" class="p-2 rounded hover:bg-blue-700" data-i18n-title="nav.home" title="Home">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                         </svg>
                     </a>
-                    <a href="/settings" class="p-2 rounded hover:bg-blue-700" title="Ayarlar">
+                    <a href="/settings" class="p-2 rounded hover:bg-blue-700" data-i18n-title="nav.settings" title="Settings">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -123,18 +126,18 @@
                     </a>
                 </nav>
                 <div class="flex items-center gap-1">
-                    <button id="theme-toggle" class="p-2 rounded hover:bg-blue-700" title="Tema değiştir">
+                    <button id="theme-toggle" class="p-2 rounded hover:bg-blue-700" data-i18n-title="nav.themeToggle" title="Toggle theme">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                         </svg>
                     </button>
-                    <button id="settings-button" class="p-2 rounded hover:bg-blue-700" title="Görüntüleme Ayarları">
+                    <button id="settings-button" class="p-2 rounded hover:bg-blue-700" data-i18n-title="nav.displaySettings" title="Display Settings">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                     </button>
-                    <button id="refresh-button" class="p-2 rounded hover:bg-blue-700" title="Sayfayı yenile">
+                    <button id="refresh-button" class="p-2 rounded hover:bg-blue-700" data-i18n-title="nav.refresh" title="Refresh page">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
@@ -152,11 +155,12 @@
     <!-- Footer -->
     <footer class="bg-gray-100 p-4 mt-8">
         <div class="container mx-auto text-center text-gray-600">
-            <p>HN AI Summerizer - AI ile güçlendirilmiş Hacker News özetleyici</p>
+            <p data-i18n="app.footer">HN AI Summarizer - AI-powered Hacker News summarizer</p>
         </div>
     </footer>
     
-    <!-- Base JavaScript -->
+    <!-- JavaScript -->
+    <script src="/static/js/i18n.js"></script>
     <script src="/static/js/base.js"></script>
     
     {% block scripts %}{% endblock %}

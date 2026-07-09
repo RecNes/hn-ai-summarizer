@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from app.core.database import get_db
 from app.models.preference import UserPreference
 from app.schemas.preference import PreferenceResponse, PreferenceUpdate
+from app.shared.languages import get_languages
 
 router = APIRouter()
 
@@ -23,7 +24,17 @@ async def get_preferences(db: AsyncSession = Depends(get_db)):
         db.add(preference)
         await db.commit()
         await db.refresh(preference)
-    return preference
+
+    # Convert to dict and add available languages
+    pref_dict = {
+        "id": preference.id,
+        "highlight_keywords": preference.highlight_keywords,
+        "blocklist_keywords": preference.blocklist_keywords,
+        "ui_language": preference.ui_language,
+        "translation_language": preference.translation_language,
+        "available_languages": get_languages(),
+    }
+    return pref_dict
 
 
 @router.put("/", response_model=PreferenceResponse)
@@ -44,4 +55,14 @@ async def update_preferences(
 
     await db.commit()
     await db.refresh(preference)
-    return preference
+
+    # Return with available languages
+    pref_dict = {
+        "id": preference.id,
+        "highlight_keywords": preference.highlight_keywords,
+        "blocklist_keywords": preference.blocklist_keywords,
+        "ui_language": preference.ui_language,
+        "translation_language": preference.translation_language,
+        "available_languages": get_languages(),
+    }
+    return pref_dict

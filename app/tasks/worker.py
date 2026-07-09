@@ -13,10 +13,12 @@ load_dotenv(str(_env_path))
 
 from app.core.config import settings as app_settings
 from app.core.database import AsyncSessionLocal
+from app.models.preference import UserPreference
 from app.models.setting import Setting
 from app.models.story import Story
 from app.services.ai_service import AIService
 from app.services.fetcher import FetcherService
+from app.shared.languages import TranslationLanguageResolver
 
 
 # Set job timeout for AI processing (10 minutes)
@@ -28,6 +30,13 @@ async def process_story(ctx, story_data):
 
     async with AsyncSessionLocal() as db:
         try:
+            # Read user's translation language preference
+            prefs_result = await db.execute(select(UserPreference).limit(1))
+            prefs = prefs_result.scalar_one_or_none()
+            target_lang_code = prefs.translation_language if prefs else "en"
+            target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
+            print(f"[Worker] Target translation language: {target_lang_name} ({target_lang_code})")
+
             result = await db.execute(
                 select(Story).where(
                     Story.hacker_news_id == story_data["hacker_news_id"]
@@ -44,15 +53,15 @@ async def process_story(ctx, story_data):
                     )
 
                     if not existing_story.title_tr or existing_story.title_tr.startswith("[TR]"):
-                        title_tr = await ai_service.translate_title(existing_story.title)
+                        title_tr = await ai_service.translate_title(existing_story.title, target_lang_name)
                         existing_story.title_tr = title_tr
 
                     if not existing_story.content_tr:
-                        content_tr = await ai_service.summarize_content(existing_story.content or "")
+                        content_tr = await ai_service.summarize_content(existing_story.content or "", target_lang_name)
                         existing_story.content_tr = content_tr
 
                     if not existing_story.comments_summary:
-                        comments_summary = await ai_service.summarize_comments(story_data.get("comments", []))
+                        comments_summary = await ai_service.summarize_comments(story_data.get("comments", []), target_lang_name)
                         existing_story.comments_summary = comments_summary
 
                     existing_story.is_translated = ai_service.check_translation_complete(existing_story)
@@ -72,9 +81,9 @@ async def process_story(ctx, story_data):
                 print(f"Skipping blocked story: {story_data.get('title')}")
                 return "skipped"
 
-            title_tr = await ai_service.translate_title(story_data.get("title", ""))
-            content_tr = await ai_service.summarize_content(story_data.get("content", ""))
-            comments_summary = await ai_service.summarize_comments(story_data.get("comments", []))
+            title_tr = await ai_service.translate_title(story_data.get("title", ""), target_lang_name)
+            content_tr = await ai_service.summarize_content(story_data.get("content", ""), target_lang_name)
+            comments_summary = await ai_service.summarize_comments(story_data.get("comments", []), target_lang_name)
 
             story = Story(
                 hacker_news_id=story_data["hacker_news_id"],
