@@ -273,78 +273,78 @@ class AIService:
 
         return False
 
-    async def translate_title(self, title: str) -> str:
-        """Translate title to Turkish with natural, grammatically correct output.
+    async def translate_title(self, title: str, target_language: str = "Turkish") -> str:
+        """Translate title to the specified language with natural output.
         
-        Returns the translated title if successful, otherwise the original title
-        without any [TR] prefix.
+        Args:
+            title: The title to translate
+            target_language: Target language name in English (e.g. "Turkish", "Japanese")
+        
+        Returns the translated title if successful, otherwise the original title.
         """
         prompt = (
-            f"Aşağıdaki İngilizce başlığı doğal ve akıcı bir Türkçeye çevir. "
-            f"SADECE çeviriyi yaz, açıklama, yorum, madde işareti, ek metin KESİNLİKLE EKLEME. "
-            f"Türkçe dilbilgisi kurallarına uygun olsun. Anlam bütünlüğü korunsun. "
-            f"Birebir kelime çevirisi yapma, doğal ifadeyi bul.\n\n"
-            f"Başlık: {title}\n\n"
-            f"Çeviri:"
+            f"Translate the following title into {target_language}. "
+            f"Return ONLY the translated text, no explanations, no notes, no bullet points, no extra text. "
+            f"Keep the meaning natural and idiomatic in {target_language}.\n\n"
+            f"Title: {title}\n\n"
+            f"Translation:"
         )
         result = await self._call_ai(
             system_prompt=(
-                "Sen profesyonel bir İngilizce-Türkçe çevirmensin. "
-                "Görevin: Verilen İngilizce metni doğal, akıcı ve dilbilgisi kurallarına uygun Türkçeye çevirmek. "
-                "ASLA özetleme, yorum ekleme, açıklama yapma. SADECE çeviriyi yaz. "
-                "Birebir kelime çevirisinden kaçın, Türkçede doğal karşılığını bul. "
-                "Eğer metin zaten Türkçeyse aynen olduğu gibi döndür."
+                f"You are a professional translator. Your task is to translate the given text "
+                f"into {target_language}. Return ONLY the translated text, nothing else. "
+                f"Avoid word-for-word translation, find the natural equivalent in {target_language}. "
+                f"If the text is already in {target_language}, return it unchanged."
             ),
             user_prompt=prompt,
         )
 
-        # Sonuç yoksa orijinal title'ı döndür
+        # Empty result → return original
         if not result:
             print(f"Warning: translate_title returned empty. Title={title!r}")
             return title
 
-        # Çeviri aşırı uzunsa kırp
+        # Truncate if excessively long
         if len(result) > len(title) * 3:
             print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
             trimmed = result[:len(title) * 3 - 3] + "..."
             return trimmed
 
-        # Anlamsız/hatalı çeviri tespit edilirse orijinal title'ı döndür
+        # Detect garbage translation
         if self._is_bad_translation(title, result):
             print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
             return title
 
         return result
 
-    async def summarize_content(self, content: str) -> str:
-        """Summarize content into bullet points in Turkish."""
+    async def summarize_content(self, content: str, target_language: str = "Turkish") -> str:
+        """Summarize content into bullet points in the specified language."""
         if not content:
-            return "İçerik özeti mevcut değil."
+            return f"Content summary not available in {target_language}."
 
         content_preview = content[:3000]
-        # Direct format: NO instructions to the AI, just the article and the expected output format
         prompt = (
-            f"Aşağıdaki makaleyi Türkçe olarak 3 madde halinde özetle.\n"
-            f"Her madde '- ' ile başlasın.\n"
-            f"SADECE 3 madde yaz, başka hiçbir şey yazma.\n"
-            f"Madde metinlerini asla İngilizce yazma, tamamen Türkçe yaz.\n\n"
-            f"Makale:\n{content_preview}"
+            f"Summarize the following article in {target_language} with 3 bullet points.\n"
+            f"Each bullet point must start with '- '.\n"
+            f"Write ONLY 3 bullet points, nothing else.\n"
+            f"All bullet point text must be in {target_language}.\n\n"
+            f"Article:\n{content_preview}"
         )
         result = await self._call_ai(
             system_prompt=(
-                "Sen bir içerik özetleyicisin. Verilen makaleyi Türkçe 3 madde ile özetlersin. "
-                "Yalnızca '- ' ile başlayan 3 satır yazarsın. "
-                "Kesinlikle başka açıklama, yorum, düşünce, talimat tekrarı eklemezsin."
+                f"You are a content summarizer. Summarize the given article in {target_language} "
+                f"with 3 bullet points. You only write 3 lines starting with '- '. "
+                f"Never add explanations, comments, thoughts, or repeated instructions."
             ),
             user_prompt=prompt,
         )
         if not result:
-            return "Özet oluşturulamadı."
+            return f"Summary could not be generated in {target_language}."
 
         result_stripped = result.strip()
         if len(result_stripped) < 20:
             print(f"Warning: summarize_content returned suspiciously short result. Content={content[:50]!r}, Result={result_stripped!r}")
-            return "Özet oluşturulamadı."
+            return f"Summary could not be generated in {target_language}."
 
         # Post-process: remove any lines that look like AI thinking (don't start with '- ')
         cleaned_lines = []
@@ -357,27 +357,27 @@ class AIService:
 
         return result_stripped
 
-    async def summarize_comments(self, comments: List[Dict[str, Any]]) -> str:
-        """Analyze top comments and provide meta-summary in Turkish."""
+    async def summarize_comments(self, comments: List[Dict[str, Any]], target_language: str = "Turkish") -> str:
+        """Analyze top comments and provide meta-summary in the specified language."""
         if not comments:
-            return "Yorum özeti mevcut değil."
+            return f"Comment summary not available in {target_language}."
 
         comments_text = "\n".join(
             [comment.get("text", "") for comment in comments[:5]]
         )
         if not comments_text:
-            return "Yorum bulunamadı."
+            return "No comments found."
 
         result = await self._call_ai(
             system_prompt=(
                 "You are a discussion analyzer. Analyze the following comments and provide a "
-                "meta-summary of the discussion in Turkish. Focus on the main points of "
+                f"meta-summary of the discussion in {target_language}. Focus on the main points of "
                 "agreement, disagreement, and key insights. Keep it to 2-3 sentences. "
                 "Return ONLY the summary, nothing else."
             ),
             user_prompt=comments_text[:2000],
         )
-        return result if result else "Yorum özeti oluşturulamadı."
+        return result if result else f"Comment summary could not be generated in {target_language}."
 
     async def check_negative_feedback(self, content: str, title: str) -> bool:
         """Check if content matches negative feedback patterns."""

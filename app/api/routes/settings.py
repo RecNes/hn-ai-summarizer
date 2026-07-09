@@ -16,6 +16,7 @@ from app.models.setting import Setting
 from app.schemas.setting import SettingResponse, SettingUpdate
 from app.services.ai_service import AIService
 from app.services.provider_registry import get_available_providers, get_provider
+from app.shared.languages import get_languages
 from app.tasks.schedule_manager import get_schedule_manager
 
 router = APIRouter()
@@ -40,6 +41,7 @@ async def get_settings(db: AsyncSession = Depends(get_db)):
     setting_dict = {c.name: getattr(setting, c.name) for c in setting.__table__.columns}
     setting_dict["id"] = setting.id
     setting_dict["available_providers"] = get_available_providers()
+    setting_dict["available_languages"] = get_languages()
 
     return setting_dict
 

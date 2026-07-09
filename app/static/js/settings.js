@@ -201,6 +201,45 @@ async function loadModelsForProvider(providerId, configStr) {
 }
 
 // ──────────────────────────────────────────────
+// Populate language dropdowns
+// ──────────────────────────────────────────────
+let availableLanguages = [];
+
+function populateLanguageDropdowns(selectId, selectedCode) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    sel.innerHTML = '';
+    
+    availableLanguages.forEach(lang => {
+        const opt = document.createElement('option');
+        opt.value = lang.code;
+        opt.textContent = lang.native_name + ' (' + lang.english_name + ')';
+        if (lang.code === selectedCode) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+// ──────────────────────────────────────────────
+// Load preferences from server
+// ──────────────────────────────────────────────
+async function loadPreferences() {
+    try {
+        const res = await fetch('/api/preferences/');
+        const data = await res.json();
+        
+        availableLanguages = data.available_languages || [];
+        
+        populateLanguageDropdowns('ui_language', data.ui_language || 'en');
+        populateLanguageDropdowns('translation_language', data.translation_language || 'en');
+        
+        document.getElementById('highlight_keywords').value = data.highlight_keywords || '';
+        document.getElementById('blocklist_keywords').value = data.blocklist_keywords || '';
+    } catch (e) {
+        console.error('Error loading preferences:', e);
+    }
+}
+
+// ──────────────────────────────────────────────
 // Save settings (toast + loader)
 // ──────────────────────────────────────────────
 async function saveSettings(event) {
@@ -212,7 +251,7 @@ async function saveSettings(event) {
     if (!btn) return;
 
     btn.disabled = true;
-    btnText.textContent = 'Kaydediliyor...';
+    btnText.textContent = 'Saving...';
     btnSpinner.classList.remove('hidden');
 
     const nativeSelect = document.getElementById('ai_model');
@@ -231,7 +270,9 @@ async function saveSettings(event) {
 
     const prefsData = {
         highlight_keywords: document.getElementById('highlight_keywords').value,
-        blocklist_keywords: document.getElementById('blocklist_keywords').value
+        blocklist_keywords: document.getElementById('blocklist_keywords').value,
+        ui_language: document.getElementById('ui_language').value,
+        translation_language: document.getElementById('translation_language').value
     };
 
     try {
@@ -253,13 +294,19 @@ async function saveSettings(event) {
             body: JSON.stringify(prefsData)
         });
 
-        showToast('success', 'Ayarlar başarıyla kaydedildi!');
+        // Update UI language immediately without page reload
+        const newUiLang = document.getElementById('ui_language').value;
+        if (typeof changeUILanguage === 'function') {
+            changeUILanguage(newUiLang);
+        }
+
+        showToast('success', 'Settings saved successfully!');
     } catch (e) {
         console.error('Error saving settings:', e);
-        showToast('error', 'Ayarlar kaydedilirken bir hata oluştu.');
+        showToast('error', 'An error occurred while saving settings.');
     } finally {
         btn.disabled = false;
-        btnText.textContent = 'Ayarları Kaydet';
+        btnText.textContent = 'Save Settings';
         btnSpinner.classList.add('hidden');
     }
 }
@@ -336,6 +383,7 @@ async function reprocessUntranslated() {
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
+    loadPreferences(); // Load language dropdowns
 
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) settingsForm.addEventListener('submit', saveSettings);

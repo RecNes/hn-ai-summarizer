@@ -251,9 +251,31 @@ function initPolling() {
 }
 
 // ──────────────────────────────────────────────
+// i18n initialization
+// ──────────────────────────────────────────────
+async function initUILanguage() {
+    try {
+        const res = await fetch('/api/preferences/');
+        const data = await res.json();
+        const uiLang = data.ui_language || 'en';
+        if (typeof initI18n === 'function') {
+            initI18n(uiLang);
+        }
+    } catch (e) {
+        console.warn('Could not load UI language preference:', e);
+        if (typeof initI18n === 'function') {
+            initI18n('en');
+        }
+    }
+}
+
+// ──────────────────────────────────────────────
 // DOMContentLoaded (global)
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+    // i18n başlat (önce preferences'dan UI dilini çek)
+    initUILanguage();
+
     // Tema başlat
     applyTheme();
     updateThemeIcon();
