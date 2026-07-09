@@ -12,10 +12,77 @@
 .text-large { font-size: 1.125rem; }
 .text-xlarge { font-size: 1.25rem; }
 
+/* Light/Dark contrast variants */
 .contrast-light { background-color: #ffffff; color: #000000; }
 .contrast-dark { background-color: #1a202c; color: #e2e8f0; }
 .contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
 .contrast-high { background-color: #000000; color: #ffffff; }
+
+/* Dark mode override — html.dark aktifken contrast-* class'larını ez */
+html.dark .contrast-light,
+html.dark .contrast-sepia,
+html.dark .contrast-high {
+    background-color: #1a202c;
+    color: #e2e8f0;
+}
+html.dark .contrast-dark {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+/* Dark mode card backgrounds */
+html.dark article {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+html.dark article .text-gray-600 {
+    color: #94a3b8 !important;
+}
+html.dark article .text-gray-500 {
+    color: #64748b !important;
+}
+html.dark article .text-gray-400 {
+    color: #94a3b8 !important;
+}
+
+/* Dark mode for settings panels */
+html.dark .bg-white,
+html.dark .bg-gray-100 {
+    background-color: #1e293b !important;
+}
+html.dark .text-gray-700 {
+    color: #cbd5e1 !important;
+}
+html.dark .border,
+html.dark .border-gray-300 {
+    border-color: #334155 !important;
+}
+html.dark select,
+html.dark input,
+html.dark textarea {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+/* Dark mode modal */
+html.dark #settings-modal > div {
+    background-color: #1e293b !important;
+}
+
+/* Dark mode footer */
+html.dark footer {
+    background-color: #0f172a !important;
+}
+html.dark footer .text-gray-600 {
+    color: #64748b !important;
+}
+
+/* Transition for smooth theme switch */
+body, article, .bg-white, .bg-gray-100, footer, select, input, textarea,
+#settings-modal > div {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
 
 /* Highlight and dim styles */
 .highlighted {

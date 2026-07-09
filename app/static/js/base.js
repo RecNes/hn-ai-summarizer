@@ -14,6 +14,67 @@ if ('serviceWorker' in navigator) {
 }
 
 // ──────────────────────────────────────────────
+// Theme: dark / light / system (localStorage 'theme')
+// ──────────────────────────────────────────────
+
+/** Geçerli temayı döndürür: 'dark' veya 'light' */
+function getEffectiveTheme() {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark') return 'dark';
+    if (stored === 'light') return 'light';
+    // 'system' veya hiç kayıt yoksa — sistem tercihini kullan
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+/** Temayı uygula: html.dark class'ı + DOMContentLoaded'da çalışması için body class */
+function applyTheme(theme) {
+    const effective = theme || getEffectiveTheme();
+    document.documentElement.classList.toggle('dark', effective === 'dark');
+}
+
+/** Tema geçişi: light → dark → system → light */
+function cycleTheme() {
+    const stored = localStorage.getItem('theme');
+    let next;
+    if (!stored || stored === 'system') next = 'dark';
+    else if (stored === 'dark') next = 'light';
+    else next = 'system'; // light → system
+    localStorage.setItem('theme', next);
+    applyTheme();
+    updateThemeIcon();
+}
+
+/** Tema icon'unu güncelle (güneş/ay veya otomatik) */
+function updateThemeIcon() {
+    const stored = localStorage.getItem('theme') || 'system';
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    const effective = getEffectiveTheme();
+    // Icon: ay = dark, güneş = light, otomatik = yarım ay + güneş
+    if (stored === 'system') {
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
+        btn.title = 'Otomatik (sistem)';
+    } else if (effective === 'dark') {
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
+        btn.title = 'Açık moda geç';
+    } else {
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
+        btn.title = 'Koyu moda geç';
+    }
+}
+
+/** Sistem teması değişikliğini dinle */
+function listenSystemTheme() {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const stored = localStorage.getItem('theme');
+        if (!stored || stored === 'system') {
+            applyTheme();
+            updateThemeIcon();
+        }
+    });
+}
+
+// ──────────────────────────────────────────────
 // Accessibility settings (localStorage)
 // ──────────────────────────────────────────────
 
@@ -193,6 +254,16 @@ function initPolling() {
 // DOMContentLoaded (global)
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
+    // Tema başlat
+    applyTheme();
+    updateThemeIcon();
+    listenSystemTheme();
+
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', cycleTheme);
+    }
+
     loadSettings();
 
     // Settings modal events
