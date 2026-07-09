@@ -1,4 +1,4 @@
-  """Worker tasks for processing stories with AI services"""
+"""Worker tasks for processing stories with AI services"""
 
 import os
 
