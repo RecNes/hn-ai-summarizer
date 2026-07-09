@@ -49,12 +49,13 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-db}
+      - DATABASE_HOST=${DATABASE_HOST:-localhost}
       - DATABASE_USER=${DATABASE_USER:-postgres}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
       - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
       - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}
@@ -74,12 +75,13 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-db}
+      - DATABASE_HOST=${DATABASE_HOST:-localhost}
       - DATABASE_USER=${DATABASE_USER:-postgres}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
       - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
       - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}
@@ -94,12 +96,13 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_HOST=${DATABASE_HOST:-db}
+      - DATABASE_HOST=${DATABASE_HOST:-localhost}
       - DATABASE_USER=${DATABASE_USER:-postgres}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD:-postgres}
       - DATABASE_NAME=${DATABASE_NAME:-hn_ai_summerizer_db}
       - DATABASE_PORT=${DATABASE_PORT:-5432}
-      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - REDIS_HOST=${REDIS_HOST:-localhost}
+      - REDIS_PORT=${REDIS_PORT:-6379}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - DEVELOPMENT=${DEVELOPMENT:-False}

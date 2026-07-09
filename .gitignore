@@ -136,7 +136,7 @@ dmypy.json
 
 # OS
 .DS_Store
-Thumbs.db
+*.db
 
 # Docker
 .dockerenv
@@ -150,10 +150,9 @@ alembic/versions/*.py
 .vscode/
 
 # Graphify cache
-graphify-out/cache/
-graphify-out/.graphify_analysis.json
-graphify-out/.graphify_semantic_marker
-graphify-out/manifest.json
+graphify-out/
+graphify-out/**
+graphify-out
 
 # All cache files and directories
 **/cache/

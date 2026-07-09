@@ -20,7 +20,7 @@ STORY_CHANNEL = "hn_reader:story:new"
 async def _get_redis():
     """Create a redis asyncio connection from settings."""
     from redis.asyncio import Redis
-    redis_url = settings.REDIS_URL or "redis://localhost:6379/0"
+    redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
     return Redis.from_url(redis_url, decode_responses=True)
 
 

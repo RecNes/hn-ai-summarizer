@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.setting import Setting
 from app.schemas.setting import SettingResponse, SettingUpdate
@@ -148,18 +149,7 @@ async def get_available_models(
 async def trigger_worker():
     """Manually trigger the worker to fetch and process stories"""
     try:
-        # Use the same Redis configuration approach as worker.py
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url:
-            redis_settings = RedisSettings.from_dsn(redis_url)
-        else:
-            # Fallback to individual environment variables
-            redis_host = os.getenv("REDIS_HOST", "localhost")
-            redis_port = int(os.getenv("REDIS_PORT", "6379"))
-            redis_db = int(os.getenv("REDIS_DB", "0"))
-            redis_settings = RedisSettings(
-                host=redis_host, port=redis_port, database=redis_db
-            )
+        redis_settings = RedisSettings.from_dsn(settings.REDIS_CONNECTION_URL)
 
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
@@ -191,18 +181,7 @@ async def reprocess_untranslated():
     """Trigger reprocessing of stories that need AI translation
     with fresh content"""
     try:
-        # Use the same Redis configuration approach as worker.py
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url:
-            redis_settings = RedisSettings.from_dsn(redis_url)
-        else:
-            # Fallback to individual environment variables
-            redis_host = os.getenv("REDIS_HOST", "localhost")
-            redis_port = int(os.getenv("REDIS_PORT", "6379"))
-            redis_db = int(os.getenv("REDIS_DB", "0"))
-            redis_settings = RedisSettings(
-                host=redis_host, port=redis_port, database=redis_db
-            )
+        redis_settings = RedisSettings.from_dsn(settings.REDIS_CONNECTION_URL)
 
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
@@ -235,18 +214,7 @@ async def reprocess_untranslated():
 async def debug_untranslated():
     """Debug untranslated stories"""
     try:
-        # Use the same Redis configuration approach as worker.py
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url:
-            redis_settings = RedisSettings.from_dsn(redis_url)
-        else:
-            # Fallback to individual environment variables
-            redis_host = os.getenv("REDIS_HOST", "localhost")
-            redis_port = int(os.getenv("REDIS_PORT", "6379"))
-            redis_db = int(os.getenv("REDIS_DB", "0"))
-            redis_settings = RedisSettings(
-                host=redis_host, port=redis_port, database=redis_db
-            )
+        redis_settings = RedisSettings.from_dsn(settings.REDIS_CONNECTION_URL)
 
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
@@ -275,18 +243,7 @@ async def debug_untranslated():
 async def reprocess_all():
     """Trigger reprocessing of ALL stories"""
     try:
-        # Use the same Redis configuration approach as worker.py
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url:
-            redis_settings = RedisSettings.from_dsn(redis_url)
-        else:
-            # Fallback to individual environment variables
-            redis_host = os.getenv("REDIS_HOST", "localhost")
-            redis_port = int(os.getenv("REDIS_PORT", "6379"))
-            redis_db = int(os.getenv("REDIS_DB", "0"))
-            redis_settings = RedisSettings(
-                host=redis_host, port=redis_port, database=redis_db
-            )
+        redis_settings = RedisSettings.from_dsn(settings.REDIS_CONNECTION_URL)
 
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
@@ -316,18 +273,7 @@ async def reprocess_all():
 async def get_schedule_status():
     """Get current schedule status from Redis for debugging"""
     try:
-        # Use the same Redis configuration approach as worker.py
-        redis_url = os.getenv("REDIS_URL")
-        if redis_url:
-            redis_settings = RedisSettings.from_dsn(redis_url)
-        else:
-            # Fallback to individual environment variables
-            redis_host = os.getenv("REDIS_HOST", "localhost")
-            redis_port = int(os.getenv("REDIS_PORT", "6379"))
-            redis_db = int(os.getenv("REDIS_DB", "0"))
-            redis_settings = RedisSettings(
-                host=redis_host, port=redis_port, database=redis_db
-            )
+        redis_settings = RedisSettings.from_dsn(settings.REDIS_CONNECTION_URL)
 
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
