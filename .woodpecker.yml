@@ -3,6 +3,27 @@ when:
   branch: [main, master]
 
 steps:
+  notify-start:
+    name: Send Build Start Notification
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: TELEGRAM_TOKEN
+      to:
+        from_secret: TELEGRAM_USERID
+      format: markdown
+      message: |
+        👷‍♂️ *Woodpecker Builder*
+        
+        `${CI_REPO_NAME}/${CI_COMMIT_BRANCH}` branch'i için *#${CI_PIPELINE_NUMBER}* numaralı deployment başlatıldı... 
+        
+        👤 Commit Author: _${CI_COMMIT_AUTHOR}_
+        📖 Commit Mesajı:
+        ```
+        ${CI_COMMIT_MESSAGE}
+        ```
+        [🔗 Detaylar](${CI_PIPELINE_URL})
+
   build-and-push:
     image: docker:27-cli
     volumes:
@@ -44,3 +65,35 @@ steps:
       event: [push]
       branch: [main, master]
       status: [success]
+
+  notify-success:
+    name: Send Build Success Notification
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: TELEGRAM_TOKEN
+      to:
+        from_secret: TELEGRAM_USERID
+      format: html
+      message: | 
+        ✅ <b>{{repo.name}}</b> Build <b>#{{build.number}}</b> Başarılı!
+        
+        <a href='{{build.link}}'>🔗 Detaylar</a>
+    when:
+      status: [ success ]
+
+  notify-failure:
+    name: Send Build Fail Notification
+    image: appleboy/drone-telegram
+    settings:
+      token:
+        from_secret: TELEGRAM_TOKEN
+      to:
+        from_secret: TELEGRAM_USERID
+      format: html
+      message: | 
+        ⚠️ <b>{{repo.name}}</b> Build <b>#{{build.number}}</b> Hata Aldı!
+        
+        <a href='{{build.link}}'>🔗 Detaylar</a>
+    when:
+      status: [ failure ]
