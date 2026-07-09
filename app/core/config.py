@@ -27,7 +27,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str = Field("localhost")
     REDIS_PORT: int = Field(6379)
     REDIS_DB: int = Field(0)
-    REDIS_URL: Optional[str] = Field("")
+    REDIS_USERNAME: Optional[str] = Field("")
+    REDIS_PASSWORD: Optional[str] = Field("")
 
     # AI Provider API Keys (only read from .env, never exposed to frontend)
     OPENAI_API_KEY: Optional[str] = Field("")
@@ -45,35 +46,54 @@ class Settings(BaseSettings):
     @computed_field(alias="ASYNC_DATABASE_URL")
     @property
     def async_database_url(self) -> str:
-        if self.DEVELOPMENT:
-            return "sqlite+aiosqlite:///./hn_ai_summerizer.db"
-        return (
-            f"postgresql+asyncpg://{self.DATABASE_USER}:"
-            f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
-            f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
-        )
+        # .env'de PostgreSQL bilgileri varsa onu kullan, yoksa SQLite'a düş
+        if self.DATABASE_HOST and self.DATABASE_HOST not in ("localhost", "db"):
+            return (
+                f"postgresql+asyncpg://{self.DATABASE_USER}:"
+                f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
+                f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            )
+        if not self.DEVELOPMENT:
+            return (
+                f"postgresql+asyncpg://{self.DATABASE_USER}:"
+                f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
+                f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            )
+        return "sqlite+aiosqlite:///./hn_ai_summerizer.db"
 
     ASYNC_DATABASE_URL = async_database_url
 
     @computed_field(alias="SYNC_DATABASE_URL")
     @property
     def sync_database_url(self) -> str:
-        if self.DEVELOPMENT:
-            return "sqlite:///./hn_ai_summerizer.db"
-        return (
-            f"postgresql://{self.DATABASE_USER}:"
-            f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}"
-            f":{self.DATABASE_PORT}/{self.DATABASE_NAME}"
-        )
+        # .env'de PostgreSQL bilgileri varsa onu kullan, yoksa SQLite'a düş
+        if self.DATABASE_HOST and self.DATABASE_HOST not in ("localhost", "db"):
+            return (
+                f"postgresql://{self.DATABASE_USER}:"
+                f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}"
+                f":{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            )
+        if not self.DEVELOPMENT:
+            return (
+                f"postgresql://{self.DATABASE_USER}:"
+                f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}"
+                f":{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            )
+        return "sqlite:///./hn_ai_summerizer.db"
 
     SYNC_DATABASE_URL = sync_database_url
 
     @computed_field(alias="REDIS_CONNECTION_URL")
     @property
     def redis_connection_url(self) -> str:
-        if self.REDIS_URL:
-            return self.REDIS_URL
-        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
+        # REDIS_USERNAME ve REDIS_PASSWORD varsa URL'e ekle
+        if self.REDIS_USERNAME and self.REDIS_PASSWORD:
+            auth = f"{self.REDIS_USERNAME}:{self.REDIS_PASSWORD}@"
+        elif self.REDIS_PASSWORD:
+            auth = f":{self.REDIS_PASSWORD}@"
+        else:
+            auth = ""
+        return f"redis://{auth}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     REDIS_CONNECTION_URL = redis_connection_url
 

@@ -45,7 +45,7 @@ steps:
       - pip install --no-cache-dir -e ".[dev]"
       - pytest tests/ -v --tb=short
     when:
-      event: [push, pull_request]
+      event: [pull_request]
 
   deploy:
     image: docker:27-cli
