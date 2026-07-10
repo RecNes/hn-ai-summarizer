@@ -173,7 +173,8 @@ async def run_scheduler():
             scheduled_days = parse_cron_to_days(cron_schedule)
 
             now = datetime.now()
-            today_weekday = now.weekday()  # 0=Monday
+            # Python weekday: 0=Monday..6=Sunday → cron weekday: 0=Sunday..6=Saturday
+            today_cron_weekday = (now.weekday() + 1) % 7
             current_time_minutes = now.hour * 60 + now.minute
 
             # Parse scheduled time to minutes
@@ -184,7 +185,7 @@ async def run_scheduler():
                 scheduled_minutes = None
 
             # If today is a scheduled day and the time has passed, do a catch-up fetch
-            days_match = not scheduled_days or today_weekday in scheduled_days
+            days_match = not scheduled_days or today_cron_weekday in scheduled_days
             if (
                 days_match
                 and scheduled_minutes is not None
