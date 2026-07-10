@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI सारांशकर्ता",
+    "description": "AI-संचालित Hacker News सारांशकर्ता",
+    "footer": "HN AI सारांशकर्ता - AI-संचालित Hacker News सारांशकर्ता"
+  },
+  "nav": {
+    "home": "मुख्य पृष्ठ",
+    "settings": "सेटिंग्स",
+    "themeToggle": "थीम बदलें",
+    "displaySettings": "प्रदर्शन सेटिंग्स",
+    "refresh": "पृष्ठ ताज़ा करें"
+  },
+  "home": {
+    "title": "नवीनतम कहानियाँ",
+    "noStories": "अभी तक कोई कहानी उपलब्ध नहीं है।",
+    "loading": "कहानियाँ लोड हो रही हैं...",
+    "error": "कहानियाँ लोड करने में विफल",
+    "score": "स्कोर",
+    "author": "लेखक",
+    "comments": "टिप्पणियाँ",
+    "readMore": "और पढ़ें",
+    "summaryNotAvailable": "सारांश उपलब्ध नहीं",
+    "commentSummaryNotAvailable": "टिप्पणी सारांश उपलब्ध नहीं",
+    "contentNotAvailable": "सामग्री सारांश उपलब्ध नहीं",
+    "originalTitle": "मूल शीर्षक"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "language": {
+      "title": "भाषा सेटिंग्स",
+      "uiLabel": "एप्लिकेशन भाषा",
+      "translationLabel": "सामग्री अनुवाद भाषा",
+      "uiDescription": "इंटरफ़ेस, मेनू और बटन के लिए भाषा",
+      "translationDescription": "वह भाषा जिसमें Hacker News सामग्री का अनुवाद किया जाएगा",
+      "independentNote": "ये दोनों सेटिंग्स पूरी तरह से स्वतंत्र हैं"
+    },
+    "ai": {
+      "title": "AI प्रदाता",
+      "description": "API कुंजियाँ .env फ़ाइल के माध्यम से कॉन्फ़िगर की जाती हैं। केवल कॉन्फ़िगर की गई कुंजियों वाले प्रदाता सूचीबद्ध होते हैं।",
+      "providerLabel": "AI प्रदाता",
+      "providerPlaceholder": "-- प्रदाता चुनें --",
+      "configLabel": "प्रदाता पता (वैकल्पिक)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "LM Studio या Ollama जैसे स्थानीय प्रदाताओं के लिए पता दर्ज करें",
+      "keyConfigured": "✓ .env में API कुंजी कॉन्फ़िगर की गई",
+      "keyLocal": "ℹ स्थानीय प्रदाता (कोई API कुंजी आवश्यक नहीं)",
+      "modelLabel": "AI मॉडल",
+      "modelPlaceholder": "-- मॉडल चुनें --",
+      "modelSelectFirst": "-- पहले प्रदाता चुनें --",
+      "modelLoading": "मॉडल लोड हो रहे हैं...",
+      "modelRefresh": "मॉडल ताज़ा करें",
+      "modelSearch": "मॉडल खोजें...",
+      "modelNotFound": "कोई मेल खाने वाला मॉडल नहीं मिला",
+      "modelCount": "{count} मॉडल मिले",
+      "modelError": "मॉडल लोड करने में विफल"
+    },
+    "data": {
+      "title": "डेटा प्रोसेसिंग",
+      "description": "मैन्युअल रूप से Hacker News डेटा प्राप्त करें और संसाधित करें।",
+      "fetchButton": "डेटा प्राप्त करना शुरू करें",
+      "reprocessButton": "अअनुवादित को फिर से संसाधित करें",
+      "statusText": "प्रसंस्करण जारी है... कृपया प्रतीक्षा करें।"
+    },
+    "fetch": {
+      "title": "प्राप्ति सेटिंग्स",
+      "hour": "घंटा",
+      "minute": "मिनट",
+      "days": "दिन",
+      "monday": "सोमवार",
+      "tuesday": "मंगलवार",
+      "wednesday": "बुधवार",
+      "thursday": "गुरुवार",
+      "friday": "शुक्रवार",
+      "saturday": "शनिवार",
+      "sunday": "रविवार",
+      "daysHelp": "निष्पादन के दिन चुनें",
+      "minScore": "न्यूनतम स्कोर",
+      "minScoreHelp": "केवल इससे अधिक स्कोर वाली कहानियाँ संसाधित की जाएंगी",
+      "retentionDays": "डेटा प्रतिधारण (दिन)",
+      "retentionDaysHelp": "पुराना डेटा स्वचालित रूप से हटा दिया जाएगा"
+    },
+    "preferences": {
+      "title": "उपयोगकर्ता प्राथमिकताएँ",
+      "highlightKeywords": "हाइलाइट कीवर्ड",
+      "highlightPlaceholder": "AI, मशीन लर्निंग, डेटा साइंस",
+      "highlightHelp": "अल्पविराम से अलग करके दर्ज करें",
+      "blocklistKeywords": "अवरुद्ध कीवर्ड",
+      "blocklistPlaceholder": "राजनीति, एजेंडा, बहस",
+      "blocklistHelp": "इन कीवर्ड वाली सामग्री मंद कर दी जाएगी"
+    },
+    "save": "सेटिंग्स सहेजें",
+    "saving": "सहेजा जा रहा है...",
+    "saveSuccess": "सेटिंग्स सफलतापूर्वक सहेजी गईं!",
+    "saveError": "सेटिंग्स सहेजते समय एक त्रुटि हुई।"
+  },
+  "display": {
+    "title": "प्रदर्शन सेटिंग्स",
+    "fontFamily": "फ़ॉन्ट परिवार",
+    "fontSize": "फ़ॉन्ट आकार",
+    "contrast": "कंट्रास्ट",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "छोटा",
+      "medium": "मध्यम",
+      "large": "बड़ा",
+      "xlarge": "अतिरिक्त बड़ा"
+    },
+    "contrasts": {
+      "light": "हल्का",
+      "dark": "गहरा",
+      "sepia": "सेपिया",
+      "high": "उच्च कंट्रास्ट"
+    },
+    "reset": "डिफ़ॉल्ट पर रीसेट करें",
+    "save": "सहेजें"
+  },
+  "theme": {
+    "light": "हल्का मोड",
+    "dark": "गहरा मोड",
+    "system": "ऑटो (सिस्टम)"
+  },
+  "worker": {
+    "started": "डेटा प्राप्त करना शुरू! प्रसंस्करण में कुछ मिनट लग सकते हैं।",
+    "reprocessStarted": "पुनःप्रसंस्करण शुरू! सामग्री और टिप्पणियाँ ताज़ा की जा रही हैं।",
+    "error": "कार्यकर्ता शुरू नहीं किया जा सका।",
+    "reprocessError": "पुनःप्रसंस्करण शुरू नहीं किया जा सका।"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफलता",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "close": "बंद करें",
+    "back": "वापस"
+  }
+}

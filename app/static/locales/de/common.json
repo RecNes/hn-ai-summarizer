@@ -1,0 +1,116 @@
+{
+  "app": {
+    "title": "HN AI Zusammenfasser",
+    "description": "KI-gestützter Hacker News Zusammenfasser",
+    "footer": "HN AI Zusammenfasser - KI-gestützter Hacker News Zusammenfasser"
+  },
+  "nav": {
+    "home": "Startseite",
+    "settings": "Einstellungen",
+    "themeToggle": "Design wechseln",
+    "displaySettings": "Anzeigeeinstellungen",
+    "refresh": "Seite aktualisieren"
+  },
+  "home": {
+    "title": "Neueste Geschichten",
+    "noStories": "Noch keine Geschichten verfügbar.",
+    "loading": "Geschichten werden geladen...",
+    "error": "Geschichten konnten nicht geladen werden",
+    "score": "Punktzahl",
+    "author": "Autor",
+    "comments": "Kommentare",
+    "readMore": "Weiterlesen",
+    "summaryNotAvailable": "Zusammenfassung nicht verfügbar",
+    "commentSummaryNotAvailable": "Kommentarzusammenfassung nicht verfügbar",
+    "contentNotAvailable": "Inhaltszusammenfassung nicht verfügbar",
+    "originalTitle": "Originaltitel"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": {
+      "title": "Spracheinstellungen",
+      "uiLabel": "Anwendungssprache",
+      "translationLabel": "Inhaltsübersetzungssprache",
+      "uiDescription": "Sprache für die Benutzeroberfläche, Menüs und Schaltflächen",
+      "translationDescription": "Sprache, in die Hacker News-Inhalte übersetzt werden",
+      "independentNote": "Diese beiden Einstellungen sind völlig unabhängig voneinander"
+    },
+    "ai": {
+      "title": "KI-Anbieter",
+      "description": "API-Schlüssel werden über die .env-Datei konfiguriert. Es werden nur Anbieter mit konfigurierten Schlüsseln aufgelistet.",
+      "providerLabel": "KI-Anbieter",
+      "providerPlaceholder": "-- Anbieter auswählen --",
+      "configLabel": "Anbieteradresse (optional)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Adresse für lokale Anbieter wie LM Studio oder Ollama eingeben",
+      "keyConfigured": "✓ API-Schlüssel in .env konfiguriert",
+      "keyLocal": "ℹ Lokaler Anbieter (kein API-Schlüssel erforderlich)",
+      "modelLabel": "KI-Modell",
+      "modelPlaceholder": "-- Modell auswählen --",
+      "modelSelectFirst": "-- Zuerst einen Anbieter auswählen --",
+      "modelLoading": "Modelle werden geladen...",
+      "modelRefresh": "Modelle aktualisieren",
+      "modelSearch": "Modelle suchen...",
+      "modelNotFound": "Kein passendes Modell gefunden",
+      "modelCount": "{count} Modelle gefunden",
+      "modelError": "Modelle konnten nicht geladen werden"
+    },
+    "data": {
+      "title": "Datenverarbeitung",
+      "description": "Hacker News-Daten manuell abrufen und verarbeiten.",
+      "fetchButton": "Datenabruf starten",
+      "reprocessButton": "Unübersetzte erneut verarbeiten",
+      "statusText": "Verarbeitung läuft... Bitte warten."
+    },
+    "fetch": {
+      "title": "Abrufeinstellungen",
+      "hour": "Stunde",
+      "minute": "Minute",
+      "days": "Tage",
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag",
+      "daysHelp": "Wählen Sie die Ausführungstage aus",
+      "minScore": "Mindestpunktzahl",
+      "minScoreHelp": "Nur Geschichten mit einer Punktzahl darüber werden verarbeitet",
+      "retentionDays": "Datenaufbewahrung (Tage)",
+      "retentionDaysHelp": "Ältere Daten werden automatisch gelöscht"
+    },
+    "preferences": {
+      "title": "Benutzereinstellungen",
+      "highlightKeywords": "Hervorzuhebende Schlüsselwörter",
+      "highlightPlaceholder": "KI, maschinelles Lernen, Datenwissenschaft",
+      "highlightHelp": "Kommagetrennt eingeben",
+      "blocklistKeywords": "Blockierte Schlüsselwörter",
+      "blocklistPlaceholder": "Politik, Tagesordnung, Debatte",
+      "blocklistHelp": "Inhalte mit diesen Schlüsselwörtern werden abgedunkelt"
+    },
+    "save": "Einstellungen speichern",
+    "saving": "Speichern...",
+    "saveSuccess": "Einstellungen erfolgreich gespeichert!",
+    "saveError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten."
+  },
+  "display": {
+    "title": "Anzeigeeinstellungen",
+    "fontFamily": "Schriftart",
+    "fontSize": "Schriftgröße",
+    "contrast": "Kontrast",
+    "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" },
+    "sizes": { "small": "Klein", "medium": "Mittel", "large": "Groß", "xlarge": "Sehr groß" },
+    "contrasts": { "light": "Hell", "dark": "Dunkel", "sepia": "Sepia", "high": "Hoher Kontrast" },
+    "reset": "Auf Standard zurücksetzen",
+    "save": "Speichern"
+  },
+  "theme": { "light": "Heller Modus", "dark": "Dunkler Modus", "system": "Auto (System)" },
+  "worker": {
+    "started": "Datenabruf gestartet! Die Verarbeitung kann einige Minuten dauern.",
+    "reprocessStarted": "Neubearbeitung gestartet! Inhalte und Kommentare werden aktualisiert.",
+    "error": "Worker konnte nicht gestartet werden.",
+    "reprocessError": "Neubearbeitung konnte nicht gestartet werden."
+  },
+  "common": { "loading": "Laden...", "error": "Fehler", "success": "Erfolg", "cancel": "Abbrechen", "save": "Speichern", "delete": "Löschen", "close": "Schließen", "back": "Zurück" }
+}

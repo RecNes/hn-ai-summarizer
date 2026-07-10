@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI摘要工具",
+    "description": "AI驱动的Hacker News摘要工具",
+    "footer": "HN AI摘要工具 - AI驱动的Hacker News摘要工具"
+  },
+  "nav": {
+    "home": "首页",
+    "settings": "设置",
+    "themeToggle": "切换主题",
+    "displaySettings": "显示设置",
+    "refresh": "刷新页面"
+  },
+  "home": {
+    "title": "最新故事",
+    "noStories": "暂无可用故事。",
+    "loading": "正在加载故事...",
+    "error": "加载故事失败",
+    "score": "分数",
+    "author": "作者",
+    "comments": "评论",
+    "readMore": "阅读更多",
+    "summaryNotAvailable": "摘要不可用",
+    "commentSummaryNotAvailable": "评论摘要不可用",
+    "contentNotAvailable": "内容摘要不可用",
+    "originalTitle": "原标题"
+  },
+  "settings": {
+    "title": "设置",
+    "language": {
+      "title": "语言设置",
+      "uiLabel": "界面语言",
+      "translationLabel": "内容翻译语言",
+      "uiDescription": "界面、菜单和按钮使用的语言",
+      "translationDescription": "Hacker News内容将被翻译成的语言",
+      "independentNote": "这两个设置完全独立"
+    },
+    "ai": {
+      "title": "AI提供商",
+      "description": "API密钥通过.env文件配置。仅列出已配置密钥的提供商。",
+      "providerLabel": "AI提供商",
+      "providerPlaceholder": "-- 选择提供商 --",
+      "configLabel": "提供商地址（可选）",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "输入本地提供商（如LM Studio或Ollama）的地址",
+      "keyConfigured": "✓ 已在.env中配置API密钥",
+      "keyLocal": "ℹ 本地提供商（无需API密钥）",
+      "modelLabel": "AI模型",
+      "modelPlaceholder": "-- 选择模型 --",
+      "modelSelectFirst": "-- 请先选择提供商 --",
+      "modelLoading": "正在加载模型...",
+      "modelRefresh": "刷新模型",
+      "modelSearch": "搜索模型...",
+      "modelNotFound": "未找到匹配的模型",
+      "modelCount": "找到{count}个模型",
+      "modelError": "加载模型失败"
+    },
+    "data": {
+      "title": "数据处理",
+      "description": "手动获取和处理Hacker News数据。",
+      "fetchButton": "开始获取数据",
+      "reprocessButton": "重新处理未翻译的",
+      "statusText": "正在处理...请稍候。"
+    },
+    "fetch": {
+      "title": "获取设置",
+      "hour": "小时",
+      "minute": "分钟",
+      "days": "天数",
+      "monday": "周一",
+      "tuesday": "周二",
+      "wednesday": "周三",
+      "thursday": "周四",
+      "friday": "周五",
+      "saturday": "周六",
+      "sunday": "周日",
+      "daysHelp": "选择运行天数",
+      "minScore": "最低分数",
+      "minScoreHelp": "只有分数高于此的故事会被处理",
+      "retentionDays": "数据保留（天）",
+      "retentionDaysHelp": "更早的数据将被自动删除"
+    },
+    "preferences": {
+      "title": "用户偏好",
+      "highlightKeywords": "高亮关键词",
+      "highlightPlaceholder": "AI, 机器学习, 数据科学",
+      "highlightHelp": "用逗号分隔输入",
+      "blocklistKeywords": "屏蔽关键词",
+      "blocklistPlaceholder": "政治, 议程, 辩论",
+      "blocklistHelp": "包含这些关键词的内容将变暗显示"
+    },
+    "save": "保存设置",
+    "saving": "保存中...",
+    "saveSuccess": "设置已成功保存！",
+    "saveError": "保存设置时发生错误。"
+  },
+  "display": {
+    "title": "显示设置",
+    "fontFamily": "字体",
+    "fontSize": "字号",
+    "contrast": "对比度",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "xlarge": "特大"
+    },
+    "contrasts": {
+      "light": "浅色",
+      "dark": "深色",
+      "sepia": "棕褐色",
+      "high": "高对比度"
+    },
+    "reset": "恢复默认",
+    "save": "保存"
+  },
+  "theme": {
+    "light": "浅色模式",
+    "dark": "深色模式",
+    "system": "自动（系统）"
+  },
+  "worker": {
+    "started": "数据获取已开始！处理可能需要几分钟。",
+    "reprocessStarted": "重新处理已开始！内容和评论正在刷新。",
+    "error": "无法启动工作程序。",
+    "reprocessError": "无法启动重新处理。"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "close": "关闭",
+    "back": "返回"
+  }
+}

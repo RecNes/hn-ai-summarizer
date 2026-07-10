@@ -1,0 +1,116 @@
+{
+  "app": {
+    "title": "HN AI Résumeur",
+    "description": "Résumeur Hacker News alimenté par IA",
+    "footer": "HN AI Résumeur - Résumeur Hacker News alimenté par IA"
+  },
+  "nav": {
+    "home": "Accueil",
+    "settings": "Paramètres",
+    "themeToggle": "Changer le thème",
+    "displaySettings": "Paramètres d'affichage",
+    "refresh": "Actualiser la page"
+  },
+  "home": {
+    "title": "Dernières histoires",
+    "noStories": "Aucune histoire disponible pour le moment.",
+    "loading": "Chargement des histoires...",
+    "error": "Échec du chargement des histoires",
+    "score": "Score",
+    "author": "Auteur",
+    "comments": "Commentaires",
+    "readMore": "Lire la suite",
+    "summaryNotAvailable": "Résumé non disponible",
+    "commentSummaryNotAvailable": "Résumé des commentaires non disponible",
+    "contentNotAvailable": "Résumé du contenu non disponible",
+    "originalTitle": "Titre original"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": {
+      "title": "Paramètres de langue",
+      "uiLabel": "Langue de l'interface",
+      "translationLabel": "Langue de traduction du contenu",
+      "uiDescription": "Langue pour l'interface, les menus et les boutons",
+      "translationDescription": "Langue dans laquelle le contenu Hacker News sera traduit",
+      "independentNote": "Ces deux paramètres sont totalement indépendants"
+    },
+    "ai": {
+      "title": "Fournisseur IA",
+      "description": "Les clés API sont configurées via le fichier .env. Seuls les fournisseurs avec clés configurées sont listés.",
+      "providerLabel": "Fournisseur IA",
+      "providerPlaceholder": "-- Sélectionner un fournisseur --",
+      "configLabel": "Adresse du fournisseur (optionnel)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Entrez l'adresse pour les fournisseurs locaux comme LM Studio ou Ollama",
+      "keyConfigured": "✓ Clé API configurée dans .env",
+      "keyLocal": "ℹ Fournisseur local (aucune clé API requise)",
+      "modelLabel": "Modèle IA",
+      "modelPlaceholder": "-- Sélectionner un modèle --",
+      "modelSelectFirst": "-- Sélectionnez d'abord un fournisseur --",
+      "modelLoading": "Chargement des modèles...",
+      "modelRefresh": "Actualiser les modèles",
+      "modelSearch": "Rechercher des modèles...",
+      "modelNotFound": "Aucun modèle correspondant trouvé",
+      "modelCount": "{count} modèles trouvés",
+      "modelError": "Échec du chargement des modèles"
+    },
+    "data": {
+      "title": "Traitement des données",
+      "description": "Récupérer et traiter manuellement les données Hacker News.",
+      "fetchButton": "Lancer la récupération",
+      "reprocessButton": "Retraiter les non traduits",
+      "statusText": "Traitement en cours... Veuillez patienter."
+    },
+    "fetch": {
+      "title": "Paramètres de récupération",
+      "hour": "Heure",
+      "minute": "Minute",
+      "days": "Jours",
+      "monday": "Lundi",
+      "tuesday": "Mardi",
+      "wednesday": "Mercredi",
+      "thursday": "Jeudi",
+      "friday": "Vendredi",
+      "saturday": "Samedi",
+      "sunday": "Dimanche",
+      "daysHelp": "Sélectionnez les jours d'exécution",
+      "minScore": "Score minimum",
+      "minScoreHelp": "Seules les histoires avec un score supérieur seront traitées",
+      "retentionDays": "Conservation des données (jours)",
+      "retentionDaysHelp": "Les données plus anciennes seront automatiquement supprimées"
+    },
+    "preferences": {
+      "title": "Préférences utilisateur",
+      "highlightKeywords": "Mots-clés à surligner",
+      "highlightPlaceholder": "IA, apprentissage automatique, science des données",
+      "highlightHelp": "Entrez séparés par des virgules",
+      "blocklistKeywords": "Mots-clés bloqués",
+      "blocklistPlaceholder": "politique, actualité, débat",
+      "blocklistHelp": "Le contenu contenant ces mots-clés sera atténué"
+    },
+    "save": "Enregistrer les paramètres",
+    "saving": "Enregistrement...",
+    "saveSuccess": "Paramètres enregistrés avec succès !",
+    "saveError": "Une erreur est survenue lors de l'enregistrement."
+  },
+  "display": {
+    "title": "Paramètres d'affichage",
+    "fontFamily": "Police",
+    "fontSize": "Taille de police",
+    "contrast": "Contraste",
+    "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" },
+    "sizes": { "small": "Petit", "medium": "Moyen", "large": "Grand", "xlarge": "Très grand" },
+    "contrasts": { "light": "Clair", "dark": "Sombre", "sepia": "Sépia", "high": "Contraste élevé" },
+    "reset": "Revenir aux valeurs par défaut",
+    "save": "Enregistrer"
+  },
+  "theme": { "light": "Mode clair", "dark": "Mode sombre", "system": "Auto (système)" },
+  "worker": {
+    "started": "Récupération lancée ! Le traitement peut prendre quelques minutes.",
+    "reprocessStarted": "Retraitement lancé ! Le contenu et les commentaires sont actualisés.",
+    "error": "Le worker n'a pas pu être démarré.",
+    "reprocessError": "Le retraitement n'a pas pu être lancé."
+  },
+  "common": { "loading": "Chargement...", "error": "Erreur", "success": "Succès", "cancel": "Annuler", "save": "Enregistrer", "delete": "Supprimer", "close": "Fermer", "back": "Retour" }
+}

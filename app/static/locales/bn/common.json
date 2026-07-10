@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI সারাংশকারী",
+    "description": "AI-চালিত Hacker News সারাংশকারী",
+    "footer": "HN AI সারাংশকারী - AI-চালিত Hacker News সারাংশকারী"
+  },
+  "nav": {
+    "home": "হোম",
+    "settings": "সেটিংস",
+    "themeToggle": "থিম পরিবর্তন",
+    "displaySettings": "প্রদর্শন সেটিংস",
+    "refresh": "পৃষ্ঠা রিফ্রেশ"
+  },
+  "home": {
+    "title": "সর্বশেষ গল্প",
+    "noStories": "এখনও কোন গল্প উপলব্ধ নেই।",
+    "loading": "গল্প লোড হচ্ছে...",
+    "error": "গল্প লোড করতে ব্যর্থ",
+    "score": "স্কোর",
+    "author": "লেখক",
+    "comments": "মন্তব্য",
+    "readMore": "আরও পড়ুন",
+    "summaryNotAvailable": "সারাংশ উপলব্ধ নেই",
+    "commentSummaryNotAvailable": "মন্তব্য সারাংশ উপলব্ধ নেই",
+    "contentNotAvailable": "বিষয়বস্তু সারাংশ উপলব্ধ নেই",
+    "originalTitle": "মূল শিরোনাম"
+  },
+  "settings": {
+    "title": "সেটিংস",
+    "language": {
+      "title": "ভাষা সেটিংস",
+      "uiLabel": "অ্যাপ্লিকেশন ভাষা",
+      "translationLabel": "বিষয়বস্তু অনুবাদ ভাষা",
+      "uiDescription": "ইন্টারফেস, মেনু এবং বাটনের জন্য ভাষা",
+      "translationDescription": "যে ভাষায় Hacker News বিষয়বস্তু অনুবাদ করা হবে",
+      "independentNote": "এই দুটি সেটিংস সম্পূর্ণ স্বাধীন"
+    },
+    "ai": {
+      "title": "AI প্রদানকারী",
+      "description": "API কী .env ফাইলের মাধ্যমে কনফিগার করা হয়। শুধুমাত্র কনফিগার করা কী সহ প্রদানকারীরা তালিকাভুক্ত হয়।",
+      "providerLabel": "AI প্রদানকারী",
+      "providerPlaceholder": "-- প্রদানকারী নির্বাচন করুন --",
+      "configLabel": "প্রদানকারীর ঠিকানা (ঐচ্ছিক)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "LM Studio বা Ollama-এর মতো স্থানীয় প্রদানকারীদের জন্য ঠিকানা দিন",
+      "keyConfigured": "✓ .env-এ API কী কনফিগার করা হয়েছে",
+      "keyLocal": "ℹ স্থানীয় প্রদানকারী (API কী প্রয়োজন নেই)",
+      "modelLabel": "AI মডেল",
+      "modelPlaceholder": "-- মডেল নির্বাচন করুন --",
+      "modelSelectFirst": "-- প্রথমে প্রদানকারী নির্বাচন করুন --",
+      "modelLoading": "মডেল লোড হচ্ছে...",
+      "modelRefresh": "মডেল রিফ্রেশ",
+      "modelSearch": "মডেল অনুসন্ধান...",
+      "modelNotFound": "কোন মিলে যাওয়া মডেল পাওয়া যায়নি",
+      "modelCount": "{count}টি মডেল পাওয়া গেছে",
+      "modelError": "মডেল লোড করতে ব্যর্থ"
+    },
+    "data": {
+      "title": "ডেটা প্রক্রিয়াকরণ",
+      "description": "ম্যানুয়ালি Hacker News ডেটা আনুন এবং প্রক্রিয়া করুন।",
+      "fetchButton": "ডেটা আনুন",
+      "reprocessButton": "অঅনুবাদিত পুনরায় প্রক্রিয়া করুন",
+      "statusText": "প্রক্রিয়াকরণ চলছে... অনুগ্রহ করে অপেক্ষা করুন।"
+    },
+    "fetch": {
+      "title": "আনার সেটিংস",
+      "hour": "ঘন্টা",
+      "minute": "মিনিট",
+      "days": "দিন",
+      "monday": "সোমবার",
+      "tuesday": "মঙ্গলবার",
+      "wednesday": "বুধবার",
+      "thursday": "বৃহস্পতিবার",
+      "friday": "শুক্রবার",
+      "saturday": "শনিবার",
+      "sunday": "রবিবার",
+      "daysHelp": "নির্বাহের দিন নির্বাচন করুন",
+      "minScore": "ন্যূনতম স্কোর",
+      "minScoreHelp": "শুধুমাত্র এর উপরে স্কোর থাকা গল্পগুলি প্রক্রিয়া করা হবে",
+      "retentionDays": "ডেটা ধারণ (দিন)",
+      "retentionDaysHelp": "পুরোনো ডেটা স্বয়ংক্রিয়ভাবে মুছে ফেলা হবে"
+    },
+    "preferences": {
+      "title": "ব্যবহারকারী পছন্দ",
+      "highlightKeywords": "হাইলাইট কীওয়ার্ড",
+      "highlightPlaceholder": "AI, মেশিন লার্নিং, ডেটা সায়েন্স",
+      "highlightHelp": "কমা দিয়ে আলাদা করে দিন",
+      "blocklistKeywords": "অবরুদ্ধ কীওয়ার্ড",
+      "blocklistPlaceholder": "রাজনীতি, এজেন্ডা, বিতর্ক",
+      "blocklistHelp": "এই কীওয়ার্ডযুক্ত বিষয়বস্তু ম্লান করা হবে"
+    },
+    "save": "সেটিংস সংরক্ষণ",
+    "saving": "সংরক্ষণ করা হচ্ছে...",
+    "saveSuccess": "সেটিংস সফলভাবে সংরক্ষিত!",
+    "saveError": "সেটিংস সংরক্ষণে একটি ত্রুটি ঘটেছে।"
+  },
+  "display": {
+    "title": "প্রদর্শন সেটিংস",
+    "fontFamily": "ফন্ট পরিবার",
+    "fontSize": "ফন্ট আকার",
+    "contrast": "কনট্রাস্ট",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "ছোট",
+      "medium": "মাঝারি",
+      "large": "বড়",
+      "xlarge": "অতিরিক্ত বড়"
+    },
+    "contrasts": {
+      "light": "হালকা",
+      "dark": "গাঢ়",
+      "sepia": "সেপিয়া",
+      "high": "উচ্চ কনট্রাস্ট"
+    },
+    "reset": "ডিফল্টে রিসেট",
+    "save": "সংরক্ষণ"
+  },
+  "theme": {
+    "light": "হালকা মোড",
+    "dark": "গাঢ় মোড",
+    "system": "অটো (সিস্টেম)"
+  },
+  "worker": {
+    "started": "ডেটা আনা শুরু! প্রক্রিয়াকরণে কয়েক মিনিট সময় লাগতে পারে।",
+    "reprocessStarted": "পুনঃপ্রক্রিয়াকরণ শুরু! বিষয়বস্তু এবং মন্তব্য রিফ্রেশ করা হচ্ছে।",
+    "error": "কর্মী শুরু করা যায়নি।",
+    "reprocessError": "পুনঃপ্রক্রিয়াকরণ শুরু করা যায়নি।"
+  },
+  "common": {
+    "loading": "লোড হচ্ছে...",
+    "error": "ত্রুটি",
+    "success": "সফল",
+    "cancel": "বাতিল",
+    "save": "সংরক্ষণ",
+    "delete": "মুছুন",
+    "close": "বন্ধ",
+    "back": "পিছনে"
+  }
+}
