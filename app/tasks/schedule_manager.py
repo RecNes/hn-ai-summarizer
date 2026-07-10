@@ -151,14 +151,16 @@ class ScheduleManager:
 
             # Schedule jobs for each day
             for day_num in scheduled_days:
+                # Cron weekday: 0=Sunday, 1=Monday ... 6=Saturday
+                # aioschedule uses day names: "sunday", "monday", ..., "saturday"
                 day_name = [
+                    "sunday",
                     "monday",
                     "tuesday",
                     "wednesday",
                     "thursday",
                     "friday",
                     "saturday",
-                    "sunday",
                 ][day_num]
 
                 task_name = f"task for {day_name} at {scheduled_time}"
