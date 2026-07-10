@@ -8,35 +8,35 @@ The application is built as a **three-process asynchronous system** connected th
 2. **Schedule State Store** — For sharing schedule configuration between processes
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        DOCKER / HOST                                │
-│                                                                     │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐      │
-│  │   SERVER     │    │  SCHEDULER   │    │     WORKER       │      │
-│  │ (FastAPI)    │    │ (aioschedule)│    │   (Arq Worker)   │      │
-│  │              │    │              │    │                  │      │
-│  │  Web UI      │    │  Cron Check  │    │  Process Story   │      │
-│  │  REST API    │    │  Monitor     │    │  AI Translate    │      │
-│  │  Settings    │    │  Catch-up    │    │  Summarize       │      │
-│  └──────┬───────┘    └──────┬───────┘    └────────┬─────────┘      │
-│         │                   │                      │               │
-│         └──────────┬────────┴──────────┬───────────┘               │
-│                    │                   │                           │
-│                    ▼                   ▼                           │
+┌───────────────────────────────────────────────────────────────────┐
+│                        DOCKER / HOST                              │
+│                                                                   │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐     │
+│  │   SERVER     │    │  SCHEDULER   │    │     WORKER       │     │
+│  │ (FastAPI)    │    │ (aioschedule)│    │   (Arq Worker)   │     │
+│  │              │    │              │    │                  │     │
+│  │  Web UI      │    │  Cron Check  │    │  Process Story   │     │
+│  │  REST API    │    │  Monitor     │    │  AI Translate    │     │
+│  │  Settings    │    │  Catch-up    │    │  Summarize       │     │
+│  └──────┬───────┘    └──────┬───────┘    └────────┬─────────┘     │
+│         │                   │                     │               │
+│         └──────────┬────────┴──────────┬──────────┘               │
+│                    │                   │                          │
+│                    ▼                   ▼                          │
 │         ┌─────────────────────────────────────┐                   │
-│         │              REDIS                   │                   │
+│         │              REDIS                  │                   │
 │         │  ┌────────────────┬──────────────┐  │                   │
-│         │  │  Arq Queue     │  Schedule     │  │                   │
-│         │  │  (jobs)        │  State Store  │  │                   │
+│         │  │  Arq Queue     │  Schedule    │  │                   │
+│         │  │  (jobs)        │  State Store │  │                   │
 │         │  └────────────────┴──────────────┘  │                   │
 │         └─────────────────────────────────────┘                   │
-│                                                                     │
+│                                                                   │
 │         ┌─────────────────────────────────────┐                   │
-│         │          DATABASE                    │                   │
-│         │  (PostgreSQL / SQLite)               │                   │
-│         │   Stories │ Settings │ Preferences   │                   │
+│         │          DATABASE                   │                   │
+│         │  (PostgreSQL / SQLite)              │                   │
+│         │   Stories │ Settings │ Preferences  │                   │
 │         └─────────────────────────────────────┘                   │
-└─────────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -291,7 +291,7 @@ fetch_and_process_stories (triggered by scheduler)
           └──────────────────────────────────────────┘
                                       │
                     ┌─────────────────┴─────────────────┐
-                    ▼                                    ▼
+                    ▼                                   ▼
           ┌──────────────────┐                ┌──────────────────┐
           │ process_story    │                │ process_story    │
           │ (Story #1)       │                │ (Story #2)       │
