@@ -4,8 +4,6 @@
 
 **HN-AI-Summarizer** is a self-hosted web application that scrapes top Hacker News stories, processes them through AI services for translation and summarization, and presents them in a clean, readable interface optimized for mobile users and accessibility.
 
-![Screenshot](docs/images/screenshot.png)
-
 ---
 
 ## Features
@@ -26,22 +24,22 @@
 ## Architecture Overview
 
 ```
-┌──────────────┐     ┌─────────────┐     ┌──────────────────┐
+┌──────────────┐      ┌─────────────┐     ┌──────────────────┐
 │  HN Firebase │────▶│   Fetcher   │────▶│   AI Service     │
-│    API       │     │  (services) │     │  (OpenAI/etc.)   │
-└──────────────┘     └──────┬──────┘     └────────┬─────────┘
-                            │                      │
-                            ▼                      ▼
+│    API       │      │  (services) │     │  (OpenAI/etc.)   │
+└──────────────┘      └──────┬──────┘     └────────┬─────────┘
+                             │                     │
+                             ▼                     ▼
                      ┌──────────────────────────────────┐
-                     │         PostgreSQL / SQLite       │
-                     │   (Story, Setting, Preference)    │
+                     │         PostgreSQL / SQLite      │
+                     │   (Story, Setting, Preference)   │
                      └────────────┬─────────────────────┘
                                   │
                                   ▼
-                     ┌──────────────────────────────────┐
+                     ┌───────────────────────────────────┐
                      │   FastAPI + Jinja2 + TailwindCSS  │
                      │      Web Server (port 8000)       │
-                     └──────────────────────────────────┘
+                     └───────────────────────────────────┘
 ```
 
 The application runs **three separate processes** that work together:
@@ -112,9 +110,9 @@ cp .env.example .env
 
 ## 📸 Screenshots
 
-| Home Page | Story Detail | Settings |
-|-----------|-------------|----------|
-| ![Home](docs/images/screenshot.png) | ![Detail](docs/images/detail.png) | ![Settings](docs/images/settings.png) |
+| Home Page | Settings |
+|-----------|----------|
+| ![Home](docs/images/screenshot.png) | ![Settings](docs/images/settings.png) |
 
 ---
 
