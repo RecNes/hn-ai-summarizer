@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI要約ツール",
+    "description": "AI搭載のHacker News要約ツール",
+    "footer": "HN AI要約ツール - AI搭載のHacker News要約ツール"
+  },
+  "nav": {
+    "home": "ホーム",
+    "settings": "設定",
+    "themeToggle": "テーマ切替",
+    "displaySettings": "表示設定",
+    "refresh": "ページを更新"
+  },
+  "home": {
+    "title": "最新のストーリー",
+    "noStories": "まだストーリーはありません。",
+    "loading": "ストーリーを読み込み中...",
+    "error": "ストーリーの読み込みに失敗",
+    "score": "スコア",
+    "author": "著者",
+    "comments": "コメント",
+    "readMore": "続きを読む",
+    "summaryNotAvailable": "要約は利用できません",
+    "commentSummaryNotAvailable": "コメント要約は利用できません",
+    "contentNotAvailable": "コンテンツ要約は利用できません",
+    "originalTitle": "オリジナルタイトル"
+  },
+  "settings": {
+    "title": "設定",
+    "language": {
+      "title": "言語設定",
+      "uiLabel": "インターフェース言語",
+      "translationLabel": "コンテンツ翻訳言語",
+      "uiDescription": "インターフェース、メニュー、ボタンの言語",
+      "translationDescription": "Hacker Newsのコンテンツを翻訳する言語",
+      "independentNote": "これらの2つの設定は完全に独立しています"
+    },
+    "ai": {
+      "title": "AIプロバイダー",
+      "description": "APIキーは.envファイルで設定します。設定済みのキーを持つプロバイダーのみが表示されます。",
+      "providerLabel": "AIプロバイダー",
+      "providerPlaceholder": "-- プロバイダーを選択 --",
+      "configLabel": "プロバイダーアドレス（オプション）",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "LM StudioやOllamaなどのローカルプロバイダーのアドレスを入力",
+      "keyConfigured": "✓ .envでAPIキー設定済み",
+      "keyLocal": "ℹ ローカルプロバイダー（APIキー不要）",
+      "modelLabel": "AIモデル",
+      "modelPlaceholder": "-- モデルを選択 --",
+      "modelSelectFirst": "-- 最初にプロバイダーを選択 --",
+      "modelLoading": "モデルを読み込み中...",
+      "modelRefresh": "モデルを更新",
+      "modelSearch": "モデルを検索...",
+      "modelNotFound": "一致するモデルが見つかりません",
+      "modelCount": "{count}個のモデルが見つかりました",
+      "modelError": "モデルの読み込みに失敗"
+    },
+    "data": {
+      "title": "データ処理",
+      "description": "手動でHacker Newsのデータを取得して処理します。",
+      "fetchButton": "データ取得を開始",
+      "reprocessButton": "未翻訳を再処理",
+      "statusText": "処理中...お待ちください。"
+    },
+    "fetch": {
+      "title": "取得設定",
+      "hour": "時",
+      "minute": "分",
+      "days": "曜日",
+      "monday": "月曜",
+      "tuesday": "火曜",
+      "wednesday": "水曜",
+      "thursday": "木曜",
+      "friday": "金曜",
+      "saturday": "土曜",
+      "sunday": "日曜",
+      "daysHelp": "実行する曜日を選択",
+      "minScore": "最低スコア",
+      "minScoreHelp": "このスコア以上のストーリーのみ処理されます",
+      "retentionDays": "データ保持期間（日）",
+      "retentionDaysHelp": "より古いデータは自動的に削除されます"
+    },
+    "preferences": {
+      "title": "ユーザー設定",
+      "highlightKeywords": "ハイライトキーワード",
+      "highlightPlaceholder": "AI, 機械学習, データサイエンス",
+      "highlightHelp": "カンマ区切りで入力",
+      "blocklistKeywords": "ブロックキーワード",
+      "blocklistPlaceholder": "政治, 議題, 討論",
+      "blocklistHelp": "これらのキーワードを含むコンテンツは薄く表示されます"
+    },
+    "save": "設定を保存",
+    "saving": "保存中...",
+    "saveSuccess": "設定を保存しました！",
+    "saveError": "設定の保存中にエラーが発生しました。"
+  },
+  "display": {
+    "title": "表示設定",
+    "fontFamily": "フォント",
+    "fontSize": "フォントサイズ",
+    "contrast": "コントラスト",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "xlarge": "特大"
+    },
+    "contrasts": {
+      "light": "ライト",
+      "dark": "ダーク",
+      "sepia": "セピア",
+      "high": "ハイコントラスト"
+    },
+    "reset": "デフォルトに戻す",
+    "save": "保存"
+  },
+  "theme": {
+    "light": "ライトモード",
+    "dark": "ダークモード",
+    "system": "自動（システム）"
+  },
+  "worker": {
+    "started": "データ取得を開始しました！処理に数分かかる場合があります。",
+    "reprocessStarted": "再処理を開始しました！コンテンツとコメントを更新中です。",
+    "error": "ワーカーを開始できませんでした。",
+    "reprocessError": "再処理を開始できませんでした。"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "close": "閉じる",
+    "back": "戻る"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI摘要工具",
+    "description": "AI驅動的Hacker News摘要工具",
+    "footer": "HN AI摘要工具 - AI驅動的Hacker News摘要工具"
+  },
+  "nav": {
+    "home": "首頁",
+    "settings": "設定",
+    "themeToggle": "切換主題",
+    "displaySettings": "顯示設定",
+    "refresh": "重新整理頁面"
+  },
+  "home": {
+    "title": "最新故事",
+    "noStories": "暫無可用故事。",
+    "loading": "正在載入故事...",
+    "error": "載入故事失敗",
+    "score": "分數",
+    "author": "作者",
+    "comments": "評論",
+    "readMore": "閱讀更多",
+    "summaryNotAvailable": "摘要不可用",
+    "commentSummaryNotAvailable": "評論摘要不可用",
+    "contentNotAvailable": "內容摘要不可用",
+    "originalTitle": "原始標題"
+  },
+  "settings": {
+    "title": "設定",
+    "language": {
+      "title": "語言設定",
+      "uiLabel": "介面語言",
+      "translationLabel": "內容翻譯語言",
+      "uiDescription": "介面、選單和按鈕使用的語言",
+      "translationDescription": "Hacker News內容將被翻譯成的語言",
+      "independentNote": "這兩個設定完全獨立"
+    },
+    "ai": {
+      "title": "AI提供商",
+      "description": "API金鑰透過.env檔案設定。僅列出已設定金鑰的提供商。",
+      "providerLabel": "AI提供商",
+      "providerPlaceholder": "-- 選擇提供商 --",
+      "configLabel": "提供商地址（可選）",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "輸入本地提供商（如LM Studio或Ollama）的地址",
+      "keyConfigured": "✓ 已在.env中設定API金鑰",
+      "keyLocal": "ℹ 本地提供商（無需API金鑰）",
+      "modelLabel": "AI模型",
+      "modelPlaceholder": "-- 選擇模型 --",
+      "modelSelectFirst": "-- 請先選擇提供商 --",
+      "modelLoading": "正在載入模型...",
+      "modelRefresh": "重新整理模型",
+      "modelSearch": "搜尋模型...",
+      "modelNotFound": "未找到符合的模型",
+      "modelCount": "找到{count}個模型",
+      "modelError": "載入模型失敗"
+    },
+    "data": {
+      "title": "資料處理",
+      "description": "手動取得和處理Hacker News資料。",
+      "fetchButton": "開始取得資料",
+      "reprocessButton": "重新處理未翻譯的",
+      "statusText": "正在處理...請稍候。"
+    },
+    "fetch": {
+      "title": "取得設定",
+      "hour": "小時",
+      "minute": "分鐘",
+      "days": "天數",
+      "monday": "週一",
+      "tuesday": "週二",
+      "wednesday": "週三",
+      "thursday": "週四",
+      "friday": "週五",
+      "saturday": "週六",
+      "sunday": "週日",
+      "daysHelp": "選擇執行天數",
+      "minScore": "最低分數",
+      "minScoreHelp": "只有分數高於此的故事會被處理",
+      "retentionDays": "資料保留（天）",
+      "retentionDaysHelp": "更早的資料將被自動刪除"
+    },
+    "preferences": {
+      "title": "使用者偏好",
+      "highlightKeywords": "高亮關鍵字",
+      "highlightPlaceholder": "AI, 機器學習, 資料科學",
+      "highlightHelp": "用逗號分隔輸入",
+      "blocklistKeywords": "封鎖關鍵字",
+      "blocklistPlaceholder": "政治, 議程, 辯論",
+      "blocklistHelp": "包含這些關鍵字的內容將變暗顯示"
+    },
+    "save": "儲存設定",
+    "saving": "儲存中...",
+    "saveSuccess": "設定已成功儲存！",
+    "saveError": "儲存設定時發生錯誤。"
+  },
+  "display": {
+    "title": "顯示設定",
+    "fontFamily": "字型",
+    "fontSize": "字型大小",
+    "contrast": "對比度",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "xlarge": "特大"
+    },
+    "contrasts": {
+      "light": "淺色",
+      "dark": "深色",
+      "sepia": "棕褐色",
+      "high": "高對比度"
+    },
+    "reset": "恢復預設",
+    "save": "儲存"
+  },
+  "theme": {
+    "light": "淺色模式",
+    "dark": "深色模式",
+    "system": "自動（系統）"
+  },
+  "worker": {
+    "started": "資料取得已開始！處理可能需要幾分鐘。",
+    "reprocessStarted": "重新處理已開始！內容和評論正在重新整理。",
+    "error": "無法啟動工作程式。",
+    "reprocessError": "無法啟動重新處理。"
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "錯誤",
+    "success": "成功",
+    "cancel": "取消",
+    "save": "儲存",
+    "delete": "刪除",
+    "close": "關閉",
+    "back": "返回"
+  }
+}

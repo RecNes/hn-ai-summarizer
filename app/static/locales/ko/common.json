@@ -1,0 +1,142 @@
+{
+  "app": {
+    "title": "HN AI 요약기",
+    "description": "AI 기반 Hacker News 요약기",
+    "footer": "HN AI 요약기 - AI 기반 Hacker News 요약기"
+  },
+  "nav": {
+    "home": "홈",
+    "settings": "설정",
+    "themeToggle": "테마 변경",
+    "displaySettings": "디스플레이 설정",
+    "refresh": "페이지 새로고침"
+  },
+  "home": {
+    "title": "최신 스토리",
+    "noStories": "아직 스토리가 없습니다.",
+    "loading": "스토리 로딩 중...",
+    "error": "스토리 로딩 실패",
+    "score": "점수",
+    "author": "작성자",
+    "comments": "댓글",
+    "readMore": "더 보기",
+    "summaryNotAvailable": "요약을 사용할 수 없음",
+    "commentSummaryNotAvailable": "댓글 요약을 사용할 수 없음",
+    "contentNotAvailable": "콘텐츠 요약을 사용할 수 없음",
+    "originalTitle": "원제목"
+  },
+  "settings": {
+    "title": "설정",
+    "language": {
+      "title": "언어 설정",
+      "uiLabel": "인터페이스 언어",
+      "translationLabel": "콘텐츠 번역 언어",
+      "uiDescription": "인터페이스, 메뉴 및 버튼의 언어",
+      "translationDescription": "Hacker News 콘텐츠가 번역될 언어",
+      "independentNote": "이 두 설정은 완전히 독립적입니다"
+    },
+    "ai": {
+      "title": "AI 제공자",
+      "description": "API 키는 .env 파일을 통해 구성됩니다. 구성된 키가 있는 제공자만 표시됩니다.",
+      "providerLabel": "AI 제공자",
+      "providerPlaceholder": "-- 제공자 선택 --",
+      "configLabel": "제공자 주소 (선택사항)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "LM Studio 또는 Ollama와 같은 로컬 제공자의 주소를 입력하세요",
+      "keyConfigured": "✓ .env에 API 키 구성됨",
+      "keyLocal": "ℹ 로컬 제공자 (API 키 불필요)",
+      "modelLabel": "AI 모델",
+      "modelPlaceholder": "-- 모델 선택 --",
+      "modelSelectFirst": "-- 먼저 제공자를 선택하세요 --",
+      "modelLoading": "모델 로딩 중...",
+      "modelRefresh": "모델 새로고침",
+      "modelSearch": "모델 검색...",
+      "modelNotFound": "일치하는 모델을 찾을 수 없음",
+      "modelCount": "{count}개 모델 발견",
+      "modelError": "모델 로딩 실패"
+    },
+    "data": {
+      "title": "데이터 처리",
+      "description": "수동으로 Hacker News 데이터를 가져와 처리합니다.",
+      "fetchButton": "데이터 가져오기 시작",
+      "reprocessButton": "미번역 재처리",
+      "statusText": "처리 중... 기다려 주세요."
+    },
+    "fetch": {
+      "title": "가져오기 설정",
+      "hour": "시",
+      "minute": "분",
+      "days": "요일",
+      "monday": "월요일",
+      "tuesday": "화요일",
+      "wednesday": "수요일",
+      "thursday": "목요일",
+      "friday": "금요일",
+      "saturday": "토요일",
+      "sunday": "일요일",
+      "daysHelp": "실행할 요일 선택",
+      "minScore": "최소 점수",
+      "minScoreHelp": "이 점수 이상의 스토리만 처리됩니다",
+      "retentionDays": "데이터 보관 (일)",
+      "retentionDaysHelp": "오래된 데이터는 자동으로 삭제됩니다"
+    },
+    "preferences": {
+      "title": "사용자 선호도",
+      "highlightKeywords": "강조 키워드",
+      "highlightPlaceholder": "AI, 머신러닝, 데이터 과학",
+      "highlightHelp": "쉼표로 구분하여 입력",
+      "blocklistKeywords": "차단 키워드",
+      "blocklistPlaceholder": "정치, 의제, 토론",
+      "blocklistHelp": "이 키워드가 포함된 콘텐츠가 흐리게 표시됩니다"
+    },
+    "save": "설정 저장",
+    "saving": "저장 중...",
+    "saveSuccess": "설정이 성공적으로 저장되었습니다!",
+    "saveError": "설정 저장 중 오류가 발생했습니다."
+  },
+  "display": {
+    "title": "디스플레이 설정",
+    "fontFamily": "글꼴",
+    "fontSize": "글꼴 크기",
+    "contrast": "대비",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "작게",
+      "medium": "중간",
+      "large": "크게",
+      "xlarge": "아주 크게"
+    },
+    "contrasts": {
+      "light": "밝게",
+      "dark": "어둡게",
+      "sepia": "세피아",
+      "high": "고대비"
+    },
+    "reset": "기본값으로 초기화",
+    "save": "저장"
+  },
+  "theme": {
+    "light": "라이트 모드",
+    "dark": "다크 모드",
+    "system": "자동 (시스템)"
+  },
+  "worker": {
+    "started": "데이터 가져오기 시작! 처리에 몇 분 정도 걸릴 수 있습니다.",
+    "reprocessStarted": "재처리 시작! 콘텐츠와 댓글이 새로고침됩니다.",
+    "error": "작업자를 시작할 수 없습니다.",
+    "reprocessError": "재처리를 시작할 수 없습니다."
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제",
+    "close": "닫기",
+    "back": "뒤로"
+  }
+}
