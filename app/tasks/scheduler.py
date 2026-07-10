@@ -2,16 +2,22 @@
 
 import asyncio
 import os
+from datetime import datetime
 
 import aioschedule
+from arq import create_pool
+from arq.connections import RedisSettings
 from sqlalchemy.future import select
 
+from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.models.setting import Setting
 from app.tasks.schedule_manager import get_schedule_manager
 
 # Debug logs only in development mode
 _DEV = os.getenv("DEVELOPMENT", "false").lower() in ("true", "1", "yes", "on")
+
+
 def _debug(*args, **kwargs):
     if _DEV:
         print(*args, **kwargs)
@@ -155,6 +161,53 @@ async def run_scheduler():
     # Initialize schedule from database and store in Redis
     print("Initializing schedule from database...")
     await initialize_schedule_from_db()
+
+    # Catch-up: check if today's scheduled time has already passed
+    # and run a fetch immediately if so
+    try:
+        schedule_manager = await get_schedule_manager()
+        config = await schedule_manager.get_schedule_config()
+        if config and config.get("cron_schedule"):
+            cron_schedule = config["cron_schedule"]
+            scheduled_time = parse_cron_to_time(cron_schedule)
+            scheduled_days = parse_cron_to_days(cron_schedule)
+
+            now = datetime.now()
+            today_weekday = now.weekday()  # 0=Monday
+            current_time_minutes = now.hour * 60 + now.minute
+
+            # Parse scheduled time to minutes
+            try:
+                parts = scheduled_time.split(":")
+                scheduled_minutes = int(parts[0]) * 60 + int(parts[1])
+            except (ValueError, IndexError):
+                scheduled_minutes = None
+
+            # If today is a scheduled day and the time has passed, do a catch-up fetch
+            days_match = not scheduled_days or today_weekday in scheduled_days
+            if (
+                days_match
+                and scheduled_minutes is not None
+                and current_time_minutes >= scheduled_minutes
+            ):
+                print(
+                    f"Catch-up: scheduled time {scheduled_time} has passed, triggering immediate fetch..."
+                )
+                redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
+                redis_settings = RedisSettings.from_dsn(redis_url)
+                catchup_pool = await create_pool(redis_settings)
+                try:
+                    job = await catchup_pool.enqueue_job("fetch_and_process_stories")
+                    if job:
+                        print(f">>> Catch-up fetch job enqueued successfully")
+                    else:
+                        print(f">>> Catch-up fetch job enqueue returned None")
+                except Exception as e:
+                    print(f">>> Error enqueuing catch-up fetch job: {e}")
+                finally:
+                    await catchup_pool.close()
+    except Exception as e:
+        print(f"Error during catch-up check: {e}")
 
     # Start monitoring for schedule changes in background
     print("Starting schedule change monitoring...")
