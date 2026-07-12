@@ -1,153 +1,151 @@
-﻿{
+{
   "app": {
-    "title": "HN AI ìš”ì•½ê¸°",
-    "description": "AI ê¸°ë°˜ Hacker News ìš”ì•½ê¸°",
-    "footer": "HN AI ìš”ì•½ê¸° - AI ê¸°ë°˜ Hacker News ìš”ì•½ê¸°"
+    "title": "HN AI 요약기",
+    "description": "AI 기반 Hacker News 요약기",
+    "footer": "HN AI 요약기 - AI 기반 Hacker News 요약기"
   },
   "nav": {
-    "home": "í™ˆ",
-    "settings": "ì„¤ì •",
-    "themeToggle": "í…Œë§ˆ ë³€ê²½",
-    "displaySettings": "ë””ìŠ¤í”Œë ˆì´ ì„¤ì •",
-    "refresh": "í˜ì´ì§€ ìƒˆë¡œê³ ì¹¨"
+    "home": "홈",
+    "settings": "설정",
+    "themeToggle": "테마 변경",
+    "displaySettings": "디스플레이 설정",
+    "refresh": "페이지 새로고침"
   },
   "home": {
-    "title": "ìµœì‹  ìŠ¤í† ë¦¬",
-    "noStories": "ì•„ì§ ìŠ¤í† ë¦¬ê°€ ì—†ìŠµë‹ˆë‹¤.",
-    "loading": "ìŠ¤í† ë¦¬ ë¡œë”© ì¤‘...",
-    "error": "ìŠ¤í† ë¦¬ ë¡œë”© ì‹¤íŒ¨",
-    "score": "ì ìˆ˜",
-    "author": "ì‘ì„±ì",
-    "comments": "ëŒ“ê¸€",
-    "readMore": "ë” ë³´ê¸°",
-    "summaryNotAvailable": "ìš”ì•½ì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŒ",
-    "commentSummaryNotAvailable": "ëŒ“ê¸€ ìš”ì•½ì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŒ",
-    "contentNotAvailable": "ì½˜í…ì¸  ìš”ì•½ì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŒ",
-    "originalTitle": "ì›ì œëª©"
+    "title": "최신 스토리",
+    "noStories": "아직 스토리가 없습니다.",
+    "loading": "스토리 로딩 중...",
+    "error": "스토리 로딩 실패",
+    "score": "점수",
+    "author": "작성자",
+    "comments": "댓글",
+    "readMore": "더 보기",
+    "summaryNotAvailable": "요약을 사용할 수 없음",
+    "commentSummaryNotAvailable": "댓글 요약을 사용할 수 없음",
+    "contentNotAvailable": "콘텐츠 요약을 사용할 수 없음",
+    "originalTitle": "원제목"
   },
   "settings": {
-    "title": "ì„¤ì •",
+    "title": "설정",
     "language": {
-      "title": "ì–¸ì–´ ì„¤ì •",
-      "uiLabel": "ì¸í„°í˜ì´ìŠ¤ ì–¸ì–´",
-      "translationLabel": "ì½˜í…ì¸  ë²ˆì—­ ì–¸ì–´",
-      "uiDescription": "ì¸í„°í˜ì´ìŠ¤, ë©”ë‰´ ë° ë²„íŠ¼ì˜ ì–¸ì–´",
-      "translationDescription": "Hacker News ì½˜í…ì¸ ê°€ ë²ˆì—­ë  ì–¸ì–´",
-      "independentNote": "ì´ ë‘ ì„¤ì •ì€ ì™„ì „íˆ ë…ë¦½ì ì…ë‹ˆë‹¤"
+      "title": "언어 설정",
+      "uiLabel": "인터페이스 언어",
+      "translationLabel": "콘텐츠 번역 언어",
+      "uiDescription": "인터페이스, 메뉴 및 버튼의 언어",
+      "translationDescription": "Hacker News 콘텐츠가 번역될 언어",
+      "independentNote": "이 두 설정은 완전히 독립적입니다"
     },
     "ai": {
-      "title": "AI ì œê³µì",
-      "description": "API í‚¤ëŠ” .env íŒŒì¼ì„ í†µí•´ êµ¬ì„±ë©ë‹ˆë‹¤. êµ¬ì„±ëœ í‚¤ê°€ ìˆëŠ” ì œê³µìë§Œ í‘œì‹œë©ë‹ˆë‹¤.",
-      "providerLabel": "AI ì œê³µì",
-      "providerPlaceholder": "-- ì œê³µì ì„ íƒ --",
-      "configLabel": "ì œê³µì ì£¼ì†Œ (ì„ íƒì‚¬í•­)",
+      "title": "AI 제공자",
+      "description": "API 키는 .env 파일을 통해 구성됩니다. 구성된 키가 있는 제공자만 표시됩니다.",
+      "providerLabel": "AI 제공자",
+      "providerPlaceholder": "-- 제공자 선택 --",
+      "configLabel": "제공자 주소 (선택사항)",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "LM Studio ë˜ëŠ” Ollamaì™€ ê°™ì€ ë¡œì»¬ ì œê³µìì˜ ì£¼ì†Œë¥¼ ì…ë ¥í•˜ì„¸ìš”",
-      "keyConfigured": "âœ“ .envì— API í‚¤ êµ¬ì„±ë¨",
-      "keyLocal": "â„¹ ë¡œì»¬ ì œê³µì (API í‚¤ ë¶ˆí•„ìš”)",
-      "modelLabel": "AI ëª¨ë¸",
-      "modelPlaceholder": "-- ëª¨ë¸ ì„ íƒ --",
-      "modelSelectFirst": "-- ë¨¼ì € ì œê³µìë¥¼ ì„ íƒí•˜ì„¸ìš” --",
-      "modelLoading": "ëª¨ë¸ ë¡œë”© ì¤‘...",
-      "modelRefresh": "ëª¨ë¸ ìƒˆë¡œê³ ì¹¨",
-      "modelSearch": "ëª¨ë¸ ê²€ìƒ‰...",
-      "modelNotFound": "ì¼ì¹˜í•˜ëŠ” ëª¨ë¸ì„ ì°¾ì„ ìˆ˜ ì—†ìŒ",
-      "modelCount": "{count}ê°œ ëª¨ë¸ ë°œê²¬",
-      "modelError": "ëª¨ë¸ ë¡œë”© ì‹¤íŒ¨"
+      "configHelp": "LM Studio 또는 Ollama와 같은 로컬 제공자의 주소를 입력하세요",
+      "keyConfigured": "✓ .env에 API 키 구성됨",
+      "keyLocal": "ℹ 로컬 제공자 (API 키 불필요)",
+      "modelLabel": "AI 모델",
+      "modelPlaceholder": "-- 모델 선택 --",
+      "modelSelectFirst": "-- 먼저 제공자를 선택하세요 --",
+      "modelLoading": "모델 로딩 중...",
+      "modelRefresh": "모델 새로고침",
+      "modelSearch": "모델 검색...",
+      "modelNotFound": "일치하는 모델을 찾을 수 없음",
+      "modelCount": "{count}개 모델 발견",
+      "modelError": "모델 로딩 실패"
     },
     "data": {
-      "title": "ë°ì´í„° ì²˜ë¦¬",
-      "description": "ìˆ˜ë™ìœ¼ë¡œ Hacker News ë°ì´í„°ë¥¼ ê°€ì ¸ì™€ ì²˜ë¦¬í•©ë‹ˆë‹¤.",
-      "fetchButton": "ë°ì´í„° ê°€ì ¸ì˜¤ê¸° ì‹œì‘",
-      "reprocessButton": "ë¯¸ë²ˆì—­ ì¬ì²˜ë¦¬",
-      "statusText": "ì²˜ë¦¬ ì¤‘... ê¸°ë‹¤ë ¤ ì£¼ì„¸ìš”."
+      "title": "데이터 처리",
+      "description": "수동으로 Hacker News 데이터를 가져와 처리합니다.",
+      "fetchButton": "데이터 가져오기 시작",
+      "reprocessButton": "미번역 재처리",
+      "statusText": "처리 중... 기다려 주세요."
     },
     "fetch": {
-      "title": "ê°€ì ¸ì˜¤ê¸° ì„¤ì •",
-      "hour": "ì‹œ",
-      "minute": "ë¶„",
-      "days": "ìš”ì¼",
-      "monday": "ì›”ìš”ì¼",
-      "tuesday": "í™”ìš”ì¼",
-      "wednesday": "ìˆ˜ìš”ì¼",
-      "thursday": "ëª©ìš”ì¼",
-      "friday": "ê¸ˆìš”ì¼",
-      "saturday": "í† ìš”ì¼",
-      "sunday": "ì¼ìš”ì¼",
-      "daysHelp": "ì‹¤í–‰í•  ìš”ì¼ ì„ íƒ",
-      "minScore": "ìµœì†Œ ì ìˆ˜",
-      "minScoreHelp": "ì´ ì ìˆ˜ ì´ìƒì˜ ìŠ¤í† ë¦¬ë§Œ ì²˜ë¦¬ë©ë‹ˆë‹¤",
-      "retentionDays": "ë°ì´í„° ë³´ê´€ (ì¼)",
-      "retentionDaysHelp": "ì˜¤ë˜ëœ ë°ì´í„°ëŠ” ìë™ìœ¼ë¡œ ì‚­ì œë©ë‹ˆë‹¤"
+      "title": "가져오기 설정",
+      "hour": "시",
+      "minute": "분",
+      "days": "요일",
+      "monday": "월요일",
+      "tuesday": "화요일",
+      "wednesday": "수요일",
+      "thursday": "목요일",
+      "friday": "금요일",
+      "saturday": "토요일",
+      "sunday": "일요일",
+      "daysHelp": "실행할 요일 선택",
+      "minScore": "최소 점수",
+      "minScoreHelp": "이 점수 이상의 스토리만 처리됩니다",
+      "retentionDays": "데이터 보관 (일)",
+      "retentionDaysHelp": "오래된 데이터는 자동으로 삭제됩니다"
     },
     "preferences": {
-      "title": "ì‚¬ìš©ì ì„ í˜¸ë„",
-      "highlightKeywords": "ê°•ì¡° í‚¤ì›Œë“œ",
-      "highlightPlaceholder": "AI, ë¨¸ì‹ ëŸ¬ë‹, ë°ì´í„° ê³¼í•™",
-      "highlightHelp": "ì‰¼í‘œë¡œ êµ¬ë¶„í•˜ì—¬ ì…ë ¥",
-      "blocklistKeywords": "ì°¨ë‹¨ í‚¤ì›Œë“œ",
-      "blocklistPlaceholder": "ì •ì¹˜, ì˜ì œ, í† ë¡ ",
-      "blocklistHelp": "ì´ í‚¤ì›Œë“œê°€ í¬í•¨ëœ ì½˜í…ì¸ ê°€ íë¦¬ê²Œ í‘œì‹œë©ë‹ˆë‹¤"
+      "title": "사용자 선호도",
+      "highlightKeywords": "강조 키워드",
+      "highlightPlaceholder": "AI, 머신러닝, 데이터 과학",
+      "highlightHelp": "쉼표로 구분하여 입력",
+      "blocklistKeywords": "차단 키워드",
+      "blocklistPlaceholder": "정치, 의제, 토론",
+      "blocklistHelp": "이 키워드가 포함된 콘텐츠가 흐리게 표시됩니다"
     },
     "telegram": {
-      "title": "Telegram 알림",
-      "description": ".env 파일에 <code>TELEGRAM_BOT_TOKEN=</code>으로 Telegram 봇 토큰을 추가하세요. 봇 토큰은 <strong>프론트엔드로 절대 전송되지 않으며</strong>, 서버에서만 읽힙니다.",
-      "chatIdLabel": "Telegram 채팅 ID",
+      "title": "Telegram ??",
+      "description": ".env ??? TELEGRAM_BOT_TOKEN=?? Telegram ? ??? ?????. ? ??? ?????? ?? ???? ???, ????? ????.",
+      "chatIdLabel": "Telegram ?? ID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "봇에 메시지를 보낸 후 <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code>를 방문하여 채팅 ID를 찾으세요.",
-      "enabledLabel": "Telegram 알림 활성화",
-      "enabledHelp": "활성화되면 새로 처리된 스토리 배치마다 Telegram 알림을 받게 됩니다.",
-      "tokenAvailable": "✅ .env에 봇 토큰이 구성됨",
-      "tokenMissing": "⚠️ .env에 봇 토큰이 구성되지 않음. 알림이 작동하지 않습니다."
+      "chatIdHelp": "?? ???? ?? ? https://api.telegram.org/bot<TOKEN>/getUpdates? ???? ?? ID? ????.",
+      "enabledLabel": "Telegram ?? ???",
+      "enabledHelp": "????? ?? ??? ??? ???? Telegram ??? ?? ???."
     },
-    "save": "ì„¤ì • ì €ì¥",
-    "saving": "ì €ì¥ ì¤‘...",
-    "saveSuccess": "ì„¤ì •ì´ ì„±ê³µì ìœ¼ë¡œ ì €ì¥ë˜ì—ˆìŠµë‹ˆë‹¤!",
-    "saveError": "ì„¤ì • ì €ì¥ ì¤‘ ì˜¤ë¥˜ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤."
+    "save": "설정 저장",
+    "saving": "저장 중...",
+    "saveSuccess": "설정이 성공적으로 저장되었습니다!",
+    "saveError": "설정 저장 중 오류가 발생했습니다."
   },
   "display": {
-    "title": "ë””ìŠ¤í”Œë ˆì´ ì„¤ì •",
-    "fontFamily": "ê¸€ê¼´",
-    "fontSize": "ê¸€ê¼´ í¬ê¸°",
-    "contrast": "ëŒ€ë¹„",
+    "title": "디스플레이 설정",
+    "fontFamily": "글꼴",
+    "fontSize": "글꼴 크기",
+    "contrast": "대비",
     "fonts": {
       "atkinson": "Atkinson Hyperlegible",
       "merriweather": "Merriweather"
     },
     "sizes": {
-      "small": "ì‘ê²Œ",
-      "medium": "ì¤‘ê°„",
-      "large": "í¬ê²Œ",
-      "xlarge": "ì•„ì£¼ í¬ê²Œ"
+      "small": "작게",
+      "medium": "중간",
+      "large": "크게",
+      "xlarge": "아주 크게"
     },
     "contrasts": {
-      "light": "ë°ê²Œ",
-      "dark": "ì–´ë‘¡ê²Œ",
-      "sepia": "ì„¸í”¼ì•„",
-      "high": "ê³ ëŒ€ë¹„"
+      "light": "밝게",
+      "dark": "어둡게",
+      "sepia": "세피아",
+      "high": "고대비"
     },
-    "reset": "ê¸°ë³¸ê°’ìœ¼ë¡œ ì´ˆê¸°í™”",
-    "save": "ì €ì¥"
+    "reset": "기본값으로 초기화",
+    "save": "저장"
   },
   "theme": {
-    "light": "ë¼ì´íŠ¸ ëª¨ë“œ",
-    "dark": "ë‹¤í¬ ëª¨ë“œ",
-    "system": "ìë™ (ì‹œìŠ¤í…œ)"
+    "light": "라이트 모드",
+    "dark": "다크 모드",
+    "system": "자동 (시스템)"
   },
   "worker": {
-    "started": "ë°ì´í„° ê°€ì ¸ì˜¤ê¸° ì‹œì‘! ì²˜ë¦¬ì— ëª‡ ë¶„ ì •ë„ ê±¸ë¦´ ìˆ˜ ìˆìŠµë‹ˆë‹¤.",
-    "reprocessStarted": "ì¬ì²˜ë¦¬ ì‹œì‘! ì½˜í…ì¸ ì™€ ëŒ“ê¸€ì´ ìƒˆë¡œê³ ì¹¨ë©ë‹ˆë‹¤.",
-    "error": "ì‘ì—…ìë¥¼ ì‹œì‘í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.",
-    "reprocessError": "ì¬ì²˜ë¦¬ë¥¼ ì‹œì‘í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤."
+    "started": "데이터 가져오기 시작! 처리에 몇 분 정도 걸릴 수 있습니다.",
+    "reprocessStarted": "재처리 시작! 콘텐츠와 댓글이 새로고침됩니다.",
+    "error": "작업자를 시작할 수 없습니다.",
+    "reprocessError": "재처리를 시작할 수 없습니다."
   },
   "common": {
-    "loading": "ë¡œë”© ì¤‘...",
-    "error": "ì˜¤ë¥˜",
-    "success": "ì„±ê³µ",
-    "cancel": "ì·¨ì†Œ",
-    "save": "ì €ì¥",
-    "delete": "ì‚­ì œ",
-    "close": "ë‹«ê¸°",
-    "back": "ë’¤ë¡œ"
+    "loading": "로딩 중...",
+    "error": "오류",
+    "success": "성공",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제",
+    "close": "닫기",
+    "back": "뒤로"
   }
 }

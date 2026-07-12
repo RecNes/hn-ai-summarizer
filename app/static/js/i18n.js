@@ -108,7 +108,7 @@ function applyI18nToDOM() {
         const key = el.getAttribute('data-i18n');
         const translated = i18next.t(key);
         if (translated && translated !== key) {
-            el.textContent = translated;
+            el.innerHTML = translated;
         }
     });
 
