@@ -43,6 +43,9 @@ async def get_settings(db: AsyncSession = Depends(get_db)):
     setting_dict["available_providers"] = get_available_providers()
     setting_dict["available_languages"] = get_languages()
 
+    # Telegram availability (computed from .env, never stored in DB)
+    setting_dict["telegram_available"] = bool(settings.TELEGRAM_BOT_TOKEN)
+
     return setting_dict
 
 
@@ -107,6 +110,7 @@ async def update_settings(
     setting_dict = {c.name: getattr(setting, c.name) for c in setting.__table__.columns}
     setting_dict["id"] = setting.id
     setting_dict["available_providers"] = get_available_providers()
+    setting_dict["telegram_available"] = bool(settings.TELEGRAM_BOT_TOKEN)
 
     return setting_dict
 
@@ -156,8 +160,8 @@ async def trigger_worker():
         # Create Redis pool
         redis_pool = await create_pool(redis_settings)
 
-        # Enqueue the fetch and process job
-        job = await redis_pool.enqueue_job("fetch_and_process_stories")
+        # Enqueue the fetch and process job (send_notification=False for manual trigger)
+        job = await redis_pool.enqueue_job("fetch_and_process_stories", send_notification=False)
 
         await redis_pool.close()  # Close the pool
 

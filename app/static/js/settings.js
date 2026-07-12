@@ -88,6 +88,27 @@ async function loadSettings() {
             dayCheckboxes.forEach(cb => { cb.checked = days.includes(cb.value); });
         }
 
+        // Telegram settings
+        const chatIdField = document.getElementById('telegram_chat_id');
+        if (chatIdField) chatIdField.value = data.telegram_chat_id || '';
+
+        const enabledCheckbox = document.getElementById('telegram_enabled');
+        if (enabledCheckbox) enabledCheckbox.checked = data.telegram_enabled || false;
+
+        // Show Telegram availability status
+        const statusDiv = document.getElementById('telegram-status');
+        if (statusDiv) {
+            if (data.telegram_available) {
+                statusDiv.textContent = '✅ Bot token .env dosyasında tanımlı';
+                statusDiv.className = 'text-sm mt-2 text-green-600';
+                statusDiv.classList.remove('hidden');
+            } else {
+                statusDiv.textContent = '⚠️ Bot token .env dosyasında tanımlı değil. Bildirimler çalışmaz.';
+                statusDiv.className = 'text-sm mt-2 text-yellow-600';
+                statusDiv.classList.remove('hidden');
+            }
+        }
+
         if (data.ai_provider) {
             await loadModelsForProvider(data.ai_provider, data.ai_provider_config);
             if (data.ai_model) {
@@ -265,7 +286,9 @@ async function saveSettings(event) {
         scheduled_minute: parseInt(document.getElementById('scheduled_minute').value) || 0,
         scheduled_days: Array.from(document.querySelectorAll('input[name="scheduled_days"]:checked'))
             .map(cb => cb.value)
-            .join(',')
+            .join(','),
+        telegram_chat_id: document.getElementById('telegram_chat_id').value || null,
+        telegram_enabled: document.getElementById('telegram_enabled').checked
     };
 
     const prefsData = {

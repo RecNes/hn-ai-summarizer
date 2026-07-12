@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     LOCAL_AI_BROKER_URL: Optional[str] = Field("")
     LOCAL_AI_MODEL: Optional[str] = Field("")
 
+    TELEGRAM_BOT_TOKEN: Optional[str] = Field("")
+
     DEVELOPMENT: bool = Field(False)
 
     @computed_field(alias="ASYNC_DATABASE_URL")

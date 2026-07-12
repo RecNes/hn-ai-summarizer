@@ -36,6 +36,10 @@ class SettingBase(BaseModel):
     smtp_password: Optional[str] = None
     smtp_from: Optional[str] = None
 
+    # Telegram settings
+    telegram_chat_id: Optional[str] = None
+    telegram_enabled: bool = False
+
     # Display settings
     display_font_family: Optional[str] = None
     display_font_size: Optional[str] = None
@@ -53,6 +57,7 @@ class SettingResponse(SettingBase):
 
     id: int
     available_providers: List[Dict[str, Any]] = []
+    telegram_available: bool = False
 
     class Config:
         """Pydantic configuration to work with ORM objects."""
