@@ -1,142 +1,153 @@
-{
+﻿{
   "app": {
-    "title": "HN AI摘要工具",
-    "description": "AI驱动的Hacker News摘要工具",
-    "footer": "HN AI摘要工具 - AI驱动的Hacker News摘要工具"
+    "title": "HN AIæ‘˜è¦å·¥å…·",
+    "description": "AIé©±åŠ¨çš„Hacker Newsæ‘˜è¦å·¥å…·",
+    "footer": "HN AIæ‘˜è¦å·¥å…· - AIé©±åŠ¨çš„Hacker Newsæ‘˜è¦å·¥å…·"
   },
   "nav": {
-    "home": "首页",
-    "settings": "设置",
-    "themeToggle": "切换主题",
-    "displaySettings": "显示设置",
-    "refresh": "刷新页面"
+    "home": "é¦–é¡µ",
+    "settings": "è®¾ç½®",
+    "themeToggle": "åˆ‡æ¢ä¸»é¢˜",
+    "displaySettings": "æ˜¾ç¤ºè®¾ç½®",
+    "refresh": "åˆ·æ–°é¡µé¢"
   },
   "home": {
-    "title": "最新故事",
-    "noStories": "暂无可用故事。",
-    "loading": "正在加载故事...",
-    "error": "加载故事失败",
-    "score": "分数",
-    "author": "作者",
-    "comments": "评论",
-    "readMore": "阅读更多",
-    "summaryNotAvailable": "摘要不可用",
-    "commentSummaryNotAvailable": "评论摘要不可用",
-    "contentNotAvailable": "内容摘要不可用",
-    "originalTitle": "原标题"
+    "title": "æœ€æ–°æ•…äº‹",
+    "noStories": "æš‚æ— å¯ç”¨æ•…äº‹ã€‚",
+    "loading": "æ­£åœ¨åŠ è½½æ•…äº‹...",
+    "error": "åŠ è½½æ•…äº‹å¤±è´¥",
+    "score": "åˆ†æ•°",
+    "author": "ä½œè€…",
+    "comments": "è¯„è®º",
+    "readMore": "é˜…è¯»æ›´å¤š",
+    "summaryNotAvailable": "æ‘˜è¦ä¸å¯ç”¨",
+    "commentSummaryNotAvailable": "è¯„è®ºæ‘˜è¦ä¸å¯ç”¨",
+    "contentNotAvailable": "å†…å®¹æ‘˜è¦ä¸å¯ç”¨",
+    "originalTitle": "åŸæ ‡é¢˜"
   },
   "settings": {
-    "title": "设置",
+    "title": "è®¾ç½®",
     "language": {
-      "title": "语言设置",
-      "uiLabel": "界面语言",
-      "translationLabel": "内容翻译语言",
-      "uiDescription": "界面、菜单和按钮使用的语言",
-      "translationDescription": "Hacker News内容将被翻译成的语言",
-      "independentNote": "这两个设置完全独立"
+      "title": "è¯­è¨€è®¾ç½®",
+      "uiLabel": "ç•Œé¢è¯­è¨€",
+      "translationLabel": "å†…å®¹ç¿»è¯‘è¯­è¨€",
+      "uiDescription": "ç•Œé¢ã€èœå•å’ŒæŒ‰é’®ä½¿ç”¨çš„è¯­è¨€",
+      "translationDescription": "Hacker Newså†…å®¹å°†è¢«ç¿»è¯‘æˆçš„è¯­è¨€",
+      "independentNote": "è¿™ä¸¤ä¸ªè®¾ç½®å®Œå…¨ç‹¬ç«‹"
     },
     "ai": {
-      "title": "AI提供商",
-      "description": "API密钥通过.env文件配置。仅列出已配置密钥的提供商。",
-      "providerLabel": "AI提供商",
-      "providerPlaceholder": "-- 选择提供商 --",
-      "configLabel": "提供商地址（可选）",
+      "title": "AIæä¾›å•†",
+      "description": "APIå¯†é’¥é€šè¿‡.envæ–‡ä»¶é…ç½®ã€‚ä»…åˆ—å‡ºå·²é…ç½®å¯†é’¥çš„æä¾›å•†ã€‚",
+      "providerLabel": "AIæä¾›å•†",
+      "providerPlaceholder": "-- é€‰æ‹©æä¾›å•† --",
+      "configLabel": "æä¾›å•†åœ°å€ï¼ˆå¯é€‰ï¼‰",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "输入本地提供商（如LM Studio或Ollama）的地址",
-      "keyConfigured": "✓ 已在.env中配置API密钥",
-      "keyLocal": "ℹ 本地提供商（无需API密钥）",
-      "modelLabel": "AI模型",
-      "modelPlaceholder": "-- 选择模型 --",
-      "modelSelectFirst": "-- 请先选择提供商 --",
-      "modelLoading": "正在加载模型...",
-      "modelRefresh": "刷新模型",
-      "modelSearch": "搜索模型...",
-      "modelNotFound": "未找到匹配的模型",
-      "modelCount": "找到{count}个模型",
-      "modelError": "加载模型失败"
+      "configHelp": "è¾“å…¥æœ¬åœ°æä¾›å•†ï¼ˆå¦‚LM Studioæˆ–Ollamaï¼‰çš„åœ°å€",
+      "keyConfigured": "âœ“ å·²åœ¨.envä¸­é…ç½®APIå¯†é’¥",
+      "keyLocal": "â„¹ æœ¬åœ°æä¾›å•†ï¼ˆæ— éœ€APIå¯†é’¥ï¼‰",
+      "modelLabel": "AIæ¨¡å‹",
+      "modelPlaceholder": "-- é€‰æ‹©æ¨¡å‹ --",
+      "modelSelectFirst": "-- è¯·å…ˆé€‰æ‹©æä¾›å•† --",
+      "modelLoading": "æ­£åœ¨åŠ è½½æ¨¡å‹...",
+      "modelRefresh": "åˆ·æ–°æ¨¡å‹",
+      "modelSearch": "æœç´¢æ¨¡å‹...",
+      "modelNotFound": "æœªæ‰¾åˆ°åŒ¹é…çš„æ¨¡å‹",
+      "modelCount": "æ‰¾åˆ°{count}ä¸ªæ¨¡å‹",
+      "modelError": "åŠ è½½æ¨¡å‹å¤±è´¥"
     },
     "data": {
-      "title": "数据处理",
-      "description": "手动获取和处理Hacker News数据。",
-      "fetchButton": "开始获取数据",
-      "reprocessButton": "重新处理未翻译的",
-      "statusText": "正在处理...请稍候。"
+      "title": "æ•°æ®å¤„ç†",
+      "description": "æ‰‹åŠ¨è·å–å’Œå¤„ç†Hacker Newsæ•°æ®ã€‚",
+      "fetchButton": "å¼€å§‹è·å–æ•°æ®",
+      "reprocessButton": "é‡æ–°å¤„ç†æœªç¿»è¯‘çš„",
+      "statusText": "æ­£åœ¨å¤„ç†...è¯·ç¨å€™ã€‚"
     },
     "fetch": {
-      "title": "获取设置",
-      "hour": "小时",
-      "minute": "分钟",
-      "days": "天数",
-      "monday": "周一",
-      "tuesday": "周二",
-      "wednesday": "周三",
-      "thursday": "周四",
-      "friday": "周五",
-      "saturday": "周六",
-      "sunday": "周日",
-      "daysHelp": "选择运行天数",
-      "minScore": "最低分数",
-      "minScoreHelp": "只有分数高于此的故事会被处理",
-      "retentionDays": "数据保留（天）",
-      "retentionDaysHelp": "更早的数据将被自动删除"
+      "title": "è·å–è®¾ç½®",
+      "hour": "å°æ—¶",
+      "minute": "åˆ†é’Ÿ",
+      "days": "å¤©æ•°",
+      "monday": "å‘¨ä¸€",
+      "tuesday": "å‘¨äºŒ",
+      "wednesday": "å‘¨ä¸‰",
+      "thursday": "å‘¨å››",
+      "friday": "å‘¨äº”",
+      "saturday": "å‘¨å…­",
+      "sunday": "å‘¨æ—¥",
+      "daysHelp": "é€‰æ‹©è¿è¡Œå¤©æ•°",
+      "minScore": "æœ€ä½åˆ†æ•°",
+      "minScoreHelp": "åªæœ‰åˆ†æ•°é«˜äºæ­¤çš„æ•…äº‹ä¼šè¢«å¤„ç†",
+      "retentionDays": "æ•°æ®ä¿ç•™ï¼ˆå¤©ï¼‰",
+      "retentionDaysHelp": "æ›´æ—©çš„æ•°æ®å°†è¢«è‡ªåŠ¨åˆ é™¤"
     },
     "preferences": {
-      "title": "用户偏好",
-      "highlightKeywords": "高亮关键词",
-      "highlightPlaceholder": "AI, 机器学习, 数据科学",
-      "highlightHelp": "用逗号分隔输入",
-      "blocklistKeywords": "屏蔽关键词",
-      "blocklistPlaceholder": "政治, 议程, 辩论",
-      "blocklistHelp": "包含这些关键词的内容将变暗显示"
+      "title": "ç”¨æˆ·åå¥½",
+      "highlightKeywords": "é«˜äº®å…³é”®è¯",
+      "highlightPlaceholder": "AI, æœºå™¨å­¦ä¹ , æ•°æ®ç§‘å­¦",
+      "highlightHelp": "ç”¨é€—å·åˆ†éš”è¾“å…¥",
+      "blocklistKeywords": "å±è”½å…³é”®è¯",
+      "blocklistPlaceholder": "æ”¿æ²», è®®ç¨‹, è¾©è®º",
+      "blocklistHelp": "åŒ…å«è¿™äº›å…³é”®è¯çš„å†…å®¹å°†å˜æš—æ˜¾ç¤º"
     },
-    "save": "保存设置",
-    "saving": "保存中...",
-    "saveSuccess": "设置已成功保存！",
-    "saveError": "保存设置时发生错误。"
+    "telegram": {
+      "title": "Telegram 通知",
+      "description": "将您的 Telegram 机器人令牌添加到 .env 文件中，格式为 <code>TELEGRAM_BOT_TOKEN=</code>。机器人令牌<strong>永远不会发送到前端</strong>，仅由服务器读取。",
+      "chatIdLabel": "Telegram 聊天 ID",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "向您的机器人发送一条消息，然后访问 <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> 查找您的聊天 ID。",
+      "enabledLabel": "启用 Telegram 通知",
+      "enabledHelp": "启用后，您将收到每批新处理故事的 Telegram 通知。",
+      "tokenAvailable": "✅ .env 中已配置机器人令牌",
+      "tokenMissing": "⚠️ .env 中未配置机器人令牌。通知将无法使用。"
+    },
+    "save": "ä¿å­˜è®¾ç½®",
+    "saving": "ä¿å­˜ä¸­...",
+    "saveSuccess": "è®¾ç½®å·²æˆåŠŸä¿å­˜ï¼",
+    "saveError": "ä¿å­˜è®¾ç½®æ—¶å‘ç”Ÿé”™è¯¯ã€‚"
   },
   "display": {
-    "title": "显示设置",
-    "fontFamily": "字体",
-    "fontSize": "字号",
-    "contrast": "对比度",
+    "title": "æ˜¾ç¤ºè®¾ç½®",
+    "fontFamily": "å­—ä½“",
+    "fontSize": "å­—å·",
+    "contrast": "å¯¹æ¯”åº¦",
     "fonts": {
       "atkinson": "Atkinson Hyperlegible",
       "merriweather": "Merriweather"
     },
     "sizes": {
-      "small": "小",
-      "medium": "中",
-      "large": "大",
-      "xlarge": "特大"
+      "small": "å°",
+      "medium": "ä¸­",
+      "large": "å¤§",
+      "xlarge": "ç‰¹å¤§"
     },
     "contrasts": {
-      "light": "浅色",
-      "dark": "深色",
-      "sepia": "棕褐色",
-      "high": "高对比度"
+      "light": "æµ…è‰²",
+      "dark": "æ·±è‰²",
+      "sepia": "æ£•è¤è‰²",
+      "high": "é«˜å¯¹æ¯”åº¦"
     },
-    "reset": "恢复默认",
-    "save": "保存"
+    "reset": "æ¢å¤é»˜è®¤",
+    "save": "ä¿å­˜"
   },
   "theme": {
-    "light": "浅色模式",
-    "dark": "深色模式",
-    "system": "自动（系统）"
+    "light": "æµ…è‰²æ¨¡å¼",
+    "dark": "æ·±è‰²æ¨¡å¼",
+    "system": "è‡ªåŠ¨ï¼ˆç³»ç»Ÿï¼‰"
   },
   "worker": {
-    "started": "数据获取已开始！处理可能需要几分钟。",
-    "reprocessStarted": "重新处理已开始！内容和评论正在刷新。",
-    "error": "无法启动工作程序。",
-    "reprocessError": "无法启动重新处理。"
+    "started": "æ•°æ®è·å–å·²å¼€å§‹ï¼å¤„ç†å¯èƒ½éœ€è¦å‡ åˆ†é’Ÿã€‚",
+    "reprocessStarted": "é‡æ–°å¤„ç†å·²å¼€å§‹ï¼å†…å®¹å’Œè¯„è®ºæ­£åœ¨åˆ·æ–°ã€‚",
+    "error": "æ— æ³•å¯åŠ¨å·¥ä½œç¨‹åºã€‚",
+    "reprocessError": "æ— æ³•å¯åŠ¨é‡æ–°å¤„ç†ã€‚"
   },
   "common": {
-    "loading": "加载中...",
-    "error": "错误",
-    "success": "成功",
-    "cancel": "取消",
-    "save": "保存",
-    "delete": "删除",
-    "close": "关闭",
-    "back": "返回"
+    "loading": "åŠ è½½ä¸­...",
+    "error": "é”™è¯¯",
+    "success": "æˆåŠŸ",
+    "cancel": "å–æ¶ˆ",
+    "save": "ä¿å­˜",
+    "delete": "åˆ é™¤",
+    "close": "å…³é—­",
+    "back": "è¿”å›"
   }
 }

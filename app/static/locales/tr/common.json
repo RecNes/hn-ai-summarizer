@@ -89,6 +89,17 @@
       "blocklistPlaceholder": "politika, gündem, tartışma",
       "blocklistHelp": "Bu kelimeleri içeren içerikler soluk gösterilecek"
     },
+    "telegram": {
+      "title": "Telegram Bildirimleri",
+      "description": "Telegram bot token'ınızı .env dosyasına <code>TELEGRAM_BOT_TOKEN=</code> olarak ekleyin. Bot token <strong>frontend'e gönderilmez</strong>, sadece sunucu tarafından okunur.",
+      "chatIdLabel": "Telegram Chat ID",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "Bot'unuza mesaj atıp <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> adresinden chat ID'nizi öğrenebilirsiniz.",
+      "enabledLabel": "Telegram bildirimlerini etkinleştir",
+      "enabledHelp": "Aktifleştirildiğinde, her yeni işlenmiş konu için Telegram'dan bildirim alırsınız.",
+      "tokenAvailable": "✅ Bot token .env dosyasında tanımlı",
+      "tokenMissing": "⚠️ Bot token .env dosyasında tanımlı değil. Bildirimler çalışmaz."
+    },
     "save": "Ayarları Kaydet",
     "saving": "Kaydediliyor...",
     "saveSuccess": "Ayarlar başarıyla kaydedildi!",

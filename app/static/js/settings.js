@@ -1,4 +1,4 @@
-// ──────────────────────────────────────────────
+ // ──────────────────────────────────────────────
 // State
 // ──────────────────────────────────────────────
 let availableProviders = [];
@@ -95,15 +95,15 @@ async function loadSettings() {
         const enabledCheckbox = document.getElementById('telegram_enabled');
         if (enabledCheckbox) enabledCheckbox.checked = data.telegram_enabled || false;
 
-        // Show Telegram availability status
+        // Show Telegram availability status (via i18n)
         const statusDiv = document.getElementById('telegram-status');
         if (statusDiv) {
             if (data.telegram_available) {
-                statusDiv.textContent = '✅ Bot token .env dosyasında tanımlı';
+                statusDiv.textContent = window.__('settings.telegram.tokenAvailable');
                 statusDiv.className = 'text-sm mt-2 text-green-600';
                 statusDiv.classList.remove('hidden');
             } else {
-                statusDiv.textContent = '⚠️ Bot token .env dosyasında tanımlı değil. Bildirimler çalışmaz.';
+                statusDiv.textContent = window.__('settings.telegram.tokenMissing');
                 statusDiv.className = 'text-sm mt-2 text-yellow-600';
                 statusDiv.classList.remove('hidden');
             }

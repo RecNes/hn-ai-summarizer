@@ -89,6 +89,17 @@
       "blocklistPlaceholder": "politics, agenda, debate",
       "blocklistHelp": "Content containing these keywords will be dimmed"
     },
+    "telegram": {
+      "title": "Telegram Notifications",
+      "description": "Add your Telegram bot token to .env as <code>TELEGRAM_BOT_TOKEN=</code>. The bot token is <strong>never sent to the frontend</strong>, it is only read by the server.",
+      "chatIdLabel": "Telegram Chat ID",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "Send a message to your bot, then visit <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> to find your chat ID.",
+      "enabledLabel": "Enable Telegram notifications",
+      "enabledHelp": "When enabled, you will receive a Telegram notification for each batch of newly processed stories.",
+      "tokenAvailable": "✅ Bot token configured in .env",
+      "tokenMissing": "⚠️ Bot token not configured in .env. Notifications will not work."
+    },
     "save": "Save Settings",
     "saving": "Saving...",
     "saveSuccess": "Settings saved successfully!",
