@@ -109,8 +109,14 @@ async def process_story(ctx, story_data):
             return f"error: {str(e)}"
 
 
-async def fetch_and_process_stories(ctx):
-    """Fetch and process stories from Hacker News"""
+async def fetch_and_process_stories(ctx, send_notification: bool = True):
+    """Fetch and process stories from Hacker News
+
+    Args:
+        ctx: Arq worker context.
+        send_notification: If True, sends Telegram notification after processing.
+            Set to False when called manually via API trigger.
+    """
     fetcher = FetcherService()
 
     async with AsyncSessionLocal() as db:
@@ -135,7 +141,39 @@ async def fetch_and_process_stories(ctx):
             print(f"Error enqueueing story {story.get('hacker_news_id')}: {e}")
             error_count += 1
 
+    # Send Telegram notification if configured
+    if send_notification:
+        await _send_telegram_notification(processed_count)
+
     return f"New: {processed_count}, Skipped: {skipped_count}, Errors: {error_count}"
+
+
+async def _send_telegram_notification(processed_count: int):
+    """Send Telegram notification about newly processed stories.
+
+    Only sends if Telegram is configured in .env and settings.
+    This is called only from scheduler-triggered fetches.
+    """
+    from app.core.config import settings as app_settings
+    from app.services.telegram_service import TelegramService
+
+    bot_token = app_settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return  # Bot token not configured
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(Setting).limit(1))
+        setting = result.scalar_one_or_none()
+
+        if not setting or not setting.telegram_enabled or not setting.telegram_chat_id:
+            return  # Telegram not fully configured
+
+        telegram = TelegramService(bot_token)
+
+        if processed_count > 0:
+            await telegram.send_notification(processed_count, setting)
+        else:
+            await telegram.send_empty_notification(setting)
 
 
 async def reprocess_untranslated_stories(ctx):

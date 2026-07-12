@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from sqlalchemy import Integer, String, Text
+from sqlalchemy import Boolean, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -40,6 +40,10 @@ class Setting(Base):
     smtp_username: Mapped[Optional[str]] = mapped_column(String)
     smtp_password: Mapped[Optional[str]] = mapped_column(String)
     smtp_from: Mapped[Optional[str]] = mapped_column(String)
+
+    # Telegram settings
+    telegram_chat_id: Mapped[Optional[str]] = mapped_column(String, default=None)
+    telegram_enabled: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
 
     # Display settings
     display_font_family: Mapped[Optional[str]] = mapped_column(
