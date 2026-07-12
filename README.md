@@ -17,6 +17,7 @@
 - **Keyword Preferences** — Filter stories based on your interests
 - **Responsive Design** — Built for readability on mobile, tablet, and desktop (40+ age-friendly)
 - **Fully Self-Hosted** — Your data, your API keys, your infrastructure
+- **Telegram Notifications** — Get notified when new stories are processed, directly on Telegram
 - **Docker Support** — One-command deployment with Docker Compose
 
 ---
@@ -156,6 +157,16 @@ hn-ai-summarizer/
 ## Configuration
 
 See [`.env.example`](.env.example) for all available configuration options.
+
+### Telegram Notifications
+
+To receive notifications on Telegram when new stories are processed:
+
+1. Create a bot via [@BotFather](https://t.me/BotFather) on Telegram and get your bot token
+2. Add the token to your `.env` file: `TELEGRAM_BOT_TOKEN=your_bot_token_here`
+3. Open Settings page, enter your **Telegram Chat ID**, and enable notifications
+
+> **How to find your Chat ID:** Send a message to your bot, then visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` — your Chat ID will appear in the JSON response.
 
 ### Minimal Configuration
 

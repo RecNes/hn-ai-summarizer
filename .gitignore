@@ -158,3 +158,6 @@ graphify-out
 **/cache/
 **/.cache/
 **/__pycache__/
+
+# Implementation plan
+implementation_plan.md
