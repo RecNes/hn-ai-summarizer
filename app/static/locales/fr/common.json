@@ -1,69 +1,69 @@
-{
+﻿{
   "app": {
-    "title": "HN AI Résumeur",
-    "description": "Résumeur Hacker News alimenté par IA",
-    "footer": "HN AI Résumeur - Résumeur Hacker News alimenté par IA"
+    "title": "HN AI RÃ©sumeur",
+    "description": "RÃ©sumeur Hacker News alimentÃ© par IA",
+    "footer": "HN AI RÃ©sumeur - RÃ©sumeur Hacker News alimentÃ© par IA"
   },
   "nav": {
     "home": "Accueil",
-    "settings": "Paramètres",
-    "themeToggle": "Changer le thème",
-    "displaySettings": "Paramètres d'affichage",
+    "settings": "ParamÃ¨tres",
+    "themeToggle": "Changer le thÃ¨me",
+    "displaySettings": "ParamÃ¨tres d'affichage",
     "refresh": "Actualiser la page"
   },
   "home": {
-    "title": "Dernières histoires",
+    "title": "DerniÃ¨res histoires",
     "noStories": "Aucune histoire disponible pour le moment.",
     "loading": "Chargement des histoires...",
-    "error": "Échec du chargement des histoires",
+    "error": "Ã‰chec du chargement des histoires",
     "score": "Score",
     "author": "Auteur",
     "comments": "Commentaires",
     "readMore": "Lire la suite",
-    "summaryNotAvailable": "Résumé non disponible",
-    "commentSummaryNotAvailable": "Résumé des commentaires non disponible",
-    "contentNotAvailable": "Résumé du contenu non disponible",
+    "summaryNotAvailable": "RÃ©sumÃ© non disponible",
+    "commentSummaryNotAvailable": "RÃ©sumÃ© des commentaires non disponible",
+    "contentNotAvailable": "RÃ©sumÃ© du contenu non disponible",
     "originalTitle": "Titre original"
   },
   "settings": {
-    "title": "Paramètres",
+    "title": "ParamÃ¨tres",
     "language": {
-      "title": "Paramètres de langue",
+      "title": "ParamÃ¨tres de langue",
       "uiLabel": "Langue de l'interface",
       "translationLabel": "Langue de traduction du contenu",
       "uiDescription": "Langue pour l'interface, les menus et les boutons",
       "translationDescription": "Langue dans laquelle le contenu Hacker News sera traduit",
-      "independentNote": "Ces deux paramètres sont totalement indépendants"
+      "independentNote": "Ces deux paramÃ¨tres sont totalement indÃ©pendants"
     },
     "ai": {
       "title": "Fournisseur IA",
-      "description": "Les clés API sont configurées via le fichier .env. Seuls les fournisseurs avec clés configurées sont listés.",
+      "description": "Les clÃ©s API sont configurÃ©es via le fichier .env. Seuls les fournisseurs avec clÃ©s configurÃ©es sont listÃ©s.",
       "providerLabel": "Fournisseur IA",
-      "providerPlaceholder": "-- Sélectionner un fournisseur --",
+      "providerPlaceholder": "-- SÃ©lectionner un fournisseur --",
       "configLabel": "Adresse du fournisseur (optionnel)",
       "configPlaceholder": "http://localhost:11434",
       "configHelp": "Entrez l'adresse pour les fournisseurs locaux comme LM Studio ou Ollama",
-      "keyConfigured": "✓ Clé API configurée dans .env",
-      "keyLocal": "ℹ Fournisseur local (aucune clé API requise)",
-      "modelLabel": "Modèle IA",
-      "modelPlaceholder": "-- Sélectionner un modèle --",
-      "modelSelectFirst": "-- Sélectionnez d'abord un fournisseur --",
-      "modelLoading": "Chargement des modèles...",
-      "modelRefresh": "Actualiser les modèles",
-      "modelSearch": "Rechercher des modèles...",
-      "modelNotFound": "Aucun modèle correspondant trouvé",
-      "modelCount": "{count} modèles trouvés",
-      "modelError": "Échec du chargement des modèles"
+      "keyConfigured": "âœ“ ClÃ© API configurÃ©e dans .env",
+      "keyLocal": "â„¹ Fournisseur local (aucune clÃ© API requise)",
+      "modelLabel": "ModÃ¨le IA",
+      "modelPlaceholder": "-- SÃ©lectionner un modÃ¨le --",
+      "modelSelectFirst": "-- SÃ©lectionnez d'abord un fournisseur --",
+      "modelLoading": "Chargement des modÃ¨les...",
+      "modelRefresh": "Actualiser les modÃ¨les",
+      "modelSearch": "Rechercher des modÃ¨les...",
+      "modelNotFound": "Aucun modÃ¨le correspondant trouvÃ©",
+      "modelCount": "{count} modÃ¨les trouvÃ©s",
+      "modelError": "Ã‰chec du chargement des modÃ¨les"
     },
     "data": {
-      "title": "Traitement des données",
-      "description": "Récupérer et traiter manuellement les données Hacker News.",
-      "fetchButton": "Lancer la récupération",
+      "title": "Traitement des donnÃ©es",
+      "description": "RÃ©cupÃ©rer et traiter manuellement les donnÃ©es Hacker News.",
+      "fetchButton": "Lancer la rÃ©cupÃ©ration",
       "reprocessButton": "Retraiter les non traduits",
       "statusText": "Traitement en cours... Veuillez patienter."
     },
     "fetch": {
-      "title": "Paramètres de récupération",
+      "title": "ParamÃ¨tres de rÃ©cupÃ©ration",
       "hour": "Heure",
       "minute": "Minute",
       "days": "Jours",
@@ -74,43 +74,54 @@
       "friday": "Vendredi",
       "saturday": "Samedi",
       "sunday": "Dimanche",
-      "daysHelp": "Sélectionnez les jours d'exécution",
+      "daysHelp": "SÃ©lectionnez les jours d'exÃ©cution",
       "minScore": "Score minimum",
-      "minScoreHelp": "Seules les histoires avec un score supérieur seront traitées",
-      "retentionDays": "Conservation des données (jours)",
-      "retentionDaysHelp": "Les données plus anciennes seront automatiquement supprimées"
+      "minScoreHelp": "Seules les histoires avec un score supÃ©rieur seront traitÃ©es",
+      "retentionDays": "Conservation des donnÃ©es (jours)",
+      "retentionDaysHelp": "Les donnÃ©es plus anciennes seront automatiquement supprimÃ©es"
     },
     "preferences": {
-      "title": "Préférences utilisateur",
-      "highlightKeywords": "Mots-clés à surligner",
-      "highlightPlaceholder": "IA, apprentissage automatique, science des données",
-      "highlightHelp": "Entrez séparés par des virgules",
-      "blocklistKeywords": "Mots-clés bloqués",
-      "blocklistPlaceholder": "politique, actualité, débat",
-      "blocklistHelp": "Le contenu contenant ces mots-clés sera atténué"
+      "title": "PrÃ©fÃ©rences utilisateur",
+      "highlightKeywords": "Mots-clÃ©s Ã  surligner",
+      "highlightPlaceholder": "IA, apprentissage automatique, science des donnÃ©es",
+      "highlightHelp": "Entrez sÃ©parÃ©s par des virgules",
+      "blocklistKeywords": "Mots-clÃ©s bloquÃ©s",
+      "blocklistPlaceholder": "politique, actualitÃ©, dÃ©bat",
+      "blocklistHelp": "Le contenu contenant ces mots-clÃ©s sera attÃ©nuÃ©"
     },
-    "save": "Enregistrer les paramètres",
+    "telegram": {
+      "title": "Notifications Telegram",
+      "description": "Ajoutez votre jeton de bot Telegram au fichier .env sous <code>TELEGRAM_BOT_TOKEN=</code>. Le jeton du bot n'est <strong>jamais envoyé au frontend</strong>, il est uniquement lu par le serveur.",
+      "chatIdLabel": "ID de chat Telegram",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "Envoyez un message à votre bot, puis visitez <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> pour trouver votre ID de chat.",
+      "enabledLabel": "Activer les notifications Telegram",
+      "enabledHelp": "Une fois activé, vous recevrez une notification Telegram pour chaque lot d'histoires nouvellement traitées.",
+      "tokenAvailable": "✅ Jeton de bot configuré dans .env",
+      "tokenMissing": "⚠️ Jeton de bot non configuré dans .env. Les notifications ne fonctionneront pas."
+    },
+    "save": "Enregistrer les paramÃ¨tres",
     "saving": "Enregistrement...",
-    "saveSuccess": "Paramètres enregistrés avec succès !",
+    "saveSuccess": "ParamÃ¨tres enregistrÃ©s avec succÃ¨s !",
     "saveError": "Une erreur est survenue lors de l'enregistrement."
   },
   "display": {
-    "title": "Paramètres d'affichage",
+    "title": "ParamÃ¨tres d'affichage",
     "fontFamily": "Police",
     "fontSize": "Taille de police",
     "contrast": "Contraste",
     "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" },
-    "sizes": { "small": "Petit", "medium": "Moyen", "large": "Grand", "xlarge": "Très grand" },
-    "contrasts": { "light": "Clair", "dark": "Sombre", "sepia": "Sépia", "high": "Contraste élevé" },
-    "reset": "Revenir aux valeurs par défaut",
+    "sizes": { "small": "Petit", "medium": "Moyen", "large": "Grand", "xlarge": "TrÃ¨s grand" },
+    "contrasts": { "light": "Clair", "dark": "Sombre", "sepia": "SÃ©pia", "high": "Contraste Ã©levÃ©" },
+    "reset": "Revenir aux valeurs par dÃ©faut",
     "save": "Enregistrer"
   },
-  "theme": { "light": "Mode clair", "dark": "Mode sombre", "system": "Auto (système)" },
+  "theme": { "light": "Mode clair", "dark": "Mode sombre", "system": "Auto (systÃ¨me)" },
   "worker": {
-    "started": "Récupération lancée ! Le traitement peut prendre quelques minutes.",
-    "reprocessStarted": "Retraitement lancé ! Le contenu et les commentaires sont actualisés.",
-    "error": "Le worker n'a pas pu être démarré.",
-    "reprocessError": "Le retraitement n'a pas pu être lancé."
+    "started": "RÃ©cupÃ©ration lancÃ©e ! Le traitement peut prendre quelques minutes.",
+    "reprocessStarted": "Retraitement lancÃ© ! Le contenu et les commentaires sont actualisÃ©s.",
+    "error": "Le worker n'a pas pu Ãªtre dÃ©marrÃ©.",
+    "reprocessError": "Le retraitement n'a pas pu Ãªtre lancÃ©."
   },
-  "common": { "loading": "Chargement...", "error": "Erreur", "success": "Succès", "cancel": "Annuler", "save": "Enregistrer", "delete": "Supprimer", "close": "Fermer", "back": "Retour" }
+  "common": { "loading": "Chargement...", "error": "Erreur", "success": "SuccÃ¨s", "cancel": "Annuler", "save": "Enregistrer", "delete": "Supprimer", "close": "Fermer", "back": "Retour" }
 }
