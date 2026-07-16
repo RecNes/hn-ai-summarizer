@@ -108,25 +108,26 @@ def format_days_to_cron(days: list, hour: int, minute: int) -> str:
 
 
 # Create a closure to capture the current day_name and redis_pool
-async def create_job_for_day(day_name, redis_pool):
-    """Create and enqueue the worker job for the given day"""
+async def create_job_for_day(day_name):
+    """Create and enqueue the worker job for the given day.
 
-    print(f"DEBUG: Job triggered for {day_name}")
+    Creates its OWN Redis connection so that multiple scheduled days
+    do not share (and accidentally close) the same pool.
+    """
+
+    print(f"Job triggered for {day_name}")
     try:
-        # Create fresh Redis connection for each job execution
-        # redis_url = settings.REDIS_URL or "redis://localhost:6379/0"
-        # redis_settings = RedisSettings.from_dsn(redis_url)
-        # redis_pool = await create_pool(redis_settings)
-        print("DEBUG: pool created in job", redis_pool, type(redis_pool))
+        redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
+        redis_settings = RedisSettings.from_dsn(redis_url)
+        pool = await create_pool(redis_settings)
 
-        job = await redis_pool.enqueue_job("fetch_and_process_stories")
-        print("DEBUG: Job enqueued", job, type(job))
+        job = await pool.enqueue_job("fetch_and_process_stories")
         if job:
             print(f">>> Worker job enqueued successfully for {day_name}")
         else:
             print(f">>> Failed to enqueue worker job for {day_name}")
 
-        await redis_pool.close()  # Clean up connection
+        await pool.close()
     except Exception as e:
         print(f">>> Error enqueuing worker job for {day_name}: {e}")
 

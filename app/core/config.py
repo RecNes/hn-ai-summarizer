@@ -48,10 +48,9 @@ class Settings(BaseSettings):
 
     DEVELOPMENT: bool = Field(False)
 
-    @computed_field(alias="ASYNC_DATABASE_URL")
+    @computed_field
     @property
-    def async_database_url(self) -> str:
-        # .env'de PostgreSQL bilgileri varsa onu kullan, yoksa SQLite'a düş
+    def ASYNC_DATABASE_URL(self) -> str:
         if self.DATABASE_HOST and self.DATABASE_HOST not in ("localhost", "db"):
             return (
                 f"postgresql+asyncpg://{self.DATABASE_USER}:"
@@ -66,12 +65,9 @@ class Settings(BaseSettings):
             )
         return "sqlite+aiosqlite:///./hn_ai_summerizer.db"
 
-    ASYNC_DATABASE_URL = async_database_url
-
-    @computed_field(alias="SYNC_DATABASE_URL")
+    @computed_field
     @property
-    def sync_database_url(self) -> str:
-        # .env'de PostgreSQL bilgileri varsa onu kullan, yoksa SQLite'a düş
+    def SYNC_DATABASE_URL(self) -> str:
         if self.DATABASE_HOST and self.DATABASE_HOST not in ("localhost", "db"):
             return (
                 f"postgresql://{self.DATABASE_USER}:"
@@ -86,12 +82,9 @@ class Settings(BaseSettings):
             )
         return "sqlite:///./hn_ai_summerizer.db"
 
-    SYNC_DATABASE_URL = sync_database_url
-
-    @computed_field(alias="REDIS_CONNECTION_URL")
+    @computed_field
     @property
-    def redis_connection_url(self) -> str:
-        # REDIS_USERNAME ve REDIS_PASSWORD varsa URL'e ekle
+    def REDIS_CONNECTION_URL(self) -> str:
         if self.REDIS_USERNAME and self.REDIS_PASSWORD:
             auth = f"{self.REDIS_USERNAME}:{self.REDIS_PASSWORD}@"
         elif self.REDIS_PASSWORD:
@@ -99,8 +92,6 @@ class Settings(BaseSettings):
         else:
             auth = ""
         return f"redis://{auth}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
-
-    REDIS_CONNECTION_URL = redis_connection_url
 
     model_config = SettingsConfigDict(
         case_sensitive=True,
