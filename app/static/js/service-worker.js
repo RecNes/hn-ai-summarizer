@@ -5,7 +5,8 @@ const CACHE_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 const urlsToCache = [
     '/',
     '/static/css/style.css',
-    '/static/js/main.js'
+    '/static/js/base.js',
+    '/static/js/i18n.js'
 ];
 
 // Install event
