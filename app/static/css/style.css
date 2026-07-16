@@ -18,27 +18,16 @@
 .contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
 .contrast-high { background-color: #000000; color: #ffffff; }
 
-/* Dark mode — contrast seçimi ne olursa olsun background'u karanlık yap */
-/* NOT: body.contrast-* class'ları contrast-dark ve sepia için background zaten koyu */
-/* contrast-light ve contrast-high ise açık renklerde, onları da dark'ta koyu yapıyoruz */
-html.dark body,
-html.dark body.contrast-light,
-html.dark body.contrast-high {
-    background-color: #0f172a !important;
-    color: #e2e8f0 !important;
+/* Dark mode override — html.dark aktifken contrast-* class'larını ez */
+html.dark .contrast-light,
+html.dark .contrast-sepia,
+html.dark .contrast-high {
+    background-color: #1a202c;
+    color: #e2e8f0;
 }
-html.dark body.contrast-sepia,
-html.dark body.contrast-dark {
-    background-color: #0f172a !important;
-    color: #e2e8f0 !important;
-}
-
-/* Tarayıcı native elementleri için color scheme */
-html[data-theme="dark"] {
-    color-scheme: dark;
-}
-html[data-theme="light"] {
-    color-scheme: light;
+html.dark .contrast-dark {
+    background-color: #0f172a;
+    color: #e2e8f0;
 }
 
 /* Dark mode card backgrounds */
