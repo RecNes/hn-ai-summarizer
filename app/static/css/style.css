@@ -18,16 +18,27 @@
 .contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
 .contrast-high { background-color: #000000; color: #ffffff; }
 
-/* Dark mode override — html.dark aktifken contrast-* class'larını ez */
-html.dark .contrast-light,
-html.dark .contrast-sepia,
-html.dark .contrast-high {
-    background-color: #1a202c;
-    color: #e2e8f0;
+/* Dark mode — tüm contrast ayarlarını ez, karanlık renkleri zorla kullan */
+/* Bu, poll/fetch sırasında oluşabilecek anlık flash'ı önler */
+html.dark body,
+html.dark body.contrast-light,
+html.dark body.contrast-sepia,
+html.dark body.contrast-high,
+html.dark body.contrast-dark {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
 }
 html.dark .contrast-dark {
-    background-color: #0f172a;
-    color: #e2e8f0;
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+/* Tarayıcı native elementleri için color scheme */
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+html[data-theme="light"] {
+    color-scheme: light;
 }
 
 /* Dark mode card backgrounds */
