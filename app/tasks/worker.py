@@ -1,16 +1,11 @@
 """Worker tasks for processing stories with AI services"""
 
 import os
-from pathlib import Path
 
 from arq.connections import RedisSettings
-from dotenv import load_dotenv
 from sqlalchemy.future import select
 
-# Always resolve .env relative to project root
-_env_path = Path(__file__).resolve().parent.parent.parent / ".env"
-load_dotenv(str(_env_path))
-
+# app.core.config already loads .env via Settings
 from app.core.config import settings as app_settings
 from app.core.database import AsyncSessionLocal
 from app.models.preference import UserPreference
@@ -27,6 +22,7 @@ job_timeout = 600  # 10 minutes in seconds
 
 async def process_story(ctx, story_data):
     """Process a story with AI services"""
+    ai_service = AIService()
 
     async with AsyncSessionLocal() as db:
         try:
@@ -45,8 +41,6 @@ async def process_story(ctx, story_data):
             existing_story = result.scalar_one_or_none()
 
             if existing_story:
-                ai_service = AIService()
-
                 if not existing_story.is_translated:
                     print(
                         f"Story {story_data['hacker_news_id']} exists but needs AI processing..."
@@ -72,7 +66,6 @@ async def process_story(ctx, story_data):
                     print(f"Story {story_data['hacker_news_id']} already exists and is fully processed, skipping...")
                     return "skipped"
 
-            ai_service = AIService()
             is_blocked = await ai_service.check_negative_feedback(
                 story_data.get("content", ""), story_data.get("title", "")
             )
@@ -125,6 +118,7 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True):
         min_score = setting.min_score if setting and setting.min_score else 100
 
     stories = await fetcher.fetch_and_process_stories(min_score=min_score)
+    await fetcher.close()
 
     processed_count = 0
     skipped_count = 0
@@ -181,44 +175,47 @@ async def reprocess_untranslated_stories(ctx):
     fetcher = FetcherService()
     ai_service = AIService()
 
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(Story)
-            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
-            .order_by(Story.created_at.desc())
-        )
-        stories_needing_ai = result.scalars().all()
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(Story)
+                .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
+                .order_by(Story.created_at.desc())
+            )
+            stories_needing_ai = result.scalars().all()
 
-        print(f"Found {len(stories_needing_ai)} stories needing AI processing")
+            print(f"Found {len(stories_needing_ai)} stories needing AI processing")
 
-        reprocessed_count = 0
-        for story in stories_needing_ai:
-            try:
-                print(f"Reprocessing story {story.hacker_news_id} (DB id={story.id}, title={story.title[:60]})...")
+            reprocessed_count = 0
+            for story in stories_needing_ai:
+                try:
+                    print(f"Reprocessing story {story.hacker_news_id} (DB id={story.id}, title={story.title[:60]})...")
 
-                fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
-                if not fresh_data:
-                    print(f"Failed to refetch data for story {story.hacker_news_id}")
-                    continue
+                    fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
+                    if not fresh_data:
+                        print(f"Failed to refetch data for story {story.hacker_news_id}")
+                        continue
 
-                title_tr = await ai_service.translate_title(fresh_data["title"])
-                content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
-                comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
+                    title_tr = await ai_service.translate_title(fresh_data["title"])
+                    content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
+                    comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
 
-                story.title_tr = title_tr
-                story.content_tr = content_tr
-                story.comments_summary = comments_summary
-                story.is_translated = ai_service.check_translation_complete(story)
+                    story.title_tr = title_tr
+                    story.content_tr = content_tr
+                    story.comments_summary = comments_summary
+                    story.is_translated = ai_service.check_translation_complete(story)
 
-                await db.commit()
-                reprocessed_count += 1
-                print(f"Successfully reprocessed story {story.hacker_news_id}")
+                    await db.commit()
+                    reprocessed_count += 1
+                    print(f"Successfully reprocessed story {story.hacker_news_id}")
 
-            except Exception as e:
-                await db.rollback()
-                print(f"Error reprocessing story {story.hacker_news_id}: {e}")
+                except Exception as e:
+                    await db.rollback()
+                    print(f"Error reprocessing story {story.hacker_news_id}: {e}")
 
-        return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
+            return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
+    finally:
+        await fetcher.close()
 
 
 async def debug_untranslated_stories(ctx):
@@ -255,43 +252,46 @@ async def reprocess_all_stories(ctx):
     fetcher = FetcherService()
     ai_service = AIService()
 
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(select(Story).order_by(Story.created_at.desc()))
-        all_stories = result.scalars().all()
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(Story).order_by(Story.created_at.desc()))
+            all_stories = result.scalars().all()
 
-        print(f"Found {len(all_stories)} total stories, checking each one...")
+            print(f"Found {len(all_stories)} total stories, checking each one...")
 
-        reprocessed_count = 0
-        for story in all_stories:
-            try:
-                if not story.is_translated:
-                    print(f"Reprocessing story {story.hacker_news_id}...")
+            reprocessed_count = 0
+            for story in all_stories:
+                try:
+                    if not story.is_translated:
+                        print(f"Reprocessing story {story.hacker_news_id}...")
 
-                    fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
-                    if not fresh_data:
-                        print(f"Failed to refetch data for story {story.hacker_news_id}")
-                        continue
+                        fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
+                        if not fresh_data:
+                            print(f"Failed to refetch data for story {story.hacker_news_id}")
+                            continue
 
-                    title_tr = await ai_service.translate_title(fresh_data["title"])
-                    content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
-                    comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
+                        title_tr = await ai_service.translate_title(fresh_data["title"])
+                        content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
+                        comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
 
-                    story.title_tr = title_tr
-                    story.content_tr = content_tr
-                    story.comments_summary = comments_summary
-                    story.is_translated = ai_service.check_translation_complete(story)
+                        story.title_tr = title_tr
+                        story.content_tr = content_tr
+                        story.comments_summary = comments_summary
+                        story.is_translated = ai_service.check_translation_complete(story)
 
-                    await db.commit()
-                    reprocessed_count += 1
-                    print(f"Successfully reprocessed story {story.hacker_news_id}")
-                else:
-                    print(f"Story {story.hacker_news_id} is already fully processed")
+                        await db.commit()
+                        reprocessed_count += 1
+                        print(f"Successfully reprocessed story {story.hacker_news_id}")
+                    else:
+                        print(f"Story {story.hacker_news_id} is already fully processed")
 
-            except Exception as e:
-                await db.rollback()
-                print(f"Error reprocessing story {story.hacker_news_id}: {e}")
+                except Exception as e:
+                    await db.rollback()
+                    print(f"Error reprocessing story {story.hacker_news_id}: {e}")
 
-        return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
+            return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
+    finally:
+        await fetcher.close()
 
 
 class WorkerSettings:

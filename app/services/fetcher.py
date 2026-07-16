@@ -10,16 +10,35 @@ from app.utils.scraper import scrape_content
 
 class FetcherService:
     """Service to fetch and process Hacker News stories and comments."""
-    
+
     HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
 
     def __init__(self):
-        self.client = httpx.AsyncClient()
+        self._client: httpx.AsyncClient | None = None
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create the HTTP client."""
+        if self._client is None:
+            self._client = httpx.AsyncClient()
+        return self._client
+
+    async def close(self):
+        """Close the HTTP client."""
+        if self._client is not None:
+            await self._client.aclose()
+            self._client = None
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args):
+        await self.close()
 
     async def fetch_top_stories(self, limit: int = 100) -> List[int]:
         """Fetch top story IDs from Hacker News"""
+        client = await self._get_client()
         try:
-            response = await self.client.get(f"{self.HN_API_BASE}/topstories.json")
+            response = await client.get(f"{self.HN_API_BASE}/topstories.json")
             response.raise_for_status()
             story_ids = response.json()
             return story_ids[:limit]
@@ -29,8 +48,9 @@ class FetcherService:
 
     async def fetch_story_details(self, story_id: int) -> Dict[str, Any]:
         """Fetch details for a specific story"""
+        client = await self._get_client()
         try:
-            response = await self.client.get(f"{self.HN_API_BASE}/item/{story_id}.json")
+            response = await client.get(f"{self.HN_API_BASE}/item/{story_id}.json")
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
