@@ -144,11 +144,6 @@ class ScheduleManager:
                 logger.info("No days selected for scheduling")
                 return True
 
-            # Connect to Redis for job execution
-            redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
-            redis_settings = RedisSettings.from_dsn(redis_url)
-            redis_pool = await create_pool(redis_settings)
-
             # Schedule jobs for each day
             for day_num in scheduled_days:
                 # Cron weekday: 0=Sunday, 1=Monday ... 6=Saturday
@@ -166,11 +161,11 @@ class ScheduleManager:
                 task_name = f"task for {day_name} at {scheduled_time}"
                 logger.info(f"Scheduling {task_name}")
 
-                async def create_job_closure(day_name=day_name, redis_pool=redis_pool):
-                    """Create job closure to capture day_name and redis_pool."""
+                async def create_job_closure(day_name=day_name):
+                    """Create job closure to capture day_name."""
                     from app.tasks.scheduler import create_job_for_day
 
-                    await create_job_for_day(day_name, redis_pool)
+                    await create_job_for_day(day_name)
 
                 getattr(aioschedule.every(), day_name).at(scheduled_time).do(
                     lambda: asyncio.create_task(create_job_closure())
