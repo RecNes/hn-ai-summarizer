@@ -6,32 +6,15 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/js/service-worker.js')
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
-                // Yeni SW varsa hemen aktifleştir
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            newWorker.postMessage({ action: 'skipWaiting' });
-                        }
-                    });
-                });
             })
             .catch((error) => {
                 console.log('Service Worker registration failed:', error);
             });
-        // SW değişince sayfayı yenile
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
-                refreshing = true;
-                window.location.reload();
-            }
-        });
     });
 }
 
 // ──────────────────────────────────────────────
-// Theme: dark / light (localStorage 'theme')
+// Theme: dark / light / system (localStorage 'theme')
 // ──────────────────────────────────────────────
 
 /** Geçerli temayı döndürür: 'dark' veya 'light' */
@@ -39,44 +22,39 @@ function getEffectiveTheme() {
     const stored = localStorage.getItem('theme');
     if (stored === 'dark') return 'dark';
     if (stored === 'light') return 'light';
-    // Varsayılan: sistem tercihini kullan
+    // 'system' veya hiç kayıt yoksa — sistem tercihini kullan
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-/** Temayı uygula: html.dark class'ı + body'ye data-theme attribute */
+/** Temayı uygula: html.dark class'ı + DOMContentLoaded'da çalışması için body class */
 function applyTheme(theme) {
     const effective = theme || getEffectiveTheme();
     document.documentElement.classList.toggle('dark', effective === 'dark');
-    document.documentElement.setAttribute('data-theme', effective);
-    // Settings modalındaki dropdown'ı güncelle (varsa)
-    const themeSelect = document.getElementById('theme-mode');
-    if (themeSelect) {
-        themeSelect.value = localStorage.getItem('theme') || 'system';
-    }
 }
 
-/** Tema değiştir: direkt toggle — system kullanıcı dropdown'dan seçer */
+/** Tema geçişi: light → dark → system → light */
 function cycleTheme() {
     const stored = localStorage.getItem('theme');
-    // Eğer stored 'system' veya yoksa → dark'a geç
-    if (!stored || stored === 'system') {
-        localStorage.setItem('theme', 'dark');
-    } else if (stored === 'dark') {
-        localStorage.setItem('theme', 'light');
-    } else {
-        localStorage.setItem('theme', 'dark');
-    }
+    let next;
+    if (!stored || stored === 'system') next = 'dark';
+    else if (stored === 'dark') next = 'light';
+    else next = 'system'; // light → system
+    localStorage.setItem('theme', next);
     applyTheme();
     updateThemeIcon();
 }
 
-/** Tema icon'unu güncelle: dark = ay, light = güneş */
+/** Tema icon'unu güncelle (güneş/ay veya otomatik) */
 function updateThemeIcon() {
     const stored = localStorage.getItem('theme') || 'system';
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
     const effective = getEffectiveTheme();
-    if (effective === 'dark') {
+    // Icon: ay = dark, güneş = light, otomatik = yarım ay + güneş
+    if (stored === 'system') {
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
+        btn.title = 'Otomatik (sistem)';
+    } else if (effective === 'dark') {
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
         btn.title = 'Açık moda geç';
     } else {
@@ -85,7 +63,7 @@ function updateThemeIcon() {
     }
 }
 
-/** Sistem teması değişikliğini dinle — sadece 'system' modunda iken */
+/** Sistem teması değişikliğini dinle */
 function listenSystemTheme() {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         const stored = localStorage.getItem('theme');
@@ -109,21 +87,9 @@ function loadSettings() {
     applySettings(fontFamily, fontSize, contrast);
 }
 
-// Apply settings to the page (tema class'larını ve body'nin default class'larını koru)
+// Apply settings to the page
 function applySettings(fontFamily, fontSize, contrast) {
-    // Body class'larını düzenle — diğer class'ları (tailwind vb.) korumak için
-    const classes = document.body.className.split(' ').filter(c => {
-        return !c.startsWith('font-') && !c.startsWith('text-') && !c.startsWith('contrast-');
-    });
-    classes.push(`font-${fontFamily}`);  // font-atkinson veya font-merriweather
-    classes.push(`text-${fontSize}`);
-
-    // Dark modda contrast seçeneğini otomatik olarak dark yap (flash'ı önler)
-    const isDark = getEffectiveTheme() === 'dark';
-    const effectiveContrast = isDark && contrast !== 'dark' ? 'dark' : contrast;
-    classes.push(`contrast-${effectiveContrast}`);
-
-    document.body.className = classes.join(' ').trim();
+    document.body.className = `${fontFamily} text-${fontSize} contrast-${contrast}`;
 }
 
 // Save settings to localStorage
@@ -135,15 +101,6 @@ function saveSettings() {
     localStorage.setItem('fontFamily', fontFamily);
     localStorage.setItem('fontSize', fontSize);
     localStorage.setItem('contrast', contrast);
-
-    // Tema dropdown'ını da kaydet ve anlık uygula
-    const themeSelect = document.getElementById('theme-mode');
-    if (themeSelect) {
-        const themeVal = themeSelect.value;
-        localStorage.setItem('theme', themeVal);
-        applyTheme();
-        updateThemeIcon();
-    }
 
     applySettings(fontFamily, fontSize, contrast);
     closeSettingsModal();
@@ -159,13 +116,6 @@ function resetSettings() {
     document.getElementById('font-size').value = 'medium';
     document.getElementById('contrast').value = 'light';
 
-    // Temayı da sıfırla (system)
-    localStorage.removeItem('theme');
-    const themeSelect = document.getElementById('theme-mode');
-    if (themeSelect) themeSelect.value = 'system';
-    applyTheme();
-    updateThemeIcon();
-
     applySettings('atkinson', 'medium', 'light');
     closeSettingsModal();
 }
@@ -175,12 +125,6 @@ function openSettingsModal() {
     document.getElementById('font-family').value = localStorage.getItem('fontFamily') || 'atkinson';
     document.getElementById('font-size').value = localStorage.getItem('fontSize') || 'medium';
     document.getElementById('contrast').value = localStorage.getItem('contrast') || 'light';
-
-    // Tema dropdown'ını güncelle
-    const themeSelect = document.getElementById('theme-mode');
-    if (themeSelect) {
-        themeSelect.value = localStorage.getItem('theme') || 'system';
-    }
 
     document.getElementById('settings-modal').classList.remove('hidden');
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hn-ai-summerizer-v2';
+const CACHE_NAME = 'hn-ai-summerizer-v1';
 const CACHE_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
 
 // Files to cache
@@ -11,7 +11,6 @@ const urlsToCache = [
 
 // Install event
 self.addEventListener('install', event => {
-    self.skipWaiting(); // Yeni SW yüklenir yüklenmez bekleme yapma
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -19,13 +18,6 @@ self.addEventListener('install', event => {
                 return cache.addAll(urlsToCache);
             })
     );
-});
-
-// skipWaiting mesajını dinle
-self.addEventListener('message', event => {
-    if (event.data && event.data.action === 'skipWaiting') {
-        self.skipWaiting();
-    }
 });
 
 // Fetch event
