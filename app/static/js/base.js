@@ -26,39 +26,39 @@ function getEffectiveTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-/** Temayı uygula: html.dark class'ı + DOMContentLoaded'da çalışması için body class */
+/** Temayı uygula: html.dark class'ı + dropdown senkronizasyonu */
 function applyTheme(theme) {
     const effective = theme || getEffectiveTheme();
     document.documentElement.classList.toggle('dark', effective === 'dark');
+    // Dropdown'u senkronize et (varsa)
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+        themeSelect.value = localStorage.getItem('theme') || 'system';
+    }
 }
 
-/** Tema geçişi: light → dark → system → light */
+/** Tema geçişi: light ↔ dark (sadece 2 durum) */
 function cycleTheme() {
     const stored = localStorage.getItem('theme');
     let next;
-    if (!stored || stored === 'system') next = 'dark';
-    else if (stored === 'dark') next = 'light';
-    else next = 'system'; // light → system
+    if (stored === 'dark') next = 'light';
+    else next = 'dark'; // light veya system → dark
     localStorage.setItem('theme', next);
     applyTheme();
     updateThemeIcon();
 }
 
-/** Tema icon'unu güncelle (güneş/ay veya otomatik) */
+/** Tema icon'unu güncelle */
 function updateThemeIcon() {
     const stored = localStorage.getItem('theme') || 'system';
     const btn = document.getElementById('theme-toggle');
     if (!btn) return;
     const effective = getEffectiveTheme();
-    // Icon: ay = dark, güneş = light, otomatik = yarım ay + güneş
-    if (stored === 'system') {
+    if (effective === 'dark') {
         btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
-        btn.title = 'Otomatik (sistem)';
-    } else if (effective === 'dark') {
-        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
         btn.title = 'Açık moda geç';
     } else {
-        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>`;
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`;
         btn.title = 'Koyu moda geç';
     }
 }
@@ -106,6 +106,15 @@ function saveSettings() {
     closeSettingsModal();
 }
 
+// Tema dropdown'ı değiştiğinde anında uygula
+function handleThemeSelectChange() {
+    const themeSelect = document.getElementById('theme-select');
+    if (!themeSelect) return;
+    localStorage.setItem('theme', themeSelect.value);
+    applyTheme();
+    updateThemeIcon();
+}
+
 // Reset to default settings
 function resetSettings() {
     localStorage.removeItem('fontFamily');
@@ -125,6 +134,11 @@ function openSettingsModal() {
     document.getElementById('font-family').value = localStorage.getItem('fontFamily') || 'atkinson';
     document.getElementById('font-size').value = localStorage.getItem('fontSize') || 'medium';
     document.getElementById('contrast').value = localStorage.getItem('contrast') || 'light';
+
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+        themeSelect.value = localStorage.getItem('theme') || 'system';
+    }
 
     document.getElementById('settings-modal').classList.remove('hidden');
 }
@@ -284,6 +298,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
         themeToggle.addEventListener('click', cycleTheme);
+    }
+
+    // Tema dropdown değişiklik anında uygula
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', handleThemeSelectChange);
     }
 
     loadSettings();
