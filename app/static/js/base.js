@@ -100,7 +100,12 @@ function applySettings(fontFamily, fontSize, contrast) {
     });
     classes.push(`font-${fontFamily}`);  // font-atkinson veya font-merriweather
     classes.push(`text-${fontSize}`);
-    classes.push(`contrast-${contrast}`);
+
+    // Dark modda contrast seçeneğini otomatik olarak dark yap (flash'ı önler)
+    const isDark = getEffectiveTheme() === 'dark';
+    const effectiveContrast = isDark && contrast !== 'dark' ? 'dark' : contrast;
+    classes.push(`contrast-${effectiveContrast}`);
+
     document.body.className = classes.join(' ').trim();
 }
 

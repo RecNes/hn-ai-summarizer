@@ -18,17 +18,17 @@
 .contrast-sepia { background-color: #f4f1ea; color: #5b4636; }
 .contrast-high { background-color: #000000; color: #ffffff; }
 
-/* Dark mode — tüm contrast ayarlarını ez, karanlık renkleri zorla kullan */
-/* Bu, poll/fetch sırasında oluşabilecek anlık flash'ı önler */
+/* Dark mode — contrast seçimi ne olursa olsun background'u karanlık yap */
+/* NOT: body.contrast-* class'ları contrast-dark ve sepia için background zaten koyu */
+/* contrast-light ve contrast-high ise açık renklerde, onları da dark'ta koyu yapıyoruz */
 html.dark body,
 html.dark body.contrast-light,
-html.dark body.contrast-sepia,
-html.dark body.contrast-high,
-html.dark body.contrast-dark {
+html.dark body.contrast-high {
     background-color: #0f172a !important;
     color: #e2e8f0 !important;
 }
-html.dark .contrast-dark {
+html.dark body.contrast-sepia,
+html.dark body.contrast-dark {
     background-color: #0f172a !important;
     color: #e2e8f0 !important;
 }
