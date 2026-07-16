@@ -6,10 +6,27 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/js/service-worker.js')
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
+                // Yeni SW varsa hemen aktifleştir
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            newWorker.postMessage({ action: 'skipWaiting' });
+                        }
+                    });
+                });
             })
             .catch((error) => {
                 console.log('Service Worker registration failed:', error);
             });
+        // SW değişince sayfayı yenile
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+                refreshing = true;
+                window.location.reload();
+            }
+        });
     });
 }
 
