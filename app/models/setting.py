@@ -34,13 +34,6 @@ class Setting(Base):
     scheduled_minute: Mapped[Optional[int]] = mapped_column(Integer, default=0)
     scheduled_days: Mapped[Optional[str]] = mapped_column(String, default="1,2,3,4,5")
 
-    # SMTP settings
-    smtp_host: Mapped[Optional[str]] = mapped_column(String)
-    smtp_port: Mapped[Optional[int]] = mapped_column(Integer)
-    smtp_username: Mapped[Optional[str]] = mapped_column(String)
-    smtp_password: Mapped[Optional[str]] = mapped_column(String)
-    smtp_from: Mapped[Optional[str]] = mapped_column(String)
-
     # Telegram settings
     telegram_chat_id: Mapped[Optional[str]] = mapped_column(String, default=None)
     telegram_enabled: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
