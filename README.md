@@ -1,6 +1,12 @@
-# HN-AI-Summarizer
+<p align="center">
+  <img src="app/static/images/logo.png" alt="HN AI Summarizer" width="120">
+</p>
 
-> AI-powered Hacker News reader — automatically fetches, summarizes, and translates top stories daily.
+<h1 align="center">HN-AI-Summarizer</h1>
+
+<p align="center">
+  <em>AI-powered Hacker News reader — automatically fetches, summarizes, and translates top stories daily.</em>
+</p>
 
 **HN-AI-Summarizer** is a self-hosted web application that scrapes top Hacker News stories, processes them through AI services for translation and summarization, and presents them in a clean, readable interface optimized for mobile users and accessibility.
 
