@@ -78,9 +78,62 @@ html.dark footer .text-gray-600 {
     color: #64748b !important;
 }
 
+/* ──────────────────────────────────────────────
+   Ortak Buton Sınıfları
+   ────────────────────────────────────────────── */
+
+/* Birincil buton (mavi) — Kaydet, Çevrilmemişleri İşle */
+.btn-primary {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+html.dark .btn-primary {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+html.dark .btn-primary:hover {
+    background-color: #60a5fa;
+}
+
+/* İkincil buton (gri) — Varsayılana Dön, Modelleri Yenile */
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+html.dark .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+}
+html.dark .btn-secondary:hover {
+    background-color: #475569;
+}
+
+/* Başarı butonu (yeşil) — Veri Çek */
+.btn-success {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+.btn-success:hover {
+    background-color: #16a34a;
+}
+html.dark .btn-success {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+html.dark .btn-success:hover {
+    background-color: #4ade80;
+}
+
 /* Transition for smooth theme switch */
 body, article, .bg-white, .bg-gray-100, footer, select, input, textarea,
-#settings-modal > div {
+#settings-modal > div,
+.btn-primary, .btn-secondary, .btn-success {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
