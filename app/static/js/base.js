@@ -94,20 +94,6 @@ function applySettings(fontFamily, fontSize, contrast) {
     document.body.className = `${fontFamily} text-${fontSize} contrast-${contrast}`;
 }
 
-// Save settings to localStorage
-function saveSettings() {
-    const fontFamily = document.getElementById('font-family').value;
-    const fontSize = document.getElementById('font-size').value;
-    const contrast = document.getElementById('contrast').value;
-
-    localStorage.setItem('fontFamily', fontFamily);
-    localStorage.setItem('fontSize', fontSize);
-    localStorage.setItem('contrast', contrast);
-
-    applySettings(fontFamily, fontSize, contrast);
-    closeSettingsModal();
-}
-
 // Tema dropdown'ı değiştiğinde anında uygula
 function handleThemeSelectChange() {
     const themeSelect = document.getElementById('theme-select');
@@ -117,18 +103,35 @@ function handleThemeSelectChange() {
     updateThemeIcon();
 }
 
-// Reset to default settings
-function resetSettings() {
-    localStorage.removeItem('fontFamily');
-    localStorage.removeItem('fontSize');
-    localStorage.removeItem('contrast');
+// Display setting change: kaydet + anında uygula
+function handleDisplaySettingChange(settingId, storageKey) {
+    return function() {
+        const value = document.getElementById(settingId).value;
+        localStorage.setItem(storageKey, value);
+        const fontFamily = localStorage.getItem('fontFamily') || 'atkinson';
+        const fontSize = localStorage.getItem('fontSize') || 'medium';
+        const contrast = localStorage.getItem('contrast') || 'light';
+        applySettings(fontFamily, fontSize, contrast);
+    };
+}
 
-    document.getElementById('font-family').value = 'atkinson';
-    document.getElementById('font-size').value = 'medium';
-    document.getElementById('contrast').value = 'light';
+/** Modal içindeki display select'lerine change listener'ları bağla, Esc ve X ile kapat */
+function initDisplaySettings() {
+    const fontFamilyEl = document.getElementById('font-family');
+    const fontSizeEl = document.getElementById('font-size');
+    const contrastEl = document.getElementById('contrast');
+    if (fontFamilyEl) fontFamilyEl.addEventListener('change', handleDisplaySettingChange('font-family', 'fontFamily'));
+    if (fontSizeEl) fontSizeEl.addEventListener('change', handleDisplaySettingChange('font-size', 'fontSize'));
+    if (contrastEl) contrastEl.addEventListener('change', handleDisplaySettingChange('contrast', 'contrast'));
 
-    applySettings('atkinson', 'medium', 'light');
-    closeSettingsModal();
+    const closeBtn = document.getElementById('close-settings-modal');
+    if (closeBtn) closeBtn.addEventListener('click', closeSettingsModal);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeSettingsModal();
+        }
+    });
 }
 
 // Open settings modal
@@ -316,15 +319,8 @@ document.addEventListener('DOMContentLoaded', function() {
         settingsButton.addEventListener('click', openSettingsModal);
     }
 
-    const saveSettingsButton = document.getElementById('save-settings');
-    if (saveSettingsButton) {
-        saveSettingsButton.addEventListener('click', saveSettings);
-    }
-
-    const resetSettingsButton = document.getElementById('reset-settings');
-    if (resetSettingsButton) {
-        resetSettingsButton.addEventListener('click', resetSettings);
-    }
+    // Anında kaydeden display ayarlarını başlat
+    initDisplaySettings();
 
     // Close modal when clicking outside
     const settingsModal = document.getElementById('settings-modal');

@@ -1,6 +1,11 @@
 <!-- Display Settings Modal -->
 <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full relative">
+        <button id="close-settings-modal" class="absolute top-3 right-3 p-1 rounded hover:bg-gray-200 modal-close-btn" title="Kapat">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
         <h2 class="text-xl font-bold mb-4">Görüntüleme Ayarları</h2>
         
         <div class="mb-4">
@@ -38,11 +43,6 @@
                 <option value="sepia">Sepya</option>
                 <option value="high">Yüksek Kontrast</option>
             </select>
-        </div>
-        
-        <div class="flex justify-between">
-            <button id="reset-settings" class="btn-secondary px-4 py-2 rounded">Varsayılanlara Dön</button>
-            <button id="save-settings" class="btn-primary px-4 py-2 rounded">Kaydet</button>
         </div>
     </div>
 </div>
