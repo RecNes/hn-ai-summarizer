@@ -19,6 +19,7 @@
 .contrast-high { background-color: #000000; color: #ffffff; }
 
 /* Dark mode override — html.dark aktifken contrast-* class'larını ez */
+html.dark body,
 html.dark .contrast-light,
 html.dark .contrast-sepia,
 html.dark .contrast-high {
@@ -86,6 +87,10 @@ html.dark footer .text-gray-600 {
 .btn-primary {
     background-color: #3b82f6;
     color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 0.375rem;
 }
 .btn-primary:hover {
     background-color: #2563eb;
@@ -102,6 +107,10 @@ html.dark .btn-primary:hover {
 .btn-secondary {
     background-color: #e5e7eb;
     color: #374151;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 0.375rem;
 }
 .btn-secondary:hover {
     background-color: #d1d5db;
@@ -118,6 +127,10 @@ html.dark .btn-secondary:hover {
 .btn-success {
     background-color: #22c55e;
     color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 0.375rem;
 }
 .btn-success:hover {
     background-color: #16a34a;
@@ -134,7 +147,15 @@ html.dark .btn-success:hover {
 body, article, .bg-white, .bg-gray-100, footer, select, input, textarea,
 #settings-modal > div,
 .btn-primary, .btn-secondary, .btn-success {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.15s ease;
+}
+
+/* Focus styles for buttons */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-success:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
 }
 
 /* Highlight and dim styles */
