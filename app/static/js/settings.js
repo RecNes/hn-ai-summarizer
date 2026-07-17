@@ -12,7 +12,7 @@ function setSelectedModel(value) {
     const displayText = document.getElementById('model-display-text');
     native.innerHTML = value ? `<option value="${value}" selected>${value}</option>` : '';
     displayText.textContent = value || '-- Model Seçin --';
-    displayText.className = value ? 'text-white-900' : 'text-gray-400';
+    displayText.className = value ? 'text-gray-900' : 'text-gray-400';
 }
 
 function buildModelList(filter) {
@@ -185,9 +185,9 @@ async function loadModelsForProvider(providerId, configStr) {
         if (searchInput) searchInput.disabled = false;
         if (refreshBtn) refreshBtn.disabled = false;
         document.getElementById('model-display-text').textContent = '-- Model Seçin --';
-        document.getElementById('model-display-text').className = 'text-white-900';
+        document.getElementById('model-display-text').className = 'text-gray-900';
         status.textContent = `${currentModels.length} model bulundu`;
-        status.className = 'text-sm text-white-900 mt-1';
+        status.className = 'text-sm text-gray-500 mt-1';
     } catch (e) {
         console.error('Error loading models:', e);
         const container = document.getElementById('model-options');
@@ -298,7 +298,7 @@ async function saveSettings(event) {
         // Update UI language immediately without page reload
         const newUiLang = document.getElementById('ui_language').value;
         if (typeof changeUILanguage === 'function') {
-            changeUILanguage(newUiLang);
+            await changeUILanguage(newUiLang);
         }
 
         showToast('success', 'Settings saved successfully!');
