@@ -83,18 +83,32 @@ function changeUILanguage(lang) {
         return;
     }
 
-    i18next.changeLanguage(lang, function(err) {
-        if (err) {
-            console.error('Error changing language:', err);
-            return;
-        }
-        applyI18nToDOM();
+    const loadPath = `/static/locales/{{lng}}/common.json`;
+    const url = loadPath.replace('{{lng}}', lang);
 
-        // Dispatch event for other scripts to react
-        document.dispatchEvent(new CustomEvent('languageChanged', {
-            detail: { language: lang }
-        }));
-    });
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            if (i18next.addResourceBundle) {
+                i18next.addResourceBundle(lang, 'translation', data, true, true);
+            }
+            i18next.changeLanguage(lang, function(err) {
+                if (err) {
+                    console.error('Error changing language:', err);
+                    return;
+                }
+                applyI18nToDOM();
+                document.dispatchEvent(new CustomEvent('languageChanged', {
+                    detail: { language: lang }
+                }));
+            });
+        })
+        .catch(err => {
+            console.warn(`Could not load locale for ${lang}, trying cached:`, err);
+            i18next.changeLanguage(lang, function(err) {
+                if (!err) applyI18nToDOM();
+            });
+        });
 }
 
 /**
