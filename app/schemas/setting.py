@@ -29,13 +29,6 @@ class SettingBase(BaseModel):
     scheduled_minute: Optional[int] = None
     scheduled_days: Optional[str] = None
 
-    # SMTP settings
-    smtp_host: Optional[str] = None
-    smtp_port: Optional[int] = None
-    smtp_username: Optional[str] = None
-    smtp_password: Optional[str] = None
-    smtp_from: Optional[str] = None
-
     # Telegram settings
     telegram_chat_id: Optional[str] = None
     telegram_enabled: bool = False
