@@ -77,7 +77,7 @@ function _loadLocale(lang, path) {
  * Change UI language without page reload.
  * @param {string} lang - Language code
  */
-function changeUILanguage(lang) {
+async function changeUILanguage(lang) {
     if (!i18nInitialized || typeof i18next === 'undefined') {
         console.warn('i18n not initialized');
         return;
@@ -86,29 +86,42 @@ function changeUILanguage(lang) {
     const loadPath = `/static/locales/{{lng}}/common.json`;
     const url = loadPath.replace('{{lng}}', lang);
 
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            if (i18next.addResourceBundle) {
-                i18next.addResourceBundle(lang, 'translation', data, true, true);
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (i18next.addResourceBundle) {
+            i18next.addResourceBundle(lang, 'translation', data, true, true);
+        }
+    } catch (err) {
+        console.warn(`Could not load locale for ${lang}, trying cached:`, err);
+    }
+
+    // Always also load fallback English separately to avoid key loss
+    const enUrl = loadPath.replace('{{lng}}', 'en');
+    try {
+        const enRes = await fetch(enUrl);
+        const enData = await enRes.json();
+        if (i18next.addResourceBundle) {
+            i18next.addResourceBundle('en', 'translation', enData, true, true);
+        }
+    } catch (err) {
+        console.warn('Could not load fallback locale:', err);
+    }
+
+    return new Promise((resolve) => {
+        i18next.changeLanguage(lang, function(err) {
+            if (err) {
+                console.error('Error changing language:', err);
+                resolve();
+                return;
             }
-            i18next.changeLanguage(lang, function(err) {
-                if (err) {
-                    console.error('Error changing language:', err);
-                    return;
-                }
-                applyI18nToDOM();
-                document.dispatchEvent(new CustomEvent('languageChanged', {
-                    detail: { language: lang }
-                }));
-            });
-        })
-        .catch(err => {
-            console.warn(`Could not load locale for ${lang}, trying cached:`, err);
-            i18next.changeLanguage(lang, function(err) {
-                if (!err) applyI18nToDOM();
-            });
+            applyI18nToDOM();
+            document.dispatchEvent(new CustomEvent('languageChanged', {
+                detail: { language: lang }
+            }));
+            resolve();
         });
+    });
 }
 
 /**
