@@ -96,18 +96,6 @@ async function changeUILanguage(lang) {
         console.warn(`Could not load locale for ${lang}, trying cached:`, err);
     }
 
-    // Always also load fallback English separately to avoid key loss
-    const enUrl = loadPath.replace('{{lng}}', 'en');
-    try {
-        const enRes = await fetch(enUrl);
-        const enData = await enRes.json();
-        if (i18next.addResourceBundle) {
-            i18next.addResourceBundle('en', 'translation', enData, true, true);
-        }
-    } catch (err) {
-        console.warn('Could not load fallback locale:', err);
-    }
-
     return new Promise((resolve) => {
         i18next.changeLanguage(lang, function(err) {
             if (err) {
