@@ -12,28 +12,28 @@
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.language.title">Language Settings</h3>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="ui_language" data-i18n="settings.language.uiLabel">Application Language</label>
+            <label class="block text-gray-700 mb-2" for="ui_language" data-i18n="settings.language.uiLabel">Application Language</label>
                 <select id="ui_language" name="ui_language" class="w-full p-2 border rounded">
                     <!-- filled by JS -->
                 </select>
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.language.uiDescription">Language for the user interface, menus, and buttons</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.uiDescription">Language for the user interface, menus, and buttons</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="translation_language" data-i18n="settings.language.translationLabel">Content Translation Language</label>
+            <label class="block text-gray-700 mb-2" for="translation_language" data-i18n="settings.language.translationLabel">Content Translation Language</label>
                 <select id="translation_language" name="translation_language" class="w-full p-2 border rounded">
                     <!-- filled by JS -->
                 </select>
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.language.translationDescription">Language that Hacker News content will be translated to</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.translationDescription">Language that Hacker News content will be translated to</p>
             </div>
             
-            <p class="text-xs text-white-400 italic" data-i18n="settings.language.independentNote">These two settings are completely independent</p>
+            <p class="text-xs text-gray-400 italic" data-i18n="settings.language.independentNote">These two settings are completely independent</p>
         </div>
         
         <!-- Worker Control Section -->
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.data.title">Data Processing</h3>
-            <p class="text-white-600 mb-4 text-sm" data-i18n="settings.data.description">Manually fetch and process Hacker News data.</p>
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.data.description">Manually fetch and process Hacker News data.</p>
             
             <div class="flex flex-wrap gap-2 mb-4">
                 <button id="trigger-worker" class="btn-success px-4 py-2 rounded disabled:opacity-50 inline-flex items-center gap-2">
@@ -46,21 +46,21 @@
                 </button>
             </div>
             
-            <p id="worker-status" class="mt-2 text-sm text-white-500 hidden" data-i18n="settings.data.statusText">Processing... Please wait.</p>
+            <p id="worker-status" class="mt-2 text-sm text-gray-500 hidden" data-i18n="settings.data.statusText">Processing... Please wait.</p>
         </div>
 
         <!-- Telegram Notification Settings -->
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.telegram.title">Telegram Notifications</h3>
-            <p class="text-white-600 mb-4 text-sm" data-i18n="settings.telegram.description">Add your Telegram bot token to .env as <code>TELEGRAM_BOT_TOKEN=</code>. The bot token is <strong>never sent to the frontend</strong>, it is only read by the server.</p>
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.telegram.description">Add your Telegram bot token to .env as <code>TELEGRAM_BOT_TOKEN=</code>. The bot token is <strong>never sent to the frontend</strong>, it is only read by the server.</p>
 
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="telegram_chat_id" data-i18n="settings.telegram.chatIdLabel">Telegram Chat ID</label>
+            <label class="block text-gray-700 mb-2" for="telegram_chat_id" data-i18n="settings.telegram.chatIdLabel">Telegram Chat ID</label>
                 <input type="text" id="telegram_chat_id" name="telegram_chat_id"
                        class="w-full p-2 border rounded"
                        data-i18n-placeholder="settings.telegram.chatIdPlaceholder"
                        placeholder="1234567890">
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.telegram.chatIdHelp">Send a message to your bot, then visit <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> to find your chat ID.</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.telegram.chatIdHelp">Send a message to your bot, then visit <code>https://api.telegram.org/bot<TOKEN>/getUpdates</code> to find your chat ID.</p>
             </div>
 
             <div class="mb-4">
@@ -69,7 +69,7 @@
                            class="mr-2">
                     <span data-i18n="settings.telegram.enabledLabel">Enable Telegram notifications</span>
                 </label>
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.telegram.enabledHelp">When enabled, you will receive a Telegram notification for each batch of newly processed stories.</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.telegram.enabledHelp">When enabled, you will receive a Telegram notification for each batch of newly processed stories.</p>
             </div>
 
         </div>
@@ -77,22 +77,22 @@
         <!-- AI Provider Selection -->
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.ai.title">AI Provider</h3>
-            <p class="text-white-600 mb-4 text-sm" data-i18n="settings.ai.description">
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.ai.description">
                 API keys are configured via .env file. Only providers with configured keys are listed.
             </p>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="ai_provider" data-i18n="settings.ai.providerLabel">AI Provider</label>
+            <label class="block text-gray-700 mb-2" for="ai_provider" data-i18n="settings.ai.providerLabel">AI Provider</label>
                 <select id="ai_provider" name="ai_provider" class="w-full p-2 border rounded">
                     <option value="" data-i18n="settings.ai.providerPlaceholder">-- Select Provider --</option>
                 </select>
             </div>
             
             <div id="provider-config-section" class="hidden mb-4">
-                <label class="block text-white-700 mb-2" for="ai_provider_config" data-i18n="settings.ai.configLabel">Provider Address (optional)</label>
+            <label class="block text-gray-700 mb-2" for="ai_provider_config" data-i18n="settings.ai.configLabel">Provider Address (optional)</label>
                 <input type="text" id="ai_provider_config" name="ai_provider_config" 
                        class="w-full p-2 border rounded" data-i18n-placeholder="settings.ai.configPlaceholder" placeholder="http://localhost:11434">
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.ai.configHelp">Enter address for local providers like LM Studio or Ollama</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.ai.configHelp">Enter address for local providers like LM Studio or Ollama</p>
             </div>
             
             <div class="mb-4">
@@ -106,7 +106,7 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-white-700 mb-2" for="scheduled_hour" data-i18n="settings.fetch.hour">Hour</label>
+                    <label class="block text-gray-700 mb-2" for="scheduled_hour" data-i18n="settings.fetch.hour">Hour</label>
                     <select id="scheduled_hour" name="scheduled_hour"
                             class="w-full p-2 border rounded">
                         {% for hour in range(24) %}
@@ -115,7 +115,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-white-700 mb-2" for="scheduled_minute" data-i18n="settings.fetch.minute">Minute</label>
+                    <label class="block text-gray-700 mb-2" for="scheduled_minute" data-i18n="settings.fetch.minute">Minute</label>
                     <select id="scheduled_minute" name="scheduled_minute"
                             class="w-full p-2 border rounded">
                         {% for minute in range(0, 60, 5) %}
@@ -124,7 +124,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-white-700 mb-2" data-i18n="settings.fetch.days">Days</label>
+                    <label class="block text-gray-700 mb-2" data-i18n="settings.fetch.days">Days</label>
                     <div id="scheduled_days" class="space-y-2 max-h-40 overflow-y-auto border rounded p-2">
                         {% set days = [
                             ('1', 'settings.fetch.monday'),
@@ -145,22 +145,22 @@
                             </label>
                         {% endfor %}
                     </div>
-                    <p class="text-sm text-white-500 mt-1" data-i18n="settings.fetch.daysHelp">Select days to run</p>
+                    <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.daysHelp">Select days to run</p>
                 </div>
             </div>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="min_score" data-i18n="settings.fetch.minScore">Minimum Score</label>
+            <label class="block text-gray-700 mb-2" for="min_score" data-i18n="settings.fetch.minScore">Minimum Score</label>
                 <input type="number" id="min_score" name="min_score"
                        class="w-full p-2 border rounded" placeholder="100" value="100">
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.fetch.minScoreHelp">Only stories with score above this will be processed</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.minScoreHelp">Only stories with score above this will be processed</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="retention_days" data-i18n="settings.fetch.retentionDays">Data Retention (days)</label>
+            <label class="block text-gray-700 mb-2" for="retention_days" data-i18n="settings.fetch.retentionDays">Data Retention (days)</label>
                 <input type="number" id="retention_days" name="retention_days"
                        class="w-full p-2 border rounded" placeholder="30" value="30">
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.fetch.retentionDaysHelp">Data older than this will be automatically deleted</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.fetch.retentionDaysHelp">Data older than this will be automatically deleted</p>
             </div>
         </div>
         
@@ -169,25 +169,25 @@
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.preferences.title">User Preferences</h3>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="highlight_keywords" data-i18n="settings.preferences.highlightKeywords">Highlight Keywords</label>
+            <label class="block text-gray-700 mb-2" for="highlight_keywords" data-i18n="settings.preferences.highlightKeywords">Highlight Keywords</label>
                 <textarea id="highlight_keywords" name="highlight_keywords" 
                           class="w-full p-2 border rounded" rows="3" 
                           data-i18n-placeholder="settings.preferences.highlightPlaceholder" placeholder="AI, machine learning, data science"></textarea>
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.preferences.highlightHelp">Enter comma-separated keywords</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.preferences.highlightHelp">Enter comma-separated keywords</p>
             </div>
             
             <div class="mb-4">
-                <label class="block text-white-700 mb-2" for="blocklist_keywords" data-i18n="settings.preferences.blocklistKeywords">Blocked Keywords</label>
+            <label class="block text-gray-700 mb-2" for="blocklist_keywords" data-i18n="settings.preferences.blocklistKeywords">Blocked Keywords</label>
                 <textarea id="blocklist_keywords" name="blocklist_keywords" 
                           class="w-full p-2 border rounded" rows="3" 
                           data-i18n-placeholder="settings.preferences.blocklistPlaceholder" placeholder="politics, agenda, debate"></textarea>
-                <p class="text-sm text-white-500 mt-1" data-i18n="settings.preferences.blocklistHelp">Content containing these keywords will be dimmed</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.preferences.blocklistHelp">Content containing these keywords will be dimmed</p>
             </div>
         </div>
         
         <!-- Save Button -->
-        <div class="flex justify-end">
-            <button type="submit" id="save-btn" class="btn-primary px-6 py-2 rounded disabled:opacity-50 inline-flex items-center gap-2">
+        <div class="sticky bottom-0 bg-white -mx-4 -mb-4 p-4 border-t border-gray-200 rounded-b-lg flex justify-end">
+            <button type="submit" id="save-btn" class="btn-primary px-6 py-2 rounded disabled:opacity-50 inline-flex items-center gap-2 shadow-md">
                 <span id="save-btn-text" data-i18n="settings.save">Save Settings</span>
                 <span id="save-btn-spinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             </button>
