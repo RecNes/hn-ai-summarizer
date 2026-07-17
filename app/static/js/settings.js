@@ -128,31 +128,23 @@ function populateProviderDropdown(selected) {
 
 function updateProviderStatus() {
     const sel = document.getElementById('ai_provider');
-    const status = document.getElementById('provider-key-status');
-    if (!sel || !status) return;
+    if (!sel) return;
     const selectedId = sel.value;
 
+    const configSection = document.getElementById('provider-config-section');
+    if (!configSection) return;
+
     if (!selectedId) {
-        status.textContent = '';
-        const configSection = document.getElementById('provider-config-section');
-        if (configSection) configSection.classList.add('hidden');
+        configSection.classList.add('hidden');
         return;
     }
 
     const provider = availableProviders.find(p => p.id === selectedId);
     if (provider) {
-        status.textContent = provider.has_key
-            ? '✓ API anahtarı .env dosyasında tanımlı'
-            : 'ℹ Yerel sağlayıcı (API anahtarı gerekmez)';
-        status.className = 'text-sm mt-1 ' + (provider.has_key ? 'text-green-600' : 'text-blue-600');
-
-        const configSection = document.getElementById('provider-config-section');
-        if (configSection) {
-            if (provider.config_required) {
-                configSection.classList.remove('hidden');
-            } else {
-                configSection.classList.add('hidden');
-            }
+        if (provider.config_required) {
+            configSection.classList.remove('hidden');
+        } else {
+            configSection.classList.add('hidden');
         }
     }
 }
