@@ -185,7 +185,7 @@ async function loadModelsForProvider(providerId, configStr) {
         if (searchInput) searchInput.disabled = false;
         if (refreshBtn) refreshBtn.disabled = false;
         document.getElementById('model-display-text').textContent = '-- Model Seçin --';
-        document.getElementById('model-display-text').className = 'text-gray-400';
+        document.getElementById('model-display-text').className = 'text-white-900';
         status.textContent = `${currentModels.length} model bulundu`;
         status.className = 'text-sm text-white-900 mt-1';
     } catch (e) {
