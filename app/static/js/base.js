@@ -26,10 +26,12 @@ function getEffectiveTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-/** Temayı uygula: html.dark class'ı + dropdown senkronizasyonu */
+/** Temayı uygula: html.dark class'ı + body contrast + dropdown senkronizasyonu */
 function applyTheme(theme) {
     const effective = theme || getEffectiveTheme();
     document.documentElement.classList.toggle('dark', effective === 'dark');
+    // Body'deki contrast-* class'ını güncelle (tema değişince body rengi de değişsin)
+    document.body.className = document.body.className.replace(/contrast-\w+/g, 'contrast-' + effective);
     // Dropdown'u senkronize et (varsa)
     const themeSelect = document.getElementById('theme-select');
     if (themeSelect) {
