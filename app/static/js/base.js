@@ -91,7 +91,7 @@ function loadSettings() {
 
 // Apply settings to the page
 function applySettings(fontFamily, fontSize, contrast) {
-    document.body.className = `${fontFamily} text-${fontSize} contrast-${contrast}`;
+    document.body.className = `font-${fontFamily} text-${fontSize} contrast-${contrast}`;
 }
 
 // Tema dropdown'ı değiştiğinde anında uygula
