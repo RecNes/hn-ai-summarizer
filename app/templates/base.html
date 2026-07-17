@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="app.title">{% block title %}HN AI Summarizer{% endblock %}</title>
     
+    <!-- Dark mode flash önleme: body render olmadan temayı uygula -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme');
+            var isDark = (theme === 'dark') || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches) || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            if (isDark) document.documentElement.classList.add('dark');
+        })();
+    </script>
+    
     <!-- High-legibility fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
@@ -102,7 +111,22 @@
         }
     </style>
 </head>
-<body class="contrast-light text-medium">
+<body>
+    <!-- Dark mode flash önleme: body hemen render olunca class'larını ayarla -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme') || 'system';
+            var isDark = (theme === 'dark') || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            var contrast = isDark ? 'dark' : 'light';
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            document.body.className = 'atkinson text-medium contrast-' + contrast;
+        })();
+    </script>
+    
     {% include "components/toast.html" %}
     {% include "components/worker_progress.html" %}
     {% include "components/settings_modal.html" %}
