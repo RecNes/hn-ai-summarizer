@@ -127,6 +127,19 @@ async def reprocess_story(
     }
 
 
+@router.patch("/{story_id}/read")
+async def toggle_read_story(story_id: int, db: AsyncSession = Depends(get_db)):
+    """Toggle the is_read status of a story"""
+    result = await db.execute(select(Story).where(Story.id == story_id))
+    story = result.scalar_one_or_none()
+    if not story:
+        raise HTTPException(status_code=404, detail="Story not found")
+    story.is_read = not story.is_read
+    await db.commit()
+    await db.refresh(story)
+    return {"id": story.id, "is_read": story.is_read}
+
+
 @router.post("/feedback/negative/{story_id}")
 async def add_negative_feedback(story_id: int, db: AsyncSession = Depends(get_db)):
     """Add negative feedback for a story"""

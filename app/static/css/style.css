@@ -185,6 +185,63 @@ body, article, .bg-white, .bg-gray-100, footer, select, input, textarea,
     outline-offset: 2px;
 }
 
+/* ──────────────────────────────────────────────
+   Read/Unread toggle (eye icon) + Collapse/Expand
+   ────────────────────────────────────────────── */
+
+/* Gövde sarmalayıcı — expand/collapse animasyonu */
+.story-card .card-body-wrapper {
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+    max-height: 2000px;
+    opacity: 1;
+}
+.story-card.is-read .card-body-wrapper {
+    max-height: 0 !important;
+    opacity: 0;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Göz ikonu butonu */
+.read-toggle-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 2px;
+    display: inline-flex;
+    align-items: center;
+    color: #6b7280;
+    transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+    line-height: 1;
+}
+.read-toggle-btn:hover {
+    transform: scale(1.2);
+    opacity: 0.7;
+    color: #3b82f6;
+}
+.read-toggle-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Dark mode göz ikonu */
+html.dark .read-toggle-btn {
+    color: #94a3b8;
+}
+html.dark .read-toggle-btn:hover {
+    color: #60a5fa;
+}
+html.dark .read-toggle-btn svg {
+    stroke: #94a3b8;
+}
+html.dark .read-toggle-btn:hover svg {
+    stroke: #60a5fa;
+}
+
 /* Highlight and dim styles */
 .highlighted {
     border-left: 4px solid #3b82f6;
