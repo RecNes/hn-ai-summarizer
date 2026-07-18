@@ -26,6 +26,9 @@ class Story(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
+    hn_created_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), default=None
+    )
     updated_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), default=None, onupdate=lambda: datetime.now(timezone.utc)
     )
