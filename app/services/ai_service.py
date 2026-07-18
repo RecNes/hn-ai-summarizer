@@ -235,38 +235,76 @@ class AIService:
         else:
             raise ValueError(f"Unknown provider type: {provider_type}")
 
-    def _is_bad_translation(self, original: str, translation: str) -> bool:
-        """Detect obviously wrong translations like 'User Safety: safe'.
-        
-        Returns True if the translation is likely garbage.
+    @staticmethod
+    def _is_valid_translation(text: Optional[str], field_type: str) -> bool:
+        """Check if a translation/summary field contains genuine content.
+
+        Args:
+            text: The text to validate.
+            field_type: One of 'title', 'content', 'comments'.
+                        Determines which placeholder patterns to check.
+
+        Returns:
+            True if the text appears to be legitimate translated content.
         """
-        if not translation:
-            return True
+        if not text:
+            return False
 
-        t = translation.strip()
-
-        # Too short = suspicious
+        t = text.strip()
         if len(t) < 5:
-            return True
+            return False
 
-        # Translation has zero word overlap with original (case-insensitive)
-        orig_words = set(original.lower().split())
-        trans_words = set(t.lower().split())
-        common = orig_words & trans_words
+        # ── Known placeholder / error message patterns ──
+        KNOWN_PLACEHOLDERS: dict[str, list[str]] = {
+            "title": [
+                "[TR]",
+            ],
+            "content": [
+                "İçerik özeti mevcut değil.",
+                "Özet oluşturulamadı.",
+                "Content summary not available in",
+                "Summary could not be generated in",
+            ],
+            "comments": [
+                "Yorum özeti mevcut değil.",
+                "Comment summary not available in",
+                "Comment summary could not be generated in",
+            ],
+        }
 
-        # Block known garbage patterns
+        patterns = KNOWN_PLACEHOLDERS.get(field_type, [])
+        for pat in patterns:
+            if t == pat or t.startswith(pat):
+                return False
+
+        # ── Generic garbage detection (all field types) ──
         bad_patterns = ["user safety", "safe", "user", "safety:", "safety", "summary", "note:", "warning"]
         t_lower = t.lower()
         for pat in bad_patterns:
             if pat == t_lower or t_lower.startswith(pat) or t_lower == pat:
-                return True
+                return False
 
-        # If result is in English and has almost no overlap with original, it's probably AI hallucination
-        # Check if result contains mostly English characters
+        return True
+
+    @staticmethod
+    def _is_garbage_translation(original: str, translation: str) -> bool:
+        """Detect obviously wrong translations e.g. English text with no relation to original."""
+        if not translation:
+            return True
+
+        t = translation.strip()
+        if len(t) < 5:
+            return True
+
+        # Zero word overlap with original (case-insensitive)
+        orig_words = set(original.lower().split())
+        trans_words = set(t.lower().split())
+        common = orig_words & trans_words
+
+        # Mostly English + no Turkish chars + no overlap → AI hallucination
         eng_chars = sum(1 for c in t if c.isascii() and c.isalpha())
         turkish_chars = sum(1 for c in t if c in 'çğıiöşüÇĞİÖŞÜ')
-        
-        # If mostly English but no overlap with original → bad
+
         if eng_chars > len(t) * 0.6 and turkish_chars < 2:
             if len(common) == 0 and len(orig_words) > 1:
                 return True
@@ -311,7 +349,7 @@ class AIService:
             return trimmed
 
         # Detect garbage translation
-        if self._is_bad_translation(title, result):
+        if self._is_garbage_translation(title, result):
             print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
             return title
 
@@ -390,30 +428,19 @@ class AIService:
     def check_translation_complete(self, story) -> bool:
         """Check if all translation fields on a story are fully and correctly translated.
 
+        Delegates to the static _is_valid_translation helper for each field type.
+
         Returns True only when title_tr, content_tr, and comments_summary
         all contain genuine translated content (not placeholder/garbage).
         """
         if not story:
             return False
 
-        title_ok = (
-            bool(story.title_tr)
-            and not story.title_tr.startswith("[TR]")
+        return (
+            self._is_valid_translation(story.title_tr, "title")
+            and self._is_valid_translation(story.content_tr, "content")
+            and self._is_valid_translation(story.comments_summary, "comments")
         )
-        content_ok = (
-            bool(story.content_tr)
-            and story.content_tr != "İçerik özeti mevcut değil."
-            and story.content_tr != "Özet oluşturulamadı."
-            and not story.content_tr.startswith("Content summary not available")
-            and not story.content_tr.startswith("Summary could not be generated")
-        )
-        comments_ok = (
-            bool(story.comments_summary)
-            and story.comments_summary != "Yorum özeti mevcut değil."
-            and not story.comments_summary.startswith("Comment summary not available")
-            and not story.comments_summary.startswith("Comment summary could not be generated")
-        )
-        return title_ok and content_ok and comments_ok
 
     # ────────────────────────────────────────────
     # Provider & Model listing (for API endpoint)
