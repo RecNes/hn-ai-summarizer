@@ -37,7 +37,7 @@ class Story(Base):
     is_dimmed: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
     is_blocked: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
     is_translated: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
-    is_read: Mapped[Optional[bool]] = mapped_column(Boolean, default=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     negative_feedback: Mapped[List["NegativeFeedback"]] = relationship(
         "NegativeFeedback", back_populates="story"
