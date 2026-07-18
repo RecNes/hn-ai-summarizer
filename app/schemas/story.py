@@ -22,6 +22,7 @@ class StoryBase(BaseModel):
     is_dimmed: bool = False
     is_blocked: bool = False
     is_translated: bool = False
+    is_read: bool = False
 
 
 class StoryCreate(StoryBase):
