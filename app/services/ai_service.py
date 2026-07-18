@@ -404,10 +404,14 @@ class AIService:
             bool(story.content_tr)
             and story.content_tr != "İçerik özeti mevcut değil."
             and story.content_tr != "Özet oluşturulamadı."
+            and not story.content_tr.startswith("Content summary not available")
+            and not story.content_tr.startswith("Summary could not be generated")
         )
         comments_ok = (
             bool(story.comments_summary)
             and story.comments_summary != "Yorum özeti mevcut değil."
+            and not story.comments_summary.startswith("Comment summary not available")
+            and not story.comments_summary.startswith("Comment summary could not be generated")
         )
         return title_ok and content_ok and comments_ok
 

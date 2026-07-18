@@ -124,10 +124,10 @@ function buildStoryCardHtml(story) {
                 </h3>
                 <div class="flex items-center gap-2 text-sm text-gray-500 flex-shrink-0 ml-2">
                     <span>ID:${story.id}</span>
+                    <span>${story.score} puan</span>
                     <button class="read-toggle-btn" data-story-id="${story.id}" title="${isRead ? 'Okunmadı olarak işaretle' : 'Okundu olarak işaretle'}">
                         ${isRead ? EYE_CLOSED_SVG : EYE_OPEN_SVG}
                     </button>
-                    <span>${story.score} puan</span>
                 </div>
             </div>
             
