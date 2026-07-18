@@ -10,6 +10,7 @@ They are read exclusively from .env file.
 """
 
 import json
+import time
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -17,6 +18,7 @@ from sqlalchemy.future import select
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
+from app.models.ai_activity_log import AiActivityLog
 from app.models.setting import Setting
 from app.services.provider_registry import get_provider
 
@@ -24,8 +26,9 @@ from app.services.provider_registry import get_provider
 class AIService:
     """Service for AI-related functionalities using configurable providers."""
 
-    def __init__(self):
+    def __init__(self, story_id: int | None = None):
         self.ollama_client = httpx.AsyncClient(timeout=600.0)
+        self._story_id = story_id
 
     async def _get_active_config(self) -> Dict[str, Any]:
         """Get the currently active AI provider configuration.
@@ -203,37 +206,96 @@ class AIService:
             print(f"Error calling Ollama at '{base_url}': {e}")
             return ""
 
-    async def _call_ai(self, system_prompt: str, user_prompt: str) -> str:
-        """Route the AI call to the currently configured provider."""
+    async def _log_activity(
+        self, event_type: str, status: str, error_message: str | None = None,
+        duration_ms: float | None = None,
+    ):
+        """Write an AI activity log entry to the database (fire-and-forget).
+
+        Args:
+            event_type: e.g. 'translate_title', 'summarize_content', 'summarize_comments'.
+            status: 'success' or 'error'.
+            error_message: Human-readable error description.
+            duration_ms: How long the call took in milliseconds.
+        """
+        cfg = await self._get_active_config()
+        log = AiActivityLog(
+            story_id=self._story_id,
+            event_type=event_type,
+            provider=cfg["provider"],
+            model=cfg["model"],
+            status=status,
+            error_message=error_message,
+            duration_ms=duration_ms,
+        )
+        try:
+            async with AsyncSessionLocal() as db:
+                db.add(log)
+                await db.commit()
+        except Exception as e:
+            print(f"[ActivityLog] Failed to write log: {e}")
+
+    async def _call_ai(self, system_prompt: str, user_prompt: str, event_type: str = "ai_call") -> str:
+        """Route the AI call to the currently configured provider.
+
+        After the call, writes an AiActivityLog entry automatically.
+        """
         cfg = await self._get_active_config()
         provider_type = cfg["type"]
         model = cfg["model"]
+        start = time.monotonic()
 
-        if provider_type == "openai-compat":
-            return await self._call_openai_compat(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-                model=model,
-                base_url=cfg["base_url"],
-                api_key=cfg["api_key"] or "",
-            )
-        elif provider_type == "anthropic":
-            return await self._call_anthropic(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-                model=model,
-                api_key=cfg["api_key"] or "",
-            )
-        elif provider_type == "ollama-http":
-            # Ollama doesn't use system/user split; combine them
-            combined = f"{system_prompt}\n\n{user_prompt}"
-            return await self._call_ollama(
-                prompt=combined,
-                model=model,
-                base_url=cfg["base_url"],
-            )
-        else:
-            raise ValueError(f"Unknown provider type: {provider_type}")
+        result: str = ""
+        error_msg: str | None = None
+
+        try:
+            if provider_type == "openai-compat":
+                result = await self._call_openai_compat(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    model=model,
+                    base_url=cfg["base_url"],
+                    api_key=cfg["api_key"] or "",
+                )
+            elif provider_type == "anthropic":
+                result = await self._call_anthropic(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    model=model,
+                    api_key=cfg["api_key"] or "",
+                )
+            elif provider_type == "ollama-http":
+                combined = f"{system_prompt}\n\n{user_prompt}"
+                result = await self._call_ollama(
+                    prompt=combined,
+                    model=model,
+                    base_url=cfg["base_url"],
+                )
+            else:
+                raise ValueError(f"Unknown provider type: {provider_type}")
+
+            # Result empty → the call itself succeeded but produced nothing
+            if not result:
+                error_msg = f"Empty response from {cfg['provider']} ({model})"
+                status = "error"
+            else:
+                status = "success"
+        except Exception as e:
+            error_msg = f"{type(e).__name__}: {e}"
+            status = "error"
+
+        elapsed = (time.monotonic() - start) * 1000  # ms
+        await self._log_activity(
+            event_type=event_type,
+            status=status,
+            error_message=error_msg,
+            duration_ms=round(elapsed, 1),
+        )
+
+        if status == "error" and error_msg:
+            print(f"[AIService] {event_type} ERROR: {error_msg}")
+
+        return result
 
     @staticmethod
     def _is_valid_translation(text: Optional[str], field_type: str) -> bool:
@@ -335,6 +397,7 @@ class AIService:
                 f"If the text is already in {target_language}, return it unchanged."
             ),
             user_prompt=prompt,
+            event_type="translate_title",
         )
 
         # Empty result → return original
@@ -375,6 +438,7 @@ class AIService:
                 f"Never add explanations, comments, thoughts, or repeated instructions."
             ),
             user_prompt=prompt,
+            event_type="summarize_content",
         )
         if not result:
             return f"Summary could not be generated in {target_language}."
@@ -414,6 +478,7 @@ class AIService:
                 "Return ONLY the summary, nothing else."
             ),
             user_prompt=comments_text[:2000],
+            event_type="summarize_comments",
         )
         return result if result else f"Comment summary could not be generated in {target_language}."
 

@@ -71,7 +71,7 @@ class TelegramService:
             return False
 
     async def send_notification(
-        self, new_count: int, settings_obj
+        self, new_count: int, settings_obj, error_count: int = 0
     ) -> bool:
         """Send a notification about new processed stories.
 
@@ -83,6 +83,7 @@ class TelegramService:
         Args:
             new_count: Number of newly processed stories.
             settings_obj: Setting model instance (must have telegram_chat_id).
+            error_count: Number of errors encountered during processing.
 
         Returns:
             True if sent successfully, False otherwise.
@@ -100,6 +101,11 @@ class TelegramService:
             f"ve okunmaya haz\u0131r!\n\n"
             f"\U0001F517 <a href=\"http://localhost:8000\">Hemen g\xf6z at</a>"
         )
+
+        if error_count > 0:
+            text += (
+                f"\n\n\u26A0\uFE0F <b>{error_count} hata</b> olu\u015Ftu."
+            )
 
         return await self.send_message(chat_id, text)
 

@@ -340,3 +340,79 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ──────────────────────────────────────────────
+// AI Activity Panel
+// ──────────────────────────────────────────────
+
+/** AI panel slide-up toggle */
+window.toggleAiPanel = function() {
+    const panel = document.getElementById('ai-panel');
+    const overlay = document.getElementById('ai-panel-overlay');
+    const isOpen = panel && panel.style.display !== 'none' && !panel.classList.contains('translate-y-full');
+
+    if (isOpen) {
+        panel.classList.add('translate-y-full');
+        panel.style.display = 'none';
+        overlay.classList.add('hidden');
+    } else {
+        panel.style.display = 'block';
+        overlay.classList.remove('hidden');
+        // Force reflow for transition
+        void panel.offsetHeight;
+        panel.classList.remove('translate-y-full');
+        loadAiActivityLogs();
+    }
+};
+
+/** Fetch and render AI activity logs */
+async function loadAiActivityLogs() {
+    const content = document.getElementById('ai-panel-content');
+    if (!content) return;
+    content.innerHTML = '<div class="text-center text-gray-500 py-8">Yükleniyor...</div>';
+
+    try {
+        const res = await fetch('/api/ai-activity/?limit=50');
+        if (!res.ok) {
+            content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenemedi.</div>';
+            return;
+        }
+        const logs = await res.json();
+
+        if (!logs || logs.length === 0) {
+            content.innerHTML = '<div class="text-center text-gray-500 py-8">Henüz AI aktivite logu bulunmuyor.</div>';
+            return;
+        }
+
+        let html = '<div class="space-y-3">';
+        for (const log of logs) {
+            const isError = log.status === 'error';
+            const durationStr = log.duration_ms != null ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-';
+            const date = new Date(log.created_at).toLocaleString('tr-TR', {
+                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+            });
+
+            html += `
+                <div class="p-3 rounded-lg border ${isError ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-mono text-gray-400">#${log.story_id || '-'}</span>
+                            <span class="ml-2 text-sm font-semibold ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${log.event_type}</span>
+                        </div>
+                        <span class="text-xs text-gray-400">${date}</span>
+                    </div>
+                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        ${log.provider} / ${log.model} · ${durationStr}
+                        ${isError ? `<span class="ml-2 text-red-500" title="${(log.error_message || '').replace(/"/g, '"')}">⚠ hata</span>` : ' ✓'}
+                    </div>
+                    ${isError && log.error_message ? `<div class="mt-1 text-xs text-red-500 truncate" title="${log.error_message.replace(/"/g, '"')}">${log.error_message}</div>` : ''}
+                </div>
+            `;
+        }
+        html += '</div>';
+        content.innerHTML = html;
+    } catch (e) {
+        console.error('AI Activity log error:', e);
+        content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenirken hata oluştu.</div>';
+    }
+}
