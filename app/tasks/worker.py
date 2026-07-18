@@ -22,7 +22,7 @@ job_timeout = 600  # 10 minutes in seconds
 
 async def process_story(ctx, story_data):
     """Process a story with AI services"""
-    ai_service = AIService()
+    ai_service = AIService(story_id=story_data.get("hacker_news_id"))
 
     async with AsyncSessionLocal() as db:
         try:
@@ -138,12 +138,12 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True):
 
     # Send Telegram notification if configured
     if send_notification:
-        await _send_telegram_notification(processed_count)
+        await _send_telegram_notification(processed_count, error_count)
 
     return f"New: {processed_count}, Skipped: {skipped_count}, Errors: {error_count}"
 
 
-async def _send_telegram_notification(processed_count: int):
+async def _send_telegram_notification(processed_count: int, error_count: int = 0):
     """Send Telegram notification about newly processed stories.
 
     Only sends if Telegram is configured in .env and settings.
@@ -166,7 +166,7 @@ async def _send_telegram_notification(processed_count: int):
         telegram = TelegramService(bot_token)
 
         if processed_count > 0:
-            await telegram.send_notification(processed_count, setting)
+            await telegram.send_notification(processed_count, setting, error_count=error_count)
         else:
             await telegram.send_empty_notification(setting)
 
@@ -174,7 +174,6 @@ async def _send_telegram_notification(processed_count: int):
 async def reprocess_untranslated_stories(ctx):
     """Reprocess stories that don't have Turkish translations with fresh content"""
     fetcher = FetcherService()
-    ai_service = AIService()
 
     try:
         async with AsyncSessionLocal() as db:
@@ -189,6 +188,7 @@ async def reprocess_untranslated_stories(ctx):
 
             reprocessed_count = 0
             for story in stories_needing_ai:
+                ai_service = AIService(story_id=int(story.hacker_news_id))
                 try:
                     print(f"Reprocessing story {story.hacker_news_id} (DB id={story.id}, title={story.title[:60]})...")
 
@@ -251,7 +251,6 @@ async def debug_untranslated_stories(ctx):
 async def reprocess_all_stories(ctx):
     """Reprocess ALL stories that might benefit from AI processing"""
     fetcher = FetcherService()
-    ai_service = AIService()
 
     try:
         async with AsyncSessionLocal() as db:
@@ -262,6 +261,7 @@ async def reprocess_all_stories(ctx):
 
             reprocessed_count = 0
             for story in all_stories:
+                ai_service = AIService(story_id=int(story.hacker_news_id))
                 try:
                     if not story.is_translated:
                         print(f"Reprocessing story {story.hacker_news_id}...")
