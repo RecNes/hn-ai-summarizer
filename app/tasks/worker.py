@@ -88,6 +88,7 @@ async def process_story(ctx, story_data):
                 content=story_data["content"],
                 content_tr=content_tr,
                 comments_summary=comments_summary,
+                hn_created_at=story_data.get("hn_created_at"),
                 is_blocked=False,
             )
             story.is_translated = ai_service.check_translation_complete(story)

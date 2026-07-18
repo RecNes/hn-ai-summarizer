@@ -34,6 +34,7 @@ class StoryResponse(StoryBase):
     """Schema for responding with story data."""
     id: int
     created_at: datetime
+    hn_created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
     class Config:
