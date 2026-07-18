@@ -123,7 +123,6 @@ function buildStoryCardHtml(story) {
                     </a>
                 </h3>
                 <div class="flex items-center gap-2 text-sm text-gray-500 flex-shrink-0 ml-2">
-                    <span>ID:${story.id}</span>
                     <span>${story.score} puan</span>
                     <button class="read-toggle-btn" data-story-id="${story.id}" title="${isRead ? 'Okunmadı olarak işaretle' : 'Okundu olarak işaretle'}">
                         ${isRead ? EYE_CLOSED_SVG : EYE_OPEN_SVG}
@@ -170,7 +169,7 @@ function buildStoryCardHtml(story) {
                         </svg>
                         Tekrar gösterme
                     </button>
-                    <span class="text-xs text-gray-400 ml-auto">${new Date(story.created_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span class="text-xs text-gray-400 ml-auto hover:underline cursor-default" title="ID: ${story.id}">${new Date(story.hn_created_at || story.created_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 </div>
             </div>
         </article>
@@ -408,19 +407,23 @@ function updateStoryCard(story) {
         titleLink.innerHTML = (story.title_tr || story.title) + (story.is_highlighted ? ' <span class="ml-2 text-blue-500">★</span>' : '');
     }
 
-    // Update header row: ID · eye · score
+    // Update header row: score · eye
     const headerRight = article.querySelector('.flex.justify-between.items-start .flex.items-center');
     if (headerRight) {
-        const idSpan = headerRight.querySelector('span:first-child');
-        const scoreSpan = headerRight.querySelector('span:last-child');
+        const scoreSpan = headerRight.querySelector('span');
         const eyeBtn = headerRight.querySelector('.read-toggle-btn');
-        if (idSpan) idSpan.textContent = 'ID:' + story.id;
         if (scoreSpan) scoreSpan.textContent = story.score + ' puan';
         if (eyeBtn) {
             const isRead = story.is_read || false;
             eyeBtn.innerHTML = isRead ? EYE_CLOSED_SVG : EYE_OPEN_SVG;
             eyeBtn.title = isRead ? 'Okunmadı olarak işaretle' : 'Okundu olarak işaretle';
         }
+    }
+
+    // Update footer date tooltip (ID in title)
+    const footerDateSpan = article.querySelector('.flex-wrap .ml-auto');
+    if (footerDateSpan) {
+        footerDateSpan.title = 'ID: ' + story.id;
     }
 
     const authorP = article.querySelector('p.text-gray-600');

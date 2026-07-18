@@ -1,6 +1,7 @@
 """Service to fetch and process Hacker News stories and comments."""
 
 import asyncio
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -113,6 +114,13 @@ class FetcherService:
         kid_ids = story.get("kids")
         comments = await self.fetch_comments(story_id, kid_ids=kid_ids)
 
+        hn_time = story.get("time")
+        hn_created_at = (
+            datetime.fromtimestamp(hn_time, tz=timezone.utc)
+            if hn_time
+            else None
+        )
+
         return {
             "hacker_news_id": str(story_id),
             "title": story.get("title", ""),
@@ -121,6 +129,7 @@ class FetcherService:
             "author": story.get("by", ""),
             "content": content,
             "comments": comments,
+            "hn_created_at": hn_created_at,
         }
 
     async def fetch_and_process_stories(
@@ -162,6 +171,13 @@ class FetcherService:
         kid_ids = story.get("kids")
         comments = await self.fetch_comments(story_id, kid_ids=kid_ids)
 
+        hn_time = story.get("time")
+        hn_created_at = (
+            datetime.fromtimestamp(hn_time, tz=timezone.utc)
+            if hn_time
+            else None
+        )
+
         return {
             "hacker_news_id": str(story_id),
             "title": story.get("title", ""),
@@ -170,4 +186,5 @@ class FetcherService:
             "author": story.get("by", ""),
             "content": content,
             "comments": comments,
+            "hn_created_at": hn_created_at,
         }
