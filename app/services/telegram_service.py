@@ -5,6 +5,8 @@ from typing import Optional
 
 import httpx
 
+from app.core.config import settings as app_settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -96,10 +98,11 @@ class TelegramService:
             logger.warning("Telegram chat_id not configured")
             return False
 
+        public_url = app_settings.PUBLIC_URL or "http://localhost:8000"
         text = (
             f"\U0001F4F0 Hacker News'te <b>{new_count} yeni konu</b> özetlendi "
             f"ve okunmaya haz\u0131r!\n\n"
-            f"\U0001F517 <a href=\"http://localhost:8000\">Hemen g\xf6z at</a>"
+            f"\U0001F517 <a href=\"{public_url}\">Hemen göz at</a>"
         )
 
         if error_count > 0:
