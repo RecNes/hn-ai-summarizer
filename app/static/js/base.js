@@ -514,6 +514,9 @@ window.cancelReprocess = async function() {
             return;
         }
         showToast('info', 'İşlem iptal ediliyor...');
+
+        // Immediately reset frontend UI
+        _resetReprocessUI();
     } catch (e) {
         console.error('[cancelReprocess] Error:', e);
         showToast('error', 'İptal sırasında hata oluştu.');
