@@ -421,6 +421,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         aiPanelOverlay.addEventListener('click', toggleAiPanel);
     }
 
+    // Cancel reprocess button
+    const cancelReprocessBtn = document.getElementById('cancel-reprocess-home');
+    if (cancelReprocessBtn) {
+        cancelReprocessBtn.addEventListener('click', function() {
+            if (typeof window.cancelReprocess === 'function') {
+                window.cancelReprocess();
+            }
+        });
+    }
+
     // Check if there's an ongoing reprocess job (survives page refresh)
     checkReprocessState();
 
@@ -437,6 +447,14 @@ async function checkReprocessState() {
         const res = await fetch('/api/stories/reprocess-untranslated/status');
         if (!res.ok) return;
         const state = await res.json();
+
+        // If cancelled flag is set but stream didn't reset yet — clear it now
+        if (state.cancelled) {
+            console.log('[Reprocess] Cancellation detected, resetting UI');
+            _resetReprocessUI();
+            return;
+        }
+
         if (!state.running) return;
 
         // Restore button state
@@ -462,6 +480,26 @@ async function checkReprocessState() {
         // Ignore — server may not have the endpoint yet
         console.warn('[checkReprocessState] Failed:', e);
     }
+}
+
+/**
+ * Reset all reprocess UI elements to idle state.
+ */
+function _resetReprocessUI() {
+    const btn = document.getElementById('reprocess-home');
+    const btnText = document.getElementById('reprocess-home-text');
+    const spinner = document.getElementById('reprocess-home-spinner');
+    const cancelBtn = document.getElementById('cancel-reprocess-home');
+    const statusText = document.getElementById('worker-status-home');
+
+    if (btn) btn.disabled = false;
+    if (btnText) btnText.textContent = 'Çevrilmemişleri İşle';
+    if (spinner) spinner.classList.add('hidden');
+    if (cancelBtn) cancelBtn.classList.add('hidden');
+    if (statusText) statusText.classList.add('hidden');
+
+    if (window.hideWorkerProgress) window.hideWorkerProgress();
+    if (window.hideWorkerLabel) window.hideWorkerLabel();
 }
 
 /**
