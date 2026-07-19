@@ -405,20 +405,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // AI Panel event listeners
-    const aiPanelBtn = document.getElementById('ai-panel-btn');
-    if (aiPanelBtn) {
-        aiPanelBtn.addEventListener('click', toggleAiPanel);
+    // Log Panel event listeners
+    const logPanelBtn = document.getElementById('log-panel-btn');
+    if (logPanelBtn) {
+        logPanelBtn.addEventListener('click', toggleLogPanel);
     }
 
-    const aiPanelCloseBtn = document.getElementById('ai-panel-close-btn');
-    if (aiPanelCloseBtn) {
-        aiPanelCloseBtn.addEventListener('click', toggleAiPanel);
+    const logPanelCloseBtn = document.getElementById('log-panel-close-btn');
+    if (logPanelCloseBtn) {
+        logPanelCloseBtn.addEventListener('click', toggleLogPanel);
     }
 
-    const aiPanelOverlay = document.getElementById('ai-panel-overlay');
-    if (aiPanelOverlay) {
-        aiPanelOverlay.addEventListener('click', toggleAiPanel);
+    const logPanelOverlay = document.getElementById('log-panel-overlay');
+    if (logPanelOverlay) {
+        logPanelOverlay.addEventListener('click', toggleLogPanel);
     }
 
     // Cancel reprocess button
@@ -524,26 +524,34 @@ window.cancelReprocess = async function() {
 };
 
 // ──────────────────────────────────────────────
-// AI Activity Panel
+// Log Panel
 // ──────────────────────────────────────────────
 
-/** AI panel slide-up toggle */
-window.toggleAiPanel = function() {
-    const panel = document.getElementById('ai-panel');
-    const overlay = document.getElementById('ai-panel-overlay');
+/** Log panel slide-up toggle (açılınca 10sn'de bir otomatik yenile) */
+window.toggleLogPanel = function() {
+    const panel = document.getElementById('log-panel');
+    const overlay = document.getElementById('log-panel-overlay');
     const isOpen = panel && panel.style.display !== 'none' && !panel.classList.contains('translate-y-full');
 
     if (isOpen) {
         panel.classList.add('translate-y-full');
         panel.style.display = 'none';
         overlay.classList.add('hidden');
+        // Auto-refresh interval'ı temizle
+        if (window._logPanelInterval) {
+            clearInterval(window._logPanelInterval);
+            window._logPanelInterval = null;
+        }
     } else {
         panel.style.display = 'block';
         overlay.classList.remove('hidden');
         // Force reflow for transition
         void panel.offsetHeight;
         panel.classList.remove('translate-y-full');
-        loadAiActivityLogs();
+        loadActivityLogs();
+        // Her 10sn'de bir otomatik yenile
+        if (window._logPanelInterval) clearInterval(window._logPanelInterval);
+        window._logPanelInterval = setInterval(loadActivityLogs, 10000);
     }
 };
 
@@ -578,8 +586,8 @@ function renderLogEntry(log) {
 }
 
 /** Fetch and render AI activity logs */
-async function loadAiActivityLogs() {
-    const content = document.getElementById('ai-panel-content');
+async function loadActivityLogs() {
+    const content = document.getElementById('log-panel-content');
     if (!content) return;
     content.innerHTML = '<div class="text-center text-gray-500 py-8">Yükleniyor...</div>';
 
@@ -609,66 +617,13 @@ async function loadAiActivityLogs() {
 }
 
 // ──────────────────────────────────────────────
-// Log Drawer (her sayfada header'da buton)
+// Esc ile log paneli kapat
 // ──────────────────────────────────────────────
-
-/** Log drawer'ı aç/kapa */
-window.toggleLogDrawer = function() {
-    const drawer = document.getElementById('log-drawer');
-    const overlay = document.getElementById('log-drawer-overlay');
-    if (!drawer || !overlay) return;
-
-    const isOpen = !drawer.classList.contains('translate-x-full');
-
-    if (isOpen) {
-        drawer.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
-    } else {
-        drawer.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
-        loadActivityLogs();
-        // Her 10sn'de bir otomatik yenile
-        if (window._logDrawerInterval) clearInterval(window._logDrawerInterval);
-        window._logDrawerInterval = setInterval(loadActivityLogs, 10000);
-    }
-};
-
-/** Log drawer kapanırken interval'i temizle */
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        const drawer = document.getElementById('log-drawer');
-        if (drawer && !drawer.classList.contains('translate-x-full')) {
-            window.toggleLogDrawer();
+        const panel = document.getElementById('log-panel');
+        if (panel && panel.style.display !== 'none' && !panel.classList.contains('translate-y-full')) {
+            window.toggleLogPanel();
         }
     }
 });
-
-/** Logları yükle ve drawer content'ine bas */
-async function loadActivityLogs() {
-    const content = document.getElementById('log-drawer-content');
-    if (!content) return;
-
-    try {
-        const res = await fetch('/api/ai-activity/?limit=100');
-        if (!res.ok) {
-            content.innerHTML = '<div class="text-center text-red-500 py-4">Loglar yüklenemedi.</div>';
-            return;
-        }
-        const logs = await res.json();
-
-        if (!logs || logs.length === 0) {
-            content.innerHTML = '<div class="text-center text-gray-400 py-8">Henüz AI aktivite logu bulunmuyor.</div>';
-            return;
-        }
-
-        let html = '<div class="space-y-2">';
-        for (const log of logs) {
-            html += renderLogEntry(log);
-        }
-        html += '</div>';
-        content.innerHTML = html;
-    } catch (e) {
-        console.error('Log drawer error:', e);
-        content.innerHTML = '<div class="text-center text-red-500 py-4">Loglar yüklenirken hata oluştu.</div>';
-    }
-}
