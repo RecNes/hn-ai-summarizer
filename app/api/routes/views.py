@@ -8,7 +8,7 @@ router = APIRouter()
 
 # Standalone Jinja2 environment with cache disabled
 # (Python 3.14+ LRUCache bug: unhashable type 'dict')
-_env = Environment(loader=FileSystemLoader("app/templates"), auto_reload=True)
+_env = Environment(loader=FileSystemLoader("app/templates"), auto_reload=True, autoescape=True)
 
 
 async def _render(name: str, request: Request, **context) -> HTMLResponse:
