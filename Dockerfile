@@ -19,8 +19,8 @@ RUN apt-get update && \
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Copy project files
-COPY pyproject.toml .
+# Copy project files (everything needed BEFORE pip install)
+COPY pyproject.toml alembic.ini ./
 COPY app/ app/
 COPY migrations/ migrations/
 
