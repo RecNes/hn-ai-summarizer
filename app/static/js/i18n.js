@@ -7,10 +7,14 @@ let i18nInitialized = false;
 /**
  * Initialize i18next with the given language.
  * Falls back to 'en' if the requested language is not available.
+ *
+ * NOW ASYNC: waits for the locale file to load before initializing i18next,
+ * so that applyI18nToDOM() runs with actual translations, not placeholder keys.
+ *
  * @param {string} lang - Language code (e.g. 'tr', 'en', 'de')
  * @param {function} callback - Called after initialization
  */
-function initI18n(lang, callback) {
+async function initI18n(lang, callback) {
     if (typeof i18next === 'undefined') {
         console.warn('i18next not loaded, skipping i18n init');
         if (callback) callback();
@@ -18,6 +22,9 @@ function initI18n(lang, callback) {
     }
 
     const loadPath = `/static/locales/{{lng}}/common.json`;
+
+    // Wait for locale to load BEFORE applying to DOM
+    await _loadLocale(lang || 'en', loadPath);
 
     i18next.init({
         lng: lang || 'en',
@@ -34,43 +41,43 @@ function initI18n(lang, callback) {
         applyI18nToDOM();
         if (callback) callback();
     });
-
-    // Load resources manually via fetch (simpler than backend plugins)
-    _loadLocale(lang || 'en', loadPath);
 }
 
 /**
  * Load a locale file from the server.
+ * Returns a Promise that resolves when the locale file is loaded and added.
  */
 function _loadLocale(lang, path) {
-    const url = path.replace('{{lng}}', lang);
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            if (i18next.addResourceBundle) {
-                i18next.addResourceBundle(lang, 'translation', data, true, true);
-                // Re-apply after loading
-                if (i18nInitialized) {
-                    applyI18nToDOM();
-                }
-            }
-        })
-        .catch(err => {
-            console.warn(`Could not load locale for ${lang}:`, err);
-        });
+    return new Promise((resolve) => {
+        const url = path.replace('{{lng}}', lang);
 
-    // Also always load fallback (English)
-    const fallbackUrl = path.replace('{{lng}}', 'en');
-    if (fallbackUrl !== url) {
-        fetch(fallbackUrl)
+        // Fetch the target locale
+        fetch(url)
             .then(res => res.json())
             .then(data => {
                 if (i18next.addResourceBundle) {
-                    i18next.addResourceBundle('en', 'translation', data, true, true);
+                    i18next.addResourceBundle(lang, 'translation', data, true, true);
                 }
+                resolve(); // resolve regardless
             })
-            .catch(() => {});
-    }
+            .catch(err => {
+                console.warn(`Could not load locale for ${lang}:`, err);
+                resolve(); // resolve even on error (fallback to key names)
+            });
+
+        // Also always load fallback (English)
+        const fallbackUrl = path.replace('{{lng}}', 'en');
+        if (fallbackUrl !== url) {
+            fetch(fallbackUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if (i18next.addResourceBundle) {
+                        i18next.addResourceBundle('en', 'translation', data, true, true);
+                    }
+                })
+                .catch(() => {});
+        }
+    });
 }
 
 /**
