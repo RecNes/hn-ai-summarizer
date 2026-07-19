@@ -1,0 +1,76 @@
+# Deploy docs/ to GitHub Pages
+# https://pages.github.com/
+#
+# On push to main/master, this workflow builds a static site
+# from docs/ and deploys it to GitHub Pages (gh-pages branch).
+# The root index.html redirects to the GitHub repository.
+
+name: Deploy Documentation to Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+
+          # Root index redirects to GitHub repo
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>HN-AI-Summarizer</title>
+            <meta http-equiv="refresh" content="0; url=https://github.com/RecNes/hn-ai-summarizer">
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #666; }
+            </style>
+          </head>
+          <body>
+            <p>Redirecting to <a href="https://github.com/RecNes/hn-ai-summarizer">github.com/RecNes/hn-ai-summarizer</a>...</p>
+          </body>
+          </html>
+          EOF
+
+          # Copy docs/ contents to _site/docs/
+          if [ -d docs ]; then
+            cp -r docs _site/docs
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
