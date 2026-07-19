@@ -1,7 +1,6 @@
 """Unit tests for reprocess state service."""
 from unittest.mock import AsyncMock, patch
 
-import pytest
 
 from app.services.reprocess_state import (
     _unhash,
