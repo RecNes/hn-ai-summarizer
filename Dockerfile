@@ -19,13 +19,16 @@ RUN apt-get update && \
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Copy project files and install package with uv (Rust-based, ~10-100x faster than pip)
+# Copy project files
 COPY pyproject.toml .
 COPY app/ app/
+COPY migrations/ migrations/
+
+# Install package with uv
 RUN uv pip install --system . && uv cache clean
 
-# Copy remaining files
-COPY . .
+# Copy static/locales to WORKDIR root so TelegramService can find it
+COPY app/static/locales/ static/locales/
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
