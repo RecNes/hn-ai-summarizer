@@ -547,6 +547,36 @@ window.toggleAiPanel = function() {
     }
 };
 
+/** Render a single log entry as HTML */
+function renderLogEntry(log) {
+    const isError = log.status === 'error';
+    const durationStr = log.duration_ms != null ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-';
+    const date = new Date(log.created_at).toLocaleString('tr-TR', {
+        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+    const titlePreview = log.story_title
+        ? (log.story_title.length > 60 ? log.story_title.slice(0, 60) + '...' : log.story_title)
+        : '';
+
+    return `
+        <div class="p-3 rounded-lg border ${isError ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}">
+            <div class="flex justify-between items-start">
+                <div class="min-w-0 flex-1">
+                    <span class="text-xs font-mono text-gray-400">#${log.story_id || '-'}</span>
+                    <span class="ml-2 text-sm font-semibold ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${log.event_type}</span>
+                </div>
+                <span class="text-xs text-gray-400 flex-shrink-0 ml-2">${date}</span>
+            </div>
+            ${titlePreview ? `<div class="mt-1 text-xs text-gray-600 dark:text-gray-300 truncate" title="${titlePreview.replace(/"/g, '"')}">📄 ${titlePreview}</div>` : ''}
+            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                ${log.provider} / ${log.model} · ${durationStr}
+                ${isError ? `<span class="ml-2 text-red-500" title="${(log.error_message || '').replace(/"/g, '"')}">⚠ hata</span>` : ' ✓'}
+            </div>
+            ${isError && log.error_message ? `<div class="mt-1 text-xs text-red-500 break-words" title="${log.error_message.replace(/"/g, '"')}">${log.error_message}</div>` : ''}
+        </div>
+    `;
+}
+
 /** Fetch and render AI activity logs */
 async function loadAiActivityLogs() {
     const content = document.getElementById('ai-panel-content');
@@ -568,33 +598,77 @@ async function loadAiActivityLogs() {
 
         let html = '<div class="space-y-3">';
         for (const log of logs) {
-            const isError = log.status === 'error';
-            const durationStr = log.duration_ms != null ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-';
-            const date = new Date(log.created_at).toLocaleString('tr-TR', {
-                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-            });
-
-            html += `
-                <div class="p-3 rounded-lg border ${isError ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-mono text-gray-400">#${log.story_id || '-'}</span>
-                            <span class="ml-2 text-sm font-semibold ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${log.event_type}</span>
-                        </div>
-                        <span class="text-xs text-gray-400">${date}</span>
-                    </div>
-                    <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        ${log.provider} / ${log.model} · ${durationStr}
-                        ${isError ? `<span class="ml-2 text-red-500" title="${(log.error_message || '').replace(/"/g, '"')}">⚠ hata</span>` : ' ✓'}
-                    </div>
-                    ${isError && log.error_message ? `<div class="mt-1 text-xs text-red-500 truncate" title="${log.error_message.replace(/"/g, '"')}">${log.error_message}</div>` : ''}
-                </div>
-            `;
+            html += renderLogEntry(log);
         }
         html += '</div>';
         content.innerHTML = html;
     } catch (e) {
         console.error('AI Activity log error:', e);
         content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenirken hata oluştu.</div>';
+    }
+}
+
+// ──────────────────────────────────────────────
+// Log Drawer (her sayfada header'da buton)
+// ──────────────────────────────────────────────
+
+/** Log drawer'ı aç/kapa */
+window.toggleLogDrawer = function() {
+    const drawer = document.getElementById('log-drawer');
+    const overlay = document.getElementById('log-drawer-overlay');
+    if (!drawer || !overlay) return;
+
+    const isOpen = !drawer.classList.contains('translate-x-full');
+
+    if (isOpen) {
+        drawer.classList.add('translate-x-full');
+        overlay.classList.add('hidden');
+    } else {
+        drawer.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+        loadActivityLogs();
+        // Her 10sn'de bir otomatik yenile
+        if (window._logDrawerInterval) clearInterval(window._logDrawerInterval);
+        window._logDrawerInterval = setInterval(loadActivityLogs, 10000);
+    }
+};
+
+/** Log drawer kapanırken interval'i temizle */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const drawer = document.getElementById('log-drawer');
+        if (drawer && !drawer.classList.contains('translate-x-full')) {
+            window.toggleLogDrawer();
+        }
+    }
+});
+
+/** Logları yükle ve drawer content'ine bas */
+async function loadActivityLogs() {
+    const content = document.getElementById('log-drawer-content');
+    if (!content) return;
+
+    try {
+        const res = await fetch('/api/ai-activity/?limit=100');
+        if (!res.ok) {
+            content.innerHTML = '<div class="text-center text-red-500 py-4">Loglar yüklenemedi.</div>';
+            return;
+        }
+        const logs = await res.json();
+
+        if (!logs || logs.length === 0) {
+            content.innerHTML = '<div class="text-center text-gray-400 py-8">Henüz AI aktivite logu bulunmuyor.</div>';
+            return;
+        }
+
+        let html = '<div class="space-y-2">';
+        for (const log of logs) {
+            html += renderLogEntry(log);
+        }
+        html += '</div>';
+        content.innerHTML = html;
+    } catch (e) {
+        console.error('Log drawer error:', e);
+        content.innerHTML = '<div class="text-center text-red-500 py-4">Loglar yüklenirken hata oluştu.</div>';
     }
 }

@@ -15,6 +15,7 @@ class AiActivityLog(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     story_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    story_title: Mapped[str | None] = mapped_column(String(256), nullable=True)
     event_type: Mapped[str] = mapped_column(
         String(64), nullable=False, index=True
     )
