@@ -159,6 +159,7 @@ class AIService:
         """Call Anthropic API."""
         try:
             from anthropic import Anthropic
+            from anthropic.types import TextBlock
 
             client = Anthropic(api_key=api_key)
             response = client.messages.create(
@@ -168,7 +169,11 @@ class AIService:
                 max_tokens=500,
                 temperature=0.3,
             )
-            return response.content[0].text.strip()
+            text_block = next(
+                (block for block in response.content if isinstance(block, TextBlock)),
+                None,
+            )
+            return text_block.text.strip() if text_block else ""
         except Exception as e:
             print(f"Error calling Anthropic ({model}): {e}")
             return ""
@@ -574,7 +579,7 @@ class AIService:
 
             client = Anthropic(api_key=api_key)
             models_list = client.models.list()
-            return sorted([m.name for m in models_list.data])
+            return sorted([m.id for m in models_list.data])
         except Exception as e:
             print(f"Error listing Anthropic models: {e}")
             # Fallback to known models

@@ -201,9 +201,9 @@ async def run_scheduler():
                 try:
                     job = await catchup_pool.enqueue_job("fetch_and_process_stories")
                     if job:
-                        print(f">>> Catch-up fetch job enqueued successfully")
+                        print(">>> Catch-up fetch job enqueued successfully")
                     else:
-                        print(f">>> Catch-up fetch job enqueue returned None")
+                        print(">>> Catch-up fetch job enqueue returned None")
                 except Exception as e:
                     print(f">>> Error enqueuing catch-up fetch job: {e}")
                 finally:

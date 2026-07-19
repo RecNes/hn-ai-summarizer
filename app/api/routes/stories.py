@@ -59,6 +59,8 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
         if not hn_id:
             return
 
+        assert hn_id is not None  # type guard for type checker
+
         fetcher = FetcherService()
         fresh_data = await fetcher.refetch_story_content(int(hn_id), story.url or "")
         if not fresh_data or not fresh_data.get("title"):
@@ -197,7 +199,7 @@ async def reprocess_untranslated_stream(request: Request):
             async with AsyncSessionLocal() as db:
                 result = await db.execute(
                     select(Story)
-                    .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
+                    .where((Story.is_translated.is_(None)) | (not Story.is_translated))
                     .order_by(Story.created_at.desc())
                 )
                 stories = result.scalars().all()
@@ -228,7 +230,12 @@ async def reprocess_untranslated_stream(request: Request):
                         break
 
                     try:
-                        hn_id = int(story.hacker_news_id)
+                        hn_id_str = story.hacker_news_id
+                        if not hn_id_str:
+                            errors += 1
+                            continue
+
+                        hn_id = int(hn_id_str)
                         ai_service = AIService(story_id=hn_id)
 
                         fresh_data = await fetcher.refetch_story_content(hn_id, story.url or "")
