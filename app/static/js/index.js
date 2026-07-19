@@ -305,8 +305,13 @@ async function reprocessUntranslatedHome() {
         statusText.classList.add('hidden');
     }
 
-    const sse = window.createSSEConnection('/api/stories/reprocess-untranslated/stream', {
-        'progress': function(data) {
+    // Use raw EventSource (no reconnect) — if connection drops,
+    // checkReprocessState() polling will pick up the state.
+    const sse = new EventSource('/api/stories/reprocess-untranslated/stream');
+
+    sse.addEventListener('progress', function(e) {
+        try {
+            const data = JSON.parse(e.data);
             if (window.updateWorkerProgress) {
                 window.updateWorkerProgress(data.percentage);
             }
@@ -318,14 +323,26 @@ async function reprocessUntranslatedHome() {
                 statusText.textContent = `İşleniyor: #${data.story_id} (${data.current}/${data.total})`;
                 statusText.classList.remove('hidden');
             }
-        },
-        'story_update': function(story) {
+        } catch (err) {
+            console.error('SSE progress parse error:', err);
+        }
+    });
+
+    sse.addEventListener('story_update', function(e) {
+        try {
+            const story = JSON.parse(e.data);
             if (typeof window.updateStoryCard === 'function') {
                 window.updateStoryCard(story);
             }
-        },
-        'complete': function(data) {
-            sse.closeAndStop();
+        } catch (err) {
+            console.error('SSE story_update parse error:', err);
+        }
+    });
+
+    sse.addEventListener('complete', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            sse.close();
             resetButton();
 
             if (window.updateWorkerProgress) window.updateWorkerProgress(100);
@@ -350,16 +367,22 @@ async function reprocessUntranslatedHome() {
                     loadStories();
                 }, 1000);
             }
-        },
-        'error': function(data) {
-            showToast('error', data.detail || 'SSE bağlantı hatası');
-            sse.closeAndStop();
-            resetButton();
+        } catch (err) {
+            console.error('SSE complete parse error:', err);
+        }
+    });
 
-            if (window.hideWorkerProgress) window.hideWorkerProgress();
-            if (window.hideWorkerLabel) window.hideWorkerLabel();
-        },
-    }, { reconnectDelay: 3000 });
+    sse.addEventListener('error', function() {
+        console.warn('[Reprocess] SSE connection lost');
+        sse.close();
+        resetButton();
+
+        if (window.hideWorkerProgress) window.hideWorkerProgress();
+        if (window.hideWorkerLabel) window.hideWorkerLabel();
+
+        // Show error only if there was no 'complete' event
+        showToast('warning', 'Çeviri bağlantısı koptu. Sayfayı yenileyip durumu kontrol edin.');
+    });
 }
 
 // ──────────────────────────────────────────────
