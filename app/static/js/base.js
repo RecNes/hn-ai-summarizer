@@ -592,7 +592,7 @@ async function loadActivityLogs() {
     content.innerHTML = '<div class="text-center text-gray-500 py-8">Yükleniyor...</div>';
 
     try {
-        const res = await fetch('/api/ai-activity/?limit=50');
+        const res = await fetch('/api/activity/?limit=50');
         if (!res.ok) {
             content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenemedi.</div>';
             return;
