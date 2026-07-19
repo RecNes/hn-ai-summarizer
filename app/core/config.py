@@ -46,6 +46,10 @@ class Settings(BaseSettings):
 
     TELEGRAM_BOT_TOKEN: Optional[str] = Field("")
 
+    # Public URL for links in notifications (Telegram, email, etc.)
+    # Example: https://hnreader.example.com
+    PUBLIC_URL: Optional[str] = Field("http://localhost:8000")
+
     DEVELOPMENT: bool = Field(False)
 
     @computed_field
