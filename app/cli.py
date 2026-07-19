@@ -14,7 +14,8 @@ from app.tasks.schedule_manager import get_schedule_manager
 
 def run_server():
     """Run the FastAPI server"""
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=settings.DEVELOPMENT)
+    host = "0.0.0.0" if settings.DEVELOPMENT else "127.0.0.1"
+    uvicorn.run("app.main:app", host=host, port=8000, reload=settings.DEVELOPMENT)
 
 
 def run_all():
