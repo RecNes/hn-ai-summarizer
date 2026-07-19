@@ -6,7 +6,6 @@ Falls back to keepalive-only if Redis is unavailable.
 """
 
 import asyncio
-import json
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
