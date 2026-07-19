@@ -10,6 +10,7 @@ class AiActivityLogResponse(BaseModel):
     """Schema for responding with AI activity log data."""
     id: int
     story_id: Optional[int] = None
+    story_title: Optional[str] = None
     event_type: str
     provider: str
     model: str

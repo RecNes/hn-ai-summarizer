@@ -208,7 +208,7 @@ class AIService:
 
     async def _log_activity(
         self, event_type: str, status: str, error_message: str | None = None,
-        duration_ms: float | None = None,
+        duration_ms: float | None = None, story_title: str | None = None,
     ):
         """Write an AI activity log entry to the database (fire-and-forget).
 
@@ -217,10 +217,12 @@ class AIService:
             status: 'success' or 'error'.
             error_message: Human-readable error description.
             duration_ms: How long the call took in milliseconds.
+            story_title: Story title for easier debugging in logs.
         """
         cfg = await self._get_active_config()
         log = AiActivityLog(
             story_id=self._story_id,
+            story_title=story_title,
             event_type=event_type,
             provider=cfg["provider"],
             model=cfg["model"],
@@ -239,6 +241,7 @@ class AIService:
         """Route the AI call to the currently configured provider.
 
         After the call, writes an AiActivityLog entry automatically.
+        event_type: e.g. 'translate_title', 'summarize_content', 'summarize_comments'.
         """
         cfg = await self._get_active_config()
         provider_type = cfg["type"]
@@ -285,11 +288,23 @@ class AIService:
             status = "error"
 
         elapsed = (time.monotonic() - start) * 1000  # ms
+
+        # Extract story title from user_prompt if available
+        story_title = None
+        if event_type == "translate_title" and "Title: " in user_prompt:
+            # Extract title before "\n\nTranslation:"
+            title_part = user_prompt.split("Title: ", 1)[-1]
+            if "\n\nTranslation:" in title_part:
+                story_title = title_part.split("\n\nTranslation:")[0].strip()[:200]
+            else:
+                story_title = title_part.strip()[:200]
+
         await self._log_activity(
             event_type=event_type,
             status=status,
             error_message=error_msg,
             duration_ms=round(elapsed, 1),
+            story_title=story_title,
         )
 
         if status == "error" and error_msg:

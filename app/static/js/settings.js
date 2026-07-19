@@ -192,7 +192,7 @@ async function loadModelsForProvider(providerId, configStr) {
         console.error('Error loading models:', e);
         const container = document.getElementById('model-options');
         if (container) {
-            container.innerHTML = '<div class="p-2 text-red-500 text-sm">Modeller yüklenemedi: ' + (e.message || '') + '</div>';
+            container.innerHTML = '<div class="p-2 text-r ed-500 text-sm">Modeller yüklenemedi: ' + (e.message || '') + '</div>';
         }
         status.textContent = 'Hata: ' + (e.message || 'Bilinmeyen hata');
         status.className = 'text-sm text-red-500 mt-1';
@@ -347,36 +347,158 @@ async function triggerWorker() {
     }
 }
 
-async function reprocessUntranslated() {
+function reprocessUntranslated() {
     const button = document.getElementById('reprocess-untranslated');
     const btnText = document.getElementById('reprocess-text');
     const spinner = document.getElementById('reprocess-spinner');
     const statusText = document.getElementById('worker-status');
     if (!button) return;
 
+    // Butonu devre dışı bırak
     button.disabled = true;
     btnText.textContent = 'İşleniyor...';
     spinner.classList.remove('hidden');
-    statusText.classList.remove('hidden');
 
-    try {
-        const response = await fetch('/api/settings/reprocess-untranslated', { method: 'POST' });
-        if (response.ok) {
-            const result = await response.json();
-            showToast('success', 'Yeniden işleme başlatıldı! ' + (result.message || ''));
-        } else {
-            const err = await response.json();
-            showToast('error', err.detail || 'Yeniden işleme başlatılamadı');
+    // Status div pulldown-arrow stili + canlı bilgi
+    statusText.classList.remove('hidden');
+    statusText.innerHTML = `<span class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></span> İşlem başlatılıyor...`;
+
+    const abortController = new AbortController();
+
+    function cancelReprocess() {
+        abortController.abort();
+        fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' }).catch(() => {});
+    }
+
+    async function connectSSE() {
+        try {
+            const response = await fetch('/api/stories/reprocess-untranslated/stream', {
+                signal: abortController.signal
+            });
+
+            if (!response.ok) {
+                if (response.status === 409) {
+                    const errData = await response.json();
+                    statusText.innerHTML = `⚠️ <b>Zaten çalışıyor:</b> ${errData.detail || ''} <button onclick="location.reload()" class="text-blue-500 underline ml-2">Sayfayı yenile</button>`;
+                } else {
+                    const errData = await response.json();
+                    statusText.innerHTML = `❌ Hata: ${errData.detail || 'Bilinmeyen hata'}`;
+                }
+                showToast('error', 'Yeniden işleme başlatılamadı');
+                resetButton();
+                return;
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                let currentEvent = '';
+                let currentData = '';
+
+                for (const line of lines) {
+                    if (line.startsWith('event: ')) {
+                        currentEvent = line.slice(7).trim();
+                    } else if (line.startsWith('data: ')) {
+                        currentData = line.slice(6).trim();
+                    } else if (line === '' && currentData) {
+                        // SSE event tamamlandı
+                        try {
+                            const parsed = JSON.parse(currentData);
+                            handleSSEEvent(currentEvent, parsed);
+                        } catch (e) {
+                            console.error('SSE parse error:', e);
+                        }
+                        currentEvent = '';
+                        currentData = '';
+                    }
+                }
+            }
+        } catch (e) {
+            if (e.name === 'AbortError') {
+                statusText.innerHTML = '⏹️ İşlem kullanıcı tarafından durduruldu.';
+            } else {
+                console.error('SSE connection error:', e);
+                statusText.innerHTML = '⚠️ Bağlantı hatası. Sayfayı yenileyip tekrar deneyin.';
+            }
+        } finally {
+            resetButton();
         }
-    } catch (e) {
-        console.error(e);
-        showToast('error', 'Yeniden işleme başlatılırken bir hata oluştu.');
-    } finally {
+    }
+
+    function handleSSEEvent(event, data) {
+        switch (event) {
+            case 'progress':
+                const pct = data.percentage || 0;
+                const current = data.current || 0;
+                const total = data.total || 0;
+
+                statusText.innerHTML = `
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+                        <span class="font-medium">${current} / ${total} işleniyor</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                        <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                    </div>
+                    <div class="text-sm text-gray-500">%${pct} tamamlandı</div>
+                `;
+                break;
+
+            case 'story_update':
+                // İsteğe bağlı: hangi story işleniyor göster
+                if (data.title_tr) {
+                    const titlePreview = data.title_tr.length > 50 ? data.title_tr.slice(0, 50) + '...' : data.title_tr;
+                    statusText.innerHTML = statusText.innerHTML.replace(
+                        /(<div class="flex.*?<\/div>)/,
+                        `$1<div class="text-xs text-gray-400 mt-1">📄 ${titlePreview}</div>`
+                    );
+                }
+                break;
+
+            case 'complete':
+                statusText.innerHTML = `
+                    <div class="text-green-600 font-medium">✅ İşlem tamamlandı!</div>
+                    <div class="text-sm text-gray-500">Toplam: ${data.total} | İşlenen: ${data.processed} | Hata: ${data.errors}</div>
+                `;
+                showToast('success', `Yeniden işleme tamamlandı! ${data.processed} story işlendi.`);
+                break;
+
+            case 'cancelled':
+                statusText.innerHTML = `⏹️ İşlem iptal edildi (${data.current}/${data.total}).`;
+                showToast('warning', 'Yeniden işleme iptal edildi.');
+                break;
+
+            case 'error':
+                statusText.innerHTML = `❌ <b>Hata:</b> ${data.detail || 'Bilinmeyen hata'}`;
+                showToast('error', data.detail || 'İşlem sırasında hata oluştu.');
+                break;
+
+            case 'keepalive':
+                // session canlı tut, görsel değişiklik yapma
+                break;
+
+            default:
+                console.log('Unknown SSE event:', event, data);
+        }
+    }
+
+    function resetButton() {
         button.disabled = false;
         btnText.textContent = 'Çevrilmemişleri Yeniden İşle';
         spinner.classList.add('hidden');
-        statusText.classList.add('hidden');
     }
+
+    connectSSE();
 }
 
 // ──────────────────────────────────────────────
