@@ -1,14 +1,98 @@
 {
-  "app": { "title": "HN AI Samenvatter", "description": "AI-gestuurde Hacker News-samenvatter", "footer": "HN AI Samenvatter - AI-gestuurde Hacker News-samenvatter" },
-  "nav": { "home": "Startpagina", "settings": "Instellingen", "themeToggle": "Thema wijzigen", "displaySettings": "Weergave-instellingen", "refresh": "Pagina verversen" },
-  "home": { "title": "Nieuwste verhalen", "noStories": "Nog geen verhalen beschikbaar.", "loading": "Verhalen laden...", "error": "Verhalen laden mislukt", "score": "Score", "author": "Auteur", "comments": "Reacties", "readMore": "Lees meer", "summaryNotAvailable": "Samenvatting niet beschikbaar", "commentSummaryNotAvailable": "Reactiesamenvatting niet beschikbaar", "contentNotAvailable": "Inhoudssamenvatting niet beschikbaar", "originalTitle": "Originele titel" },
+  "app": {
+    "title": "HN AI Samenvatter",
+    "description": "AI-gestuurde Hacker News-samenvatter",
+    "footer": "HN AI Samenvatter - AI-gestuurde Hacker News-samenvatter"
+  },
+  "nav": {
+    "home": "Startpagina",
+    "settings": "Instellingen",
+    "themeToggle": "Thema wijzigen",
+    "displaySettings": "Weergave-instellingen",
+    "refresh": "Pagina verversen"
+  },
+  "home": {
+    "title": "Nieuwste verhalen",
+    "noStories": "Nog geen verhalen beschikbaar.",
+    "loading": "Verhalen laden...",
+    "error": "Verhalen laden mislukt",
+    "score": "Score",
+    "author": "Auteur",
+    "comments": "Reacties",
+    "readMore": "Lees meer",
+    "summaryNotAvailable": "Samenvatting niet beschikbaar",
+    "commentSummaryNotAvailable": "Reactiesamenvatting niet beschikbaar",
+    "contentNotAvailable": "Inhoudssamenvatting niet beschikbaar",
+    "originalTitle": "Originele titel",
+    "todaysBest": "De beste van vandaag",
+    "loadingMore": "Meer verhalen laden...",
+    "allLoaded": "Alle verhalen geladen",
+    "offline": "Offline modus - Gecachte inhoud bekijken"
+  },
   "settings": {
     "title": "Instellingen",
-    "language": { "title": "Taalinstellingen", "uiLabel": "Interface-taal", "translationLabel": "Inhoudsvertalingstaal", "uiDescription": "Taal voor de interface, menu's en knoppen", "translationDescription": "Taal waarin Hacker News-inhoud wordt vertaald", "independentNote": "Deze twee instellingen zijn volledig onafhankelijk" },
-    "ai": { "title": "AI-provider", "description": "API-sleutels worden geconfigureerd via .env-bestand. Alleen providers met geconfigureerde sleutels worden getoond.", "providerLabel": "AI-provider", "providerPlaceholder": "-- Selecteer provider --", "configLabel": "Provideradres (optioneel)", "configPlaceholder": "http://localhost:11434", "configHelp": "Voer adres in voor lokale providers zoals LM Studio of Ollama", "keyConfigured": "✓ API-sleutel geconfigureerd in .env", "keyLocal": "ℹ Lokale provider (geen API-sleutel nodig)", "modelLabel": "AI-model", "modelPlaceholder": "-- Selecteer model --", "modelSelectFirst": "-- Selecteer eerst een provider --", "modelLoading": "Modellen laden...", "modelRefresh": "Modellen verversen", "modelSearch": "Modellen zoeken...", "modelNotFound": "Geen overeenkomend model gevonden", "modelCount": "{count} modellen gevonden", "modelError": "Modellen laden mislukt" },
-    "data": { "title": "Gegevensverwerking", "description": "Handmatig Hacker News-gegevens ophalen en verwerken.", "fetchButton": "Start gegevens ophalen", "reprocessButton": "Onvertaalde opnieuw verwerken", "statusText": "Bezig met verwerken... Even wachten." },
-    "fetch": { "title": "Ophaalinstellingen", "hour": "Uur", "minute": "Minuut", "days": "Dagen", "monday": "Maandag", "tuesday": "Dinsdag", "wednesday": "Woensdag", "thursday": "Donderdag", "friday": "Vrijdag", "saturday": "Zaterdag", "sunday": "Zondag", "daysHelp": "Selecteer uitvoeringsdagen", "minScore": "Minimale score", "minScoreHelp": "Alleen verhalen met score hierboven worden verwerkt", "retentionDays": "Gegevensbewaring (dagen)", "retentionDaysHelp": "Oudere gegevens worden automatisch verwijderd" },
-    "preferences": { "title": "Gebruikersvoorkeuren", "highlightKeywords": "Te markeren trefwoorden", "highlightPlaceholder": "AI, machine learning, datawetenschap", "highlightHelp": "Komma-gescheiden invoeren", "blocklistKeywords": "Geblokkeerde trefwoorden", "blocklistPlaceholder": "politiek, agenda, debat", "blocklistHelp": "Inhoud met deze trefwoorden wordt gedimd" },
+    "language": {
+      "title": "Taalinstellingen",
+      "uiLabel": "Interface-taal",
+      "translationLabel": "Inhoudsvertalingstaal",
+      "uiDescription": "Taal voor de interface, menu's en knoppen",
+      "translationDescription": "Taal waarin Hacker News-inhoud wordt vertaald",
+      "independentNote": "Deze twee instellingen zijn volledig onafhankelijk"
+    },
+    "ai": {
+      "title": "AI-provider",
+      "description": "API-sleutels worden geconfigureerd via .env-bestand. Alleen providers met geconfigureerde sleutels worden getoond.",
+      "providerLabel": "AI-provider",
+      "providerPlaceholder": "-- Selecteer provider --",
+      "configLabel": "Provideradres (optioneel)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Voer adres in voor lokale providers zoals LM Studio of Ollama",
+      "keyConfigured": "✓ API-sleutel geconfigureerd in .env",
+      "keyLocal": "ℹ Lokale provider (geen API-sleutel nodig)",
+      "modelLabel": "AI-model",
+      "modelPlaceholder": "-- Selecteer model --",
+      "modelSelectFirst": "-- Selecteer eerst een provider --",
+      "modelLoading": "Modellen laden...",
+      "modelRefresh": "Modellen verversen",
+      "modelSearch": "Modellen zoeken...",
+      "modelNotFound": "Geen overeenkomend model gevonden",
+      "modelCount": "{count} modellen gevonden",
+      "modelError": "Modellen laden mislukt"
+    },
+    "data": {
+      "title": "Gegevensverwerking",
+      "description": "Handmatig Hacker News-gegevens ophalen en verwerken.",
+      "fetchButton": "Start gegevens ophalen",
+      "reprocessButton": "Onvertaalde opnieuw verwerken",
+      "statusText": "Bezig met verwerken... Even wachten."
+    },
+    "fetch": {
+      "title": "Ophaalinstellingen",
+      "hour": "Uur",
+      "minute": "Minuut",
+      "days": "Dagen",
+      "monday": "Maandag",
+      "tuesday": "Dinsdag",
+      "wednesday": "Woensdag",
+      "thursday": "Donderdag",
+      "friday": "Vrijdag",
+      "saturday": "Zaterdag",
+      "sunday": "Zondag",
+      "daysHelp": "Selecteer uitvoeringsdagen",
+      "minScore": "Minimale score",
+      "minScoreHelp": "Alleen verhalen met score hierboven worden verwerkt",
+      "retentionDays": "Gegevensbewaring (dagen)",
+      "retentionDaysHelp": "Oudere gegevens worden automatisch verwijderd"
+    },
+    "preferences": {
+      "title": "Gebruikersvoorkeuren",
+      "highlightKeywords": "Te markeren trefwoorden",
+      "highlightPlaceholder": "AI, machine learning, datawetenschap",
+      "highlightHelp": "Komma-gescheiden invoeren",
+      "blocklistKeywords": "Geblokkeerde trefwoorden",
+      "blocklistPlaceholder": "politiek, agenda, debat",
+      "blocklistHelp": "Inhoud met deze trefwoorden wordt gedimd"
+    },
     "telegram": {
       "title": "Telegram-meldingen",
       "description": "Voeg uw Telegram-bot-token toe aan het .env-bestand als TELEGRAM_BOT_TOKEN=. Het bot-token wordt nooit naar de frontend verzonden, het wordt alleen door de server gelezen.",
@@ -18,10 +102,63 @@
       "enabledLabel": "Telegram-meldingen inschakelen",
       "enabledHelp": "Indien ingeschakeld, ontvangt u een Telegram-melding voor elke batch nieuw verwerkte verhalen."
     },
-    "save": "Instellingen opslaan", "saving": "Opslaan...", "saveSuccess": "Instellingen succesvol opgeslagen!", "saveError": "Er is een fout opgetreden bij het opslaan."
+    "save": "Instellingen opslaan",
+    "saving": "Opslaan...",
+    "saveSuccess": "Instellingen succesvol opgeslagen!",
+    "saveError": "Er is een fout opgetreden bij het opslaan."
   },
-  "display": { "title": "Weergave-instellingen", "fontFamily": "Lettertype", "fontSize": "Lettergrootte", "contrast": "Contrast", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "Klein", "medium": "Middel", "large": "Groot", "xlarge": "Extra groot" }, "contrasts": { "light": "Licht", "dark": "Donker", "sepia": "Sepia", "high": "Hoog contrast" }, "reset": "Standaardwaarden herstellen", "save": "Opslaan" },
-  "theme": { "light": "Lichte modus", "dark": "Donkere modus", "system": "Auto (systeem)" },
-  "worker": { "started": "Gegevens ophalen gestart! Verwerking kan enkele minuten duren.", "reprocessStarted": "Opnieuw verwerken gestart! Inhoud en reacties worden ververst.", "error": "Worker kon niet worden gestart.", "reprocessError": "Opnieuw verwerken kon niet worden gestart." },
-  "common": { "loading": "Laden...", "error": "Fout", "success": "Succes", "cancel": "Annuleren", "save": "Opslaan", "delete": "Verwijderen", "close": "Sluiten", "back": "Terug" }
+  "display": {
+    "title": "Weergave-instellingen",
+    "fontFamily": "Lettertype",
+    "fontSize": "Lettergrootte",
+    "contrast": "Contrast",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Klein",
+      "medium": "Middel",
+      "large": "Groot",
+      "xlarge": "Extra groot"
+    },
+    "contrasts": {
+      "light": "Licht",
+      "dark": "Donker",
+      "sepia": "Sepia",
+      "high": "Hoog contrast"
+    },
+    "reset": "Standaardwaarden herstellen",
+    "save": "Opslaan"
+  },
+  "theme": {
+    "light": "Lichte modus",
+    "dark": "Donkere modus",
+    "system": "Auto (systeem)"
+  },
+  "worker": {
+    "started": "Gegevens ophalen gestart! Verwerking kan enkele minuten duren.",
+    "reprocessStarted": "Opnieuw verwerken gestart! Inhoud en reacties worden ververst.",
+    "error": "Worker kon niet worden gestart.",
+    "reprocessError": "Opnieuw verwerken kon niet worden gestart.",
+    "starting": "Gegevens ophalen wordt gestart..."
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "close": "Sluiten",
+    "back": "Terug"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 <b>{count} nieuwe verhalen</b> samengevat op Hacker News en klaar om te lezen!",
+      "check_link": "🔗 <a href=\"{url}\">Bekijk nu</a>",
+      "no_stories": "🫡 Vandaag geen nieuwe verhalen op Hacker News. Tot de volgende scan!",
+      "errors": "⚠️ Er zijn <b>{count} fouten</b> opgetreden."
+    }
+  }
 }

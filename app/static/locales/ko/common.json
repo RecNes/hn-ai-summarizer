@@ -23,7 +23,11 @@
     "summaryNotAvailable": "요약을 사용할 수 없음",
     "commentSummaryNotAvailable": "댓글 요약을 사용할 수 없음",
     "contentNotAvailable": "콘텐츠 요약을 사용할 수 없음",
-    "originalTitle": "원제목"
+    "originalTitle": "원제목",
+    "todaysBest": "오늘의 베스트",
+    "loadingMore": "더 많은 이야기 로딩 중...",
+    "allLoaded": "모든 이야기 로드됨",
+    "offline": "오프라인 모드 - 캐시된 콘텐츠 보기"
   },
   "settings": {
     "title": "설정",
@@ -136,7 +140,8 @@
     "started": "데이터 가져오기 시작! 처리에 몇 분 정도 걸릴 수 있습니다.",
     "reprocessStarted": "재처리 시작! 콘텐츠와 댓글이 새로고침됩니다.",
     "error": "작업자를 시작할 수 없습니다.",
-    "reprocessError": "재처리를 시작할 수 없습니다."
+    "reprocessError": "재처리를 시작할 수 없습니다.",
+    "starting": "데이터 가져오기 시작 중..."
   },
   "common": {
     "loading": "로딩 중...",
@@ -147,5 +152,13 @@
     "delete": "삭제",
     "close": "닫기",
     "back": "뒤로"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 Hacker News에서 <b>{count}개의 새 이야기</b>가 요약되어 읽을 준비가 되었습니다!",
+      "check_link": "🔗 <a href=\"{url}\">지금 보기</a>",
+      "no_stories": "🫡 오늘 Hacker News에 새로운 이야기가 없습니다. 다음 스캔에서 만나요!",
+      "errors": "⚠️ <b>{count}개의 오류</b>가 발생했습니다."
+    }
   }
 }

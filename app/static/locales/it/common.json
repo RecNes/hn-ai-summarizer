@@ -1,14 +1,98 @@
 {
-  "app": { "title": "HN AI Riassuntore", "description": "Riassuntore di Hacker News basato su IA", "footer": "HN AI Riassuntore - Riassuntore di Hacker News basato su IA" },
-  "nav": { "home": "Home", "settings": "Impostazioni", "themeToggle": "Cambia tema", "displaySettings": "Impostazioni schermo", "refresh": "Aggiorna pagina" },
-  "home": { "title": "Ultime storie", "noStories": "Nessuna storia disponibile al momento.", "loading": "Caricamento storie...", "error": "Caricamento storie fallito", "score": "Punteggio", "author": "Autore", "comments": "Commenti", "readMore": "Leggi di più", "summaryNotAvailable": "Riassunto non disponibile", "commentSummaryNotAvailable": "Riassunto commenti non disponibile", "contentNotAvailable": "Riassunto contenuto non disponibile", "originalTitle": "Titolo originale" },
+  "app": {
+    "title": "HN AI Riassuntore",
+    "description": "Riassuntore di Hacker News basato su IA",
+    "footer": "HN AI Riassuntore - Riassuntore di Hacker News basato su IA"
+  },
+  "nav": {
+    "home": "Home",
+    "settings": "Impostazioni",
+    "themeToggle": "Cambia tema",
+    "displaySettings": "Impostazioni schermo",
+    "refresh": "Aggiorna pagina"
+  },
+  "home": {
+    "title": "Ultime storie",
+    "noStories": "Nessuna storia disponibile al momento.",
+    "loading": "Caricamento storie...",
+    "error": "Caricamento storie fallito",
+    "score": "Punteggio",
+    "author": "Autore",
+    "comments": "Commenti",
+    "readMore": "Leggi di più",
+    "summaryNotAvailable": "Riassunto non disponibile",
+    "commentSummaryNotAvailable": "Riassunto commenti non disponibile",
+    "contentNotAvailable": "Riassunto contenuto non disponibile",
+    "originalTitle": "Titolo originale",
+    "todaysBest": "I migliori di oggi",
+    "loadingMore": "Caricamento di altre storie...",
+    "allLoaded": "Tutte le storie caricate",
+    "offline": "Modalità offline - Visualizzazione contenuti nella cache"
+  },
   "settings": {
     "title": "Impostazioni",
-    "language": { "title": "Impostazioni lingua", "uiLabel": "Lingua interfaccia", "translationLabel": "Lingua traduzione contenuti", "uiDescription": "Lingua per interfaccia, menu e pulsanti", "translationDescription": "Lingua in cui verrà tradotto il contenuto di Hacker News", "independentNote": "Queste due impostazioni sono completamente indipendenti" },
-    "ai": { "title": "Fornitore IA", "description": "Le chiavi API sono configurate tramite file .env. Vengono elencati solo i fornitori con chiavi configurate.", "providerLabel": "Fornitore IA", "providerPlaceholder": "-- Seleziona fornitore --", "configLabel": "Indirizzo fornitore (opzionale)", "configPlaceholder": "http://localhost:11434", "configHelp": "Inserisci l'indirizzo per fornitori locali come LM Studio o Ollama", "keyConfigured": "✓ Chiave API configurata in .env", "keyLocal": "ℹ Fornitore locale (nessuna chiave API richiesta)", "modelLabel": "Modello IA", "modelPlaceholder": "-- Seleziona modello --", "modelSelectFirst": "-- Seleziona prima un fornitore --", "modelLoading": "Caricamento modelli...", "modelRefresh": "Aggiorna modelli", "modelSearch": "Cerca modelli...", "modelNotFound": "Nessun modello trovato", "modelCount": "{count} modelli trovati", "modelError": "Caricamento modelli fallito" },
-    "data": { "title": "Elaborazione dati", "description": "Recupera ed elabora manualmente i dati di Hacker News.", "fetchButton": "Avvia recupero dati", "reprocessButton": "Rielabora non tradotti", "statusText": "Elaborazione in corso... Attendere." },
-    "fetch": { "title": "Impostazioni recupero", "hour": "Ora", "minute": "Minuto", "days": "Giorni", "monday": "Lunedì", "tuesday": "Martedì", "wednesday": "Mercoledì", "thursday": "Giovedì", "friday": "Venerdì", "saturday": "Sabato", "sunday": "Domenica", "daysHelp": "Seleziona i giorni di esecuzione", "minScore": "Punteggio minimo", "minScoreHelp": "Verranno elaborate solo storie con punteggio superiore", "retentionDays": "Conservazione dati (giorni)", "retentionDaysHelp": "I dati più vecchi verranno eliminati automaticamente" },
-    "preferences": { "title": "Preferenze utente", "highlightKeywords": "Parole chiave da evidenziare", "highlightPlaceholder": "IA, apprendimento automatico, scienza dei dati", "highlightHelp": "Inserisci separate da virgole", "blocklistKeywords": "Parole chiave bloccate", "blocklistPlaceholder": "politica, agenda, dibattito", "blocklistHelp": "I contenuti con queste parole chiave verranno attenuati" },
+    "language": {
+      "title": "Impostazioni lingua",
+      "uiLabel": "Lingua interfaccia",
+      "translationLabel": "Lingua traduzione contenuti",
+      "uiDescription": "Lingua per interfaccia, menu e pulsanti",
+      "translationDescription": "Lingua in cui verrà tradotto il contenuto di Hacker News",
+      "independentNote": "Queste due impostazioni sono completamente indipendenti"
+    },
+    "ai": {
+      "title": "Fornitore IA",
+      "description": "Le chiavi API sono configurate tramite file .env. Vengono elencati solo i fornitori con chiavi configurate.",
+      "providerLabel": "Fornitore IA",
+      "providerPlaceholder": "-- Seleziona fornitore --",
+      "configLabel": "Indirizzo fornitore (opzionale)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Inserisci l'indirizzo per fornitori locali come LM Studio o Ollama",
+      "keyConfigured": "✓ Chiave API configurata in .env",
+      "keyLocal": "ℹ Fornitore locale (nessuna chiave API richiesta)",
+      "modelLabel": "Modello IA",
+      "modelPlaceholder": "-- Seleziona modello --",
+      "modelSelectFirst": "-- Seleziona prima un fornitore --",
+      "modelLoading": "Caricamento modelli...",
+      "modelRefresh": "Aggiorna modelli",
+      "modelSearch": "Cerca modelli...",
+      "modelNotFound": "Nessun modello trovato",
+      "modelCount": "{count} modelli trovati",
+      "modelError": "Caricamento modelli fallito"
+    },
+    "data": {
+      "title": "Elaborazione dati",
+      "description": "Recupera ed elabora manualmente i dati di Hacker News.",
+      "fetchButton": "Avvia recupero dati",
+      "reprocessButton": "Rielabora non tradotti",
+      "statusText": "Elaborazione in corso... Attendere."
+    },
+    "fetch": {
+      "title": "Impostazioni recupero",
+      "hour": "Ora",
+      "minute": "Minuto",
+      "days": "Giorni",
+      "monday": "Lunedì",
+      "tuesday": "Martedì",
+      "wednesday": "Mercoledì",
+      "thursday": "Giovedì",
+      "friday": "Venerdì",
+      "saturday": "Sabato",
+      "sunday": "Domenica",
+      "daysHelp": "Seleziona i giorni di esecuzione",
+      "minScore": "Punteggio minimo",
+      "minScoreHelp": "Verranno elaborate solo storie con punteggio superiore",
+      "retentionDays": "Conservazione dati (giorni)",
+      "retentionDaysHelp": "I dati più vecchi verranno eliminati automaticamente"
+    },
+    "preferences": {
+      "title": "Preferenze utente",
+      "highlightKeywords": "Parole chiave da evidenziare",
+      "highlightPlaceholder": "IA, apprendimento automatico, scienza dei dati",
+      "highlightHelp": "Inserisci separate da virgole",
+      "blocklistKeywords": "Parole chiave bloccate",
+      "blocklistPlaceholder": "politica, agenda, dibattito",
+      "blocklistHelp": "I contenuti con queste parole chiave verranno attenuati"
+    },
     "telegram": {
       "title": "Notifiche Telegram",
       "description": "Aggiungi il tuo token del bot Telegram al file .env come TELEGRAM_BOT_TOKEN=. Il token del bot non viene mai inviato al frontend, viene letto solo dal server.",
@@ -18,10 +102,63 @@
       "enabledLabel": "Attiva le notifiche Telegram",
       "enabledHelp": "Una volta attivato, riceverai una notifica Telegram per ogni lotto di storie appena elaborate."
     },
-    "save": "Salva impostazioni", "saving": "Salvataggio...", "saveSuccess": "Impostazioni salvate con successo!", "saveError": "Si è verificato un errore durante il salvataggio."
+    "save": "Salva impostazioni",
+    "saving": "Salvataggio...",
+    "saveSuccess": "Impostazioni salvate con successo!",
+    "saveError": "Si è verificato un errore durante il salvataggio."
   },
-  "display": { "title": "Impostazioni schermo", "fontFamily": "Carattere", "fontSize": "Dimensione carattere", "contrast": "Contrasto", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "Piccolo", "medium": "Medio", "large": "Grande", "xlarge": "Molto grande" }, "contrasts": { "light": "Chiaro", "dark": "Scuro", "sepia": "Seppia", "high": "Alto contrasto" }, "reset": "Ripristina valori predefiniti", "save": "Salva" },
-  "theme": { "light": "Modalità chiara", "dark": "Modalità scura", "system": "Auto (sistema)" },
-  "worker": { "started": "Recupero avviato! L'elaborazione potrebbe richiedere alcuni minuti.", "reprocessStarted": "Rielaborazione avviata! Contenuti e commenti vengono aggiornati.", "error": "Impossibile avviare il worker.", "reprocessError": "Impossibile avviare la rielaborazione." },
-  "common": { "loading": "Caricamento...", "error": "Errore", "success": "Successo", "cancel": "Annulla", "save": "Salva", "delete": "Elimina", "close": "Chiudi", "back": "Indietro" }
+  "display": {
+    "title": "Impostazioni schermo",
+    "fontFamily": "Carattere",
+    "fontSize": "Dimensione carattere",
+    "contrast": "Contrasto",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Piccolo",
+      "medium": "Medio",
+      "large": "Grande",
+      "xlarge": "Molto grande"
+    },
+    "contrasts": {
+      "light": "Chiaro",
+      "dark": "Scuro",
+      "sepia": "Seppia",
+      "high": "Alto contrasto"
+    },
+    "reset": "Ripristina valori predefiniti",
+    "save": "Salva"
+  },
+  "theme": {
+    "light": "Modalità chiara",
+    "dark": "Modalità scura",
+    "system": "Auto (sistema)"
+  },
+  "worker": {
+    "started": "Recupero avviato! L'elaborazione potrebbe richiedere alcuni minuti.",
+    "reprocessStarted": "Rielaborazione avviata! Contenuti e commenti vengono aggiornati.",
+    "error": "Impossibile avviare il worker.",
+    "reprocessError": "Impossibile avviare la rielaborazione.",
+    "starting": "Avvio recupero dati..."
+  },
+  "common": {
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "close": "Chiudi",
+    "back": "Indietro"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 <b>{count} nuove storie</b> riassunte su Hacker News e pronte da leggere!",
+      "check_link": "🔗 <a href=\"{url}\">Guarda ora</a>",
+      "no_stories": "🫡 Oggi nessuna nuova storia su Hacker News. Al prossimo scan!",
+      "errors": "⚠️ Si sono verificati <b>{count} errori</b>."
+    }
+  }
 }

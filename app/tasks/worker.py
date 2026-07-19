@@ -158,12 +158,22 @@ async def _send_telegram_notification(processed_count: int, error_count: int = 0
         if not setting or not setting.telegram_enabled or not setting.telegram_chat_id:
             return  # Telegram not fully configured
 
+        # Read user's UI language preference
+        from app.models.preference import UserPreference
+        prefs_result = await db.execute(select(UserPreference).limit(1))
+        prefs = prefs_result.scalar_one_or_none()
+        lang_code = prefs.ui_language if prefs else "en"
+
         telegram = TelegramService(bot_token)
 
         if processed_count > 0:
-            await telegram.send_notification(processed_count, setting, error_count=error_count)
+            await telegram.send_notification(
+                processed_count, setting,
+                error_count=error_count,
+                language_code=lang_code,
+            )
         else:
-            await telegram.send_empty_notification(setting)
+            await telegram.send_empty_notification(setting, language_code=lang_code)
 
 
 async def reprocess_untranslated_stories(ctx):

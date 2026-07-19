@@ -23,7 +23,11 @@
     "summaryNotAvailable": "Summary not available",
     "commentSummaryNotAvailable": "Comment summary not available",
     "contentNotAvailable": "Content summary not available",
-    "originalTitle": "Original title"
+    "originalTitle": "Original title",
+    "todaysBest": "Today's Best",
+    "loadingMore": "Loading more stories...",
+    "allLoaded": "All stories loaded",
+    "offline": "Offline mode - Viewing cached content"
   },
   "settings": {
     "title": "Settings",
@@ -136,7 +140,8 @@
     "started": "Data fetch started! Processing may take a few minutes.",
     "reprocessStarted": "Reprocessing started! Content and comments are being refreshed.",
     "error": "Worker could not be started.",
-    "reprocessError": "Reprocessing could not be started."
+    "reprocessError": "Reprocessing could not be started.",
+    "starting": "Data fetch starting..."
   },
   "common": {
     "loading": "Loading...",
@@ -147,5 +152,13 @@
     "delete": "Delete",
     "close": "Close",
     "back": "Back"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
+      "check_link": "🔗 <a href=\"{url}\">Check them out</a>",
+      "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
+      "errors": "⚠️ <b>{count} errors</b> occurred."
+    }
   }
 }
