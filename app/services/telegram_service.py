@@ -35,7 +35,9 @@ def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
     try:
         with open(locale_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        template = data.get("telegram", {}).get("notification", {}).get(key)
+        notification = data.get("telegram", {}).get("notification", {})
+        template = notification.get(key)
+        print(f"[Locale] _get_locale_message(lang={language_code}, key={key}): template={'FOUND' if template else 'MISSING'}, notification keys={list(notification.keys())}")
         if template:
             return template.format(**kwargs)
     except (FileNotFoundError, json.JSONDecodeError) as e:

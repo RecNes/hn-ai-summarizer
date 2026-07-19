@@ -163,6 +163,7 @@ async def _send_telegram_notification(processed_count: int, error_count: int = 0
         prefs_result = await db.execute(select(UserPreference).limit(1))
         prefs = prefs_result.scalar_one_or_none()
         lang_code = prefs.ui_language if prefs else "en"
+        print(f"[Telegram] lang_code={lang_code!r}, processed={processed_count}, errors={error_count}")
 
         telegram = TelegramService(bot_token)
 
