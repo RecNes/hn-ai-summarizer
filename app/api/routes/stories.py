@@ -111,11 +111,11 @@ async def reprocess_untranslated_status():
 
 @router.post("/reprocess-untranslated/cancel")
 async def cancel_reprocess():
-    """Cancel the currently running reprocess job by setting cancelled flag in Redis."""
-    from app.services.reprocess_state import set_reprocess_state
+    """Cancel the currently running reprocess job by resetting Redis state."""
+    from app.services.reprocess_state import reset_reprocess_state
 
-    await set_reprocess_state(cancelled=True)
-    return {"message": "Reprocess cancellation requested"}
+    await reset_reprocess_state()
+    return {"message": "Reprocess cancelled"}
 
 
 @router.get("/poll-stream")
