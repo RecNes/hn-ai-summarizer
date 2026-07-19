@@ -339,6 +339,22 @@ document.addEventListener('DOMContentLoaded', function() {
             location.reload();
         });
     }
+
+    // AI Panel event listeners
+    const aiPanelBtn = document.getElementById('ai-panel-btn');
+    if (aiPanelBtn) {
+        aiPanelBtn.addEventListener('click', toggleAiPanel);
+    }
+
+    const aiPanelCloseBtn = document.getElementById('ai-panel-close-btn');
+    if (aiPanelCloseBtn) {
+        aiPanelCloseBtn.addEventListener('click', toggleAiPanel);
+    }
+
+    const aiPanelOverlay = document.getElementById('ai-panel-overlay');
+    if (aiPanelOverlay) {
+        aiPanelOverlay.addEventListener('click', toggleAiPanel);
+    }
 });
 
 // ──────────────────────────────────────────────
