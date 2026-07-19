@@ -30,6 +30,24 @@
 
 ---
 
+## 🏡 Built for Your Homelab
+
+HN AI Summarizer is designed to run quietly in the background on your own server.
+
+Whether it's a Raspberry Pi, a mini PC, a NAS, or a home lab, it continuously fetches, summarizes, and translates Hacker News stories while you focus on other things.
+
+Unlike cloud services, your setup stays entirely under your control:
+
+- 🏠 Runs on your own hardware
+- 🔑 Your AI API keys never leave your environment
+- 📚 Your reading history stays private
+- ⚙️ Fully automated daily operation
+- 📦 One Docker Compose deployment
+
+Think of it as your own personal Hacker News appliance.
+
+---
+
 # 🔄 Flow
 
 ```
