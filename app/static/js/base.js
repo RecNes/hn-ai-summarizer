@@ -343,12 +343,12 @@ async function initUILanguage() {
         const data = await res.json();
         const uiLang = data.ui_language || 'en';
         if (typeof initI18n === 'function') {
-            initI18n(uiLang);
+            await initI18n(uiLang);
         }
     } catch (e) {
         console.warn('Could not load UI language preference:', e);
         if (typeof initI18n === 'function') {
-            initI18n('en');
+            await initI18n('en');
         }
     }
 }
@@ -356,9 +356,9 @@ async function initUILanguage() {
 // ──────────────────────────────────────────────
 // DOMContentLoaded (global)
 // ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-    // i18n başlat (önce preferences'dan UI dilini çek)
-    initUILanguage();
+document.addEventListener('DOMContentLoaded', async function() {
+    // i18n başlat (önce preferences'dan UI dilini çek) — await ile bekle
+    await initUILanguage();
 
     // Tema başlat
     applyTheme();

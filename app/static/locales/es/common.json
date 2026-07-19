@@ -1,27 +1,27 @@
-{
-  "app": { "title": "HN AI Resumidor", "description": "Resumidor de Hacker News impulsado por IA", "footer": "HN AI Resumidor - Resumidor de Hacker News impulsado por IA" },
-  "nav": { "home": "Inicio", "settings": "Ajustes", "themeToggle": "Cambiar tema", "displaySettings": "Ajustes de pantalla", "refresh": "Actualizar página" },
-  "home": { "title": "Últimas historias", "noStories": "No hay historias disponibles aún.", "loading": "Cargando historias...", "error": "Error al cargar historias", "score": "Puntuación", "author": "Autor", "comments": "Comentarios", "readMore": "Leer más", "summaryNotAvailable": "Resumen no disponible", "commentSummaryNotAvailable": "Resumen de comentarios no disponible", "contentNotAvailable": "Resumen de contenido no disponible", "originalTitle": "Título original" },
-  "settings": {
-    "title": "Ajustes",
-    "language": { "title": "Ajustes de idioma", "uiLabel": "Idioma de la interfaz", "translationLabel": "Idioma de traducción de contenido", "uiDescription": "Idioma para la interfaz, menús y botones", "translationDescription": "Idioma al que se traducirá el contenido de Hacker News", "independentNote": "Estos dos ajustes son completamente independientes" },
-    "ai": { "title": "Proveedor de IA", "description": "Las claves API se configuran mediante el archivo .env. Solo se muestran los proveedores con claves configuradas.", "providerLabel": "Proveedor de IA", "providerPlaceholder": "-- Seleccionar proveedor --", "configLabel": "Dirección del proveedor (opcional)", "configPlaceholder": "http://localhost:11434", "configHelp": "Ingrese la dirección para proveedores locales como LM Studio u Ollama", "keyConfigured": "✓ Clave API configurada en .env", "keyLocal": "ℹ Proveedor local (no se necesita clave API)", "modelLabel": "Modelo de IA", "modelPlaceholder": "-- Seleccionar modelo --", "modelSelectFirst": "-- Seleccione un proveedor primero --", "modelLoading": "Cargando modelos...", "modelRefresh": "Actualizar modelos", "modelSearch": "Buscar modelos...", "modelNotFound": "No se encontró ningún modelo", "modelCount": "{count} modelos encontrados", "modelError": "Error al cargar modelos" },
-    "data": { "title": "Procesamiento de datos", "description": "Obtener y procesar datos de Hacker News manualmente.", "fetchButton": "Iniciar obtención de datos", "reprocessButton": "Reprocesar no traducidos", "statusText": "Procesando... Por favor espere." },
-    "fetch": { "title": "Ajustes de obtención", "hour": "Hora", "minute": "Minuto", "days": "Días", "monday": "Lunes", "tuesday": "Martes", "wednesday": "Miércoles", "thursday": "Jueves", "friday": "Viernes", "saturday": "Sábado", "sunday": "Domingo", "daysHelp": "Seleccione los días de ejecución", "minScore": "Puntuación mínima", "minScoreHelp": "Solo se procesarán historias con puntuación superior", "retentionDays": "Retención de datos (días)", "retentionDaysHelp": "Los datos más antiguos se eliminarán automáticamente" },
-    "preferences": { "title": "Preferencias de usuario", "highlightKeywords": "Palabras clave destacadas", "highlightPlaceholder": "IA, aprendizaje automático, ciencia de datos", "highlightHelp": "Ingrese separadas por comas", "blocklistKeywords": "Palabras clave bloqueadas", "blocklistPlaceholder": "política, agenda, debate", "blocklistHelp": "El contenido con estas palabras clave se atenuará" },
-    "telegram": {
-      "title": "Notificaciones de Telegram",
-      "description": "Agregue su token de bot de Telegram al archivo .env como TELEGRAM_BOT_TOKEN=. El token del bot nunca se env�a al frontend, solo lo lee el servidor.",
-      "chatIdLabel": "ID de chat de Telegram",
-      "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "Env�e un mensaje a su bot, luego visite https://api.telegram.org/bot<TOKEN>/getUpdates para encontrar su ID de chat.",
-      "enabledLabel": "Activar notificaciones de Telegram",
-      "enabledHelp": "Cuando est� activado, recibir� una notificaci�n de Telegram por cada lote de historias reci�n procesadas."
-    },
-    "save": "Guardar ajustes", "saving": "Guardando...", "saveSuccess": "¡Ajustes guardados correctamente!", "saveError": "Ocurrió un error al guardar los ajustes."
-  },
-  "display": { "title": "Ajustes de pantalla", "fontFamily": "Tipografía", "fontSize": "Tamaño de fuente", "contrast": "Contraste", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "Pequeño", "medium": "Mediano", "large": "Grande", "xlarge": "Muy grande" }, "contrasts": { "light": "Claro", "dark": "Oscuro", "sepia": "Sepia", "high": "Alto contraste" }, "reset": "Restablecer valores predeterminados", "save": "Guardar" },
-  "theme": { "light": "Modo claro", "dark": "Modo oscuro", "system": "Auto (sistema)" },
-  "worker": { "started": "¡Obtención iniciada! El procesamiento puede tomar unos minutos.", "reprocessStarted": "¡Reprocesamiento iniciado! El contenido y los comentarios se están actualizando.", "error": "No se pudo iniciar el worker.", "reprocessError": "No se pudo iniciar el reprocesamiento." },
-  "common": { "loading": "Cargando...", "error": "Error", "success": "Éxito", "cancel": "Cancelar", "save": "Guardar", "delete": "Eliminar", "close": "Cerrar", "back": "Volver" }
-}
+{
+  "app": { "title": "HN AI Resumidor", "description": "Resumidor de Hacker News impulsado por IA", "footer": "HN AI Resumidor - Resumidor de Hacker News impulsado por IA" },
+  "nav": { "home": "Inicio", "settings": "Ajustes", "themeToggle": "Cambiar tema", "displaySettings": "Ajustes de pantalla", "refresh": "Actualizar pÃÂ¡gina" },
+  "home": { "title": "ÃÂltimas historias", "noStories": "No hay historias disponibles aÃÂºn.", "loading": "Cargando historias...", "error": "Error al cargar historias", "score": "PuntuaciÃÂ³n", "author": "Autor", "comments": "Comentarios", "readMore": "Leer mÃÂ¡s", "summaryNotAvailable": "Resumen no disponible", "commentSummaryNotAvailable": "Resumen de comentarios no disponible", "contentNotAvailable": "Resumen de contenido no disponible", "originalTitle": "TÃÂ­tulo original" },
+  "settings": {
+    "title": "Ajustes",
+    "language": { "title": "Ajustes de idioma", "uiLabel": "Idioma de la interfaz", "translationLabel": "Idioma de traducciÃÂ³n de contenido", "uiDescription": "Idioma para la interfaz, menÃÂºs y botones", "translationDescription": "Idioma al que se traducirÃÂ¡ el contenido de Hacker News", "independentNote": "Estos dos ajustes son completamente independientes" },
+    "ai": { "title": "Proveedor de IA", "description": "Las claves API se configuran mediante el archivo .env. Solo se muestran los proveedores con claves configuradas.", "providerLabel": "Proveedor de IA", "providerPlaceholder": "-- Seleccionar proveedor --", "configLabel": "DirecciÃÂ³n del proveedor (opcional)", "configPlaceholder": "http://localhost:11434", "configHelp": "Ingrese la direcciÃÂ³n para proveedores locales como LM Studio u Ollama", "keyConfigured": "Ã¢ÂÂ Clave API configurada en .env", "keyLocal": "Ã¢ÂÂ¹ Proveedor local (no se necesita clave API)", "modelLabel": "Modelo de IA", "modelPlaceholder": "-- Seleccionar modelo --", "modelSelectFirst": "-- Seleccione un proveedor primero --", "modelLoading": "Cargando modelos...", "modelRefresh": "Actualizar modelos", "modelSearch": "Buscar modelos...", "modelNotFound": "No se encontrÃÂ³ ningÃÂºn modelo", "modelCount": "{count} modelos encontrados", "modelError": "Error al cargar modelos" },
+    "data": { "title": "Procesamiento de datos", "description": "Obtener y procesar datos de Hacker News manualmente.", "fetchButton": "Iniciar obtenciÃÂ³n de datos", "reprocessButton": "Reprocesar no traducidos", "statusText": "Procesando... Por favor espere." },
+    "fetch": { "title": "Ajustes de obtenciÃÂ³n", "hour": "Hora", "minute": "Minuto", "days": "DÃÂ­as", "monday": "Lunes", "tuesday": "Martes", "wednesday": "MiÃÂ©rcoles", "thursday": "Jueves", "friday": "Viernes", "saturday": "SÃÂ¡bado", "sunday": "Domingo", "daysHelp": "Seleccione los dÃÂ­as de ejecuciÃÂ³n", "minScore": "PuntuaciÃÂ³n mÃÂ­nima", "minScoreHelp": "Solo se procesarÃÂ¡n historias con puntuaciÃÂ³n superior", "retentionDays": "RetenciÃÂ³n de datos (dÃÂ­as)", "retentionDaysHelp": "Los datos mÃÂ¡s antiguos se eliminarÃÂ¡n automÃÂ¡ticamente" },
+    "preferences": { "title": "Preferencias de usuario", "highlightKeywords": "Palabras clave destacadas", "highlightPlaceholder": "IA, aprendizaje automÃÂ¡tico, ciencia de datos", "highlightHelp": "Ingrese separadas por comas", "blocklistKeywords": "Palabras clave bloqueadas", "blocklistPlaceholder": "polÃÂ­tica, agenda, debate", "blocklistHelp": "El contenido con estas palabras clave se atenuarÃÂ¡" },
+    "telegram": {
+      "title": "Notificaciones de Telegram",
+      "description": "Agregue su token de bot de Telegram al archivo .env como TELEGRAM_BOT_TOKEN=. El token del bot nunca se envÃ­a al frontend, solo lo lee el servidor.",
+      "chatIdLabel": "ID de chat de Telegram",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "EnvÃ­e un mensaje a su bot, luego visite https://api.telegram.org/bot<TOKEN>/getUpdates para encontrar su ID de chat.",
+      "enabledLabel": "Activar notificaciones de Telegram",
+      "enabledHelp": "Cuando estÃ¡ activado, recibirÃ¡ una notificaciÃ³n de Telegram por cada lote de historias reciÃ©n procesadas."
+    },
+    "save": "Guardar ajustes", "saving": "Guardando...", "saveSuccess": "ÃÂ¡Ajustes guardados correctamente!", "saveError": "OcurriÃÂ³ un error al guardar los ajustes."
+  },
+  "display": { "title": "Ajustes de pantalla", "fontFamily": "TipografÃÂ­a", "fontSize": "TamaÃÂ±o de fuente", "contrast": "Contraste", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "PequeÃÂ±o", "medium": "Mediano", "large": "Grande", "xlarge": "Muy grande" }, "contrasts": { "light": "Claro", "dark": "Oscuro", "sepia": "Sepia", "high": "Alto contraste" }, "reset": "Restablecer valores predeterminados", "save": "Guardar" },
+  "theme": { "light": "Modo claro", "dark": "Modo oscuro", "system": "Auto (sistema)" },
+  "worker": { "started": "ÃÂ¡ObtenciÃÂ³n iniciada! El procesamiento puede tomar unos minutos.", "reprocessStarted": "ÃÂ¡Reprocesamiento iniciado! El contenido y los comentarios se estÃÂ¡n actualizando.", "error": "No se pudo iniciar el worker.", "reprocessError": "No se pudo iniciar el reprocesamiento." },
+  "common": { "loading": "Cargando...", "error": "Error", "success": "ÃÂxito", "cancel": "Cancelar", "save": "Guardar", "delete": "Eliminar", "close": "Cerrar", "back": "Volver" }
+}
