@@ -220,6 +220,22 @@ window.hideWorkerProgress = function() {
     }
 };
 
+window.showWorkerLabel = function(text) {
+    const label = document.getElementById('worker-progress-label');
+    const textEl = document.getElementById('worker-progress-text');
+    if (label && textEl) {
+        label.classList.remove('hidden');
+        textEl.textContent = text;
+    }
+};
+
+window.hideWorkerLabel = function() {
+    const label = document.getElementById('worker-progress-label');
+    if (label) {
+        label.classList.add('hidden');
+    }
+};
+
 // ──────────────────────────────────────────────
 // Polling — check every 30s if new stories arrived
 // Track by max story ID for reliable detection.
