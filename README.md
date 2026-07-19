@@ -30,9 +30,7 @@
 
 ---
 
-# 🎬 Demo
-
-> _(Add a GIF here showing the complete workflow)_
+# 🎬 Flow
 
 ```
 
