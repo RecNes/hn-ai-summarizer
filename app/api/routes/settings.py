@@ -1,9 +1,5 @@
 """API routes for managing application settings and triggering background tasks."""
 
-import json
-import os
-from typing import List
-
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, HTTPException, Query
