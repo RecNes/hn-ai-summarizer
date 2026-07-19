@@ -1,125 +1,164 @@
-{
-  "app": {
-    "title": "HN AI Zusammenfasser",
-    "description": "KI-gestÃÂ¼tzter Hacker News Zusammenfasser",
-    "footer": "HN AI Zusammenfasser - KI-gestÃÂ¼tzter Hacker News Zusammenfasser"
-  },
-  "nav": {
-    "home": "Startseite",
-    "settings": "Einstellungen",
-    "themeToggle": "Design wechseln",
-    "displaySettings": "Anzeigeeinstellungen",
-    "refresh": "Seite aktualisieren"
-  },
-  "home": {
-    "title": "Neueste Geschichten",
-    "noStories": "Noch keine Geschichten verfÃÂ¼gbar.",
-    "loading": "Geschichten werden geladen...",
-    "error": "Geschichten konnten nicht geladen werden",
-    "score": "Punktzahl",
-    "author": "Autor",
-    "comments": "Kommentare",
-    "readMore": "Weiterlesen",
-    "summaryNotAvailable": "Zusammenfassung nicht verfÃÂ¼gbar",
-    "commentSummaryNotAvailable": "Kommentarzusammenfassung nicht verfÃÂ¼gbar",
-    "contentNotAvailable": "Inhaltszusammenfassung nicht verfÃÂ¼gbar",
-    "originalTitle": "Originaltitel"
-  },
-  "settings": {
-    "title": "Einstellungen",
-    "language": {
-      "title": "Spracheinstellungen",
-      "uiLabel": "Anwendungssprache",
-      "translationLabel": "InhaltsÃÂ¼bersetzungssprache",
-      "uiDescription": "Sprache fÃÂ¼r die BenutzeroberflÃÂ¤che, MenÃÂ¼s und SchaltflÃÂ¤chen",
-      "translationDescription": "Sprache, in die Hacker News-Inhalte ÃÂ¼bersetzt werden",
-      "independentNote": "Diese beiden Einstellungen sind vÃÂ¶llig unabhÃÂ¤ngig voneinander"
-    },
-    "ai": {
-      "title": "KI-Anbieter",
-      "description": "API-SchlÃÂ¼ssel werden ÃÂ¼ber die .env-Datei konfiguriert. Es werden nur Anbieter mit konfigurierten SchlÃÂ¼sseln aufgelistet.",
-      "providerLabel": "KI-Anbieter",
-      "providerPlaceholder": "-- Anbieter auswÃÂ¤hlen --",
-      "configLabel": "Anbieteradresse (optional)",
-      "configPlaceholder": "http://localhost:11434",
-      "configHelp": "Adresse fÃÂ¼r lokale Anbieter wie LM Studio oder Ollama eingeben",
-      "keyConfigured": "Ã¢ÂÂ API-SchlÃÂ¼ssel in .env konfiguriert",
-      "keyLocal": "Ã¢ÂÂ¹ Lokaler Anbieter (kein API-SchlÃÂ¼ssel erforderlich)",
-      "modelLabel": "KI-Modell",
-      "modelPlaceholder": "-- Modell auswÃÂ¤hlen --",
-      "modelSelectFirst": "-- Zuerst einen Anbieter auswÃÂ¤hlen --",
-      "modelLoading": "Modelle werden geladen...",
-      "modelRefresh": "Modelle aktualisieren",
-      "modelSearch": "Modelle suchen...",
-      "modelNotFound": "Kein passendes Modell gefunden",
-      "modelCount": "{count} Modelle gefunden",
-      "modelError": "Modelle konnten nicht geladen werden"
-    },
-    "data": {
-      "title": "Datenverarbeitung",
-      "description": "Hacker News-Daten manuell abrufen und verarbeiten.",
-      "fetchButton": "Datenabruf starten",
-      "reprocessButton": "UnÃÂ¼bersetzte erneut verarbeiten",
-      "statusText": "Verarbeitung lÃÂ¤uft... Bitte warten."
-    },
-    "fetch": {
-      "title": "Abrufeinstellungen",
-      "hour": "Stunde",
-      "minute": "Minute",
-      "days": "Tage",
-      "monday": "Montag",
-      "tuesday": "Dienstag",
-      "wednesday": "Mittwoch",
-      "thursday": "Donnerstag",
-      "friday": "Freitag",
-      "saturday": "Samstag",
-      "sunday": "Sonntag",
-      "daysHelp": "WÃÂ¤hlen Sie die AusfÃÂ¼hrungstage aus",
-      "minScore": "Mindestpunktzahl",
-      "minScoreHelp": "Nur Geschichten mit einer Punktzahl darÃÂ¼ber werden verarbeitet",
-      "retentionDays": "Datenaufbewahrung (Tage)",
-      "retentionDaysHelp": "ÃÂltere Daten werden automatisch gelÃÂ¶scht"
-    },
-    "preferences": {
-      "title": "Benutzereinstellungen",
-      "highlightKeywords": "Hervorzuhebende SchlÃÂ¼sselwÃÂ¶rter",
-      "highlightPlaceholder": "KI, maschinelles Lernen, Datenwissenschaft",
-      "highlightHelp": "Kommagetrennt eingeben",
-      "blocklistKeywords": "Blockierte SchlÃÂ¼sselwÃÂ¶rter",
-      "blocklistPlaceholder": "Politik, Tagesordnung, Debatte",
-      "blocklistHelp": "Inhalte mit diesen SchlÃÂ¼sselwÃÂ¶rtern werden abgedunkelt"
-    },
-    "telegram": {
-      "title": "Telegram-Benachrichtigungen",
-      "description": "FÃ¼gen Sie Ihren Telegram-Bot-Token in die .env-Datei als TELEGRAM_BOT_TOKEN= ein. Der Bot-Token wird niemals an das Frontend gesendet, sondern nur vom Server gelesen.",
-      "chatIdLabel": "Telegram Chat-ID",
-      "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "Senden Sie eine Nachricht an Ihren Bot und rufen Sie https://api.telegram.org/bot<TOKEN>/getUpdates auf, um Ihre Chat-ID zu finden.",
-      "enabledLabel": "Telegram-Benachrichtigungen aktivieren",
-      "enabledHelp": "Wenn aktiviert, erhalten Sie eine Telegram-Benachrichtigung fÃ¼r jede Charge neu verarbeiteter Geschichten."
-    },
-    "save": "Einstellungen speichern",
-    "saving": "Speichern...",
-    "saveSuccess": "Einstellungen erfolgreich gespeichert!",
-    "saveError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten."
-  },
-  "display": {
-    "title": "Anzeigeeinstellungen",
-    "fontFamily": "Schriftart",
-    "fontSize": "SchriftgrÃÂ¶ÃÂe",
-    "contrast": "Kontrast",
-    "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" },
-    "sizes": { "small": "Klein", "medium": "Mittel", "large": "GroÃÂ", "xlarge": "Sehr groÃÂ" },
-    "contrasts": { "light": "Hell", "dark": "Dunkel", "sepia": "Sepia", "high": "Hoher Kontrast" },
-    "reset": "Auf Standard zurÃÂ¼cksetzen",
-    "save": "Speichern"
-  },
-  "theme": { "light": "Heller Modus", "dark": "Dunkler Modus", "system": "Auto (System)" },
-  "worker": {
-    "started": "Datenabruf gestartet! Die Verarbeitung kann einige Minuten dauern.",
-    "reprocessStarted": "Neubearbeitung gestartet! Inhalte und Kommentare werden aktualisiert.",
-    "error": "Worker konnte nicht gestartet werden.",
-    "reprocessError": "Neubearbeitung konnte nicht gestartet werden."
-  },
-  "common": { "loading": "Laden...", "error": "Fehler", "success": "Erfolg", "cancel": "Abbrechen", "save": "Speichern", "delete": "LÃÂ¶schen", "close": "SchlieÃÂen", "back": "ZurÃÂ¼ck" }
-}
+{
+  "app": {
+    "title": "HN AI Zusammenfasser",
+    "description": "KI-gestÃÂ¼tzter Hacker News Zusammenfasser",
+    "footer": "HN AI Zusammenfasser - KI-gestÃÂ¼tzter Hacker News Zusammenfasser"
+  },
+  "nav": {
+    "home": "Startseite",
+    "settings": "Einstellungen",
+    "themeToggle": "Design wechseln",
+    "displaySettings": "Anzeigeeinstellungen",
+    "refresh": "Seite aktualisieren"
+  },
+  "home": {
+    "title": "Neueste Geschichten",
+    "noStories": "Noch keine Geschichten verfÃÂ¼gbar.",
+    "loading": "Geschichten werden geladen...",
+    "error": "Geschichten konnten nicht geladen werden",
+    "score": "Punktzahl",
+    "author": "Autor",
+    "comments": "Kommentare",
+    "readMore": "Weiterlesen",
+    "summaryNotAvailable": "Zusammenfassung nicht verfÃÂ¼gbar",
+    "commentSummaryNotAvailable": "Kommentarzusammenfassung nicht verfÃÂ¼gbar",
+    "contentNotAvailable": "Inhaltszusammenfassung nicht verfÃÂ¼gbar",
+    "originalTitle": "Originaltitel",
+    "todaysBest": "Die heutige Besten",
+    "loadingMore": "Weitere Geschichten werden geladen...",
+    "allLoaded": "Alle Geschichten geladen",
+    "offline": "Offline-Modus - Zwischengespeicherte Inhalte anzeigen"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": {
+      "title": "Spracheinstellungen",
+      "uiLabel": "Anwendungssprache",
+      "translationLabel": "InhaltsÃÂ¼bersetzungssprache",
+      "uiDescription": "Sprache fÃÂ¼r die BenutzeroberflÃÂ¤che, MenÃÂ¼s und SchaltflÃÂ¤chen",
+      "translationDescription": "Sprache, in die Hacker News-Inhalte ÃÂ¼bersetzt werden",
+      "independentNote": "Diese beiden Einstellungen sind vÃÂ¶llig unabhÃÂ¤ngig voneinander"
+    },
+    "ai": {
+      "title": "KI-Anbieter",
+      "description": "API-SchlÃÂ¼ssel werden ÃÂ¼ber die .env-Datei konfiguriert. Es werden nur Anbieter mit konfigurierten SchlÃÂ¼sseln aufgelistet.",
+      "providerLabel": "KI-Anbieter",
+      "providerPlaceholder": "-- Anbieter auswÃÂ¤hlen --",
+      "configLabel": "Anbieteradresse (optional)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Adresse fÃÂ¼r lokale Anbieter wie LM Studio oder Ollama eingeben",
+      "keyConfigured": "Ã¢ÂÂ API-SchlÃÂ¼ssel in .env konfiguriert",
+      "keyLocal": "Ã¢ÂÂ¹ Lokaler Anbieter (kein API-SchlÃÂ¼ssel erforderlich)",
+      "modelLabel": "KI-Modell",
+      "modelPlaceholder": "-- Modell auswÃÂ¤hlen --",
+      "modelSelectFirst": "-- Zuerst einen Anbieter auswÃÂ¤hlen --",
+      "modelLoading": "Modelle werden geladen...",
+      "modelRefresh": "Modelle aktualisieren",
+      "modelSearch": "Modelle suchen...",
+      "modelNotFound": "Kein passendes Modell gefunden",
+      "modelCount": "{count} Modelle gefunden",
+      "modelError": "Modelle konnten nicht geladen werden"
+    },
+    "data": {
+      "title": "Datenverarbeitung",
+      "description": "Hacker News-Daten manuell abrufen und verarbeiten.",
+      "fetchButton": "Datenabruf starten",
+      "reprocessButton": "UnÃÂ¼bersetzte erneut verarbeiten",
+      "statusText": "Verarbeitung lÃÂ¤uft... Bitte warten."
+    },
+    "fetch": {
+      "title": "Abrufeinstellungen",
+      "hour": "Stunde",
+      "minute": "Minute",
+      "days": "Tage",
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag",
+      "daysHelp": "WÃÂ¤hlen Sie die AusfÃÂ¼hrungstage aus",
+      "minScore": "Mindestpunktzahl",
+      "minScoreHelp": "Nur Geschichten mit einer Punktzahl darÃÂ¼ber werden verarbeitet",
+      "retentionDays": "Datenaufbewahrung (Tage)",
+      "retentionDaysHelp": "ÃÂltere Daten werden automatisch gelÃÂ¶scht"
+    },
+    "preferences": {
+      "title": "Benutzereinstellungen",
+      "highlightKeywords": "Hervorzuhebende SchlÃÂ¼sselwÃÂ¶rter",
+      "highlightPlaceholder": "KI, maschinelles Lernen, Datenwissenschaft",
+      "highlightHelp": "Kommagetrennt eingeben",
+      "blocklistKeywords": "Blockierte SchlÃÂ¼sselwÃÂ¶rter",
+      "blocklistPlaceholder": "Politik, Tagesordnung, Debatte",
+      "blocklistHelp": "Inhalte mit diesen SchlÃÂ¼sselwÃÂ¶rtern werden abgedunkelt"
+    },
+    "telegram": {
+      "title": "Telegram-Benachrichtigungen",
+      "description": "FÃ¼gen Sie Ihren Telegram-Bot-Token in die .env-Datei als TELEGRAM_BOT_TOKEN= ein. Der Bot-Token wird niemals an das Frontend gesendet, sondern nur vom Server gelesen.",
+      "chatIdLabel": "Telegram Chat-ID",
+      "chatIdPlaceholder": "1234567890",
+      "chatIdHelp": "Senden Sie eine Nachricht an Ihren Bot und rufen Sie https://api.telegram.org/bot<TOKEN>/getUpdates auf, um Ihre Chat-ID zu finden.",
+      "enabledLabel": "Telegram-Benachrichtigungen aktivieren",
+      "enabledHelp": "Wenn aktiviert, erhalten Sie eine Telegram-Benachrichtigung fÃ¼r jede Charge neu verarbeiteter Geschichten."
+    },
+    "save": "Einstellungen speichern",
+    "saving": "Speichern...",
+    "saveSuccess": "Einstellungen erfolgreich gespeichert!",
+    "saveError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten."
+  },
+  "display": {
+    "title": "Anzeigeeinstellungen",
+    "fontFamily": "Schriftart",
+    "fontSize": "SchriftgrÃÂ¶ÃÂe",
+    "contrast": "Kontrast",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "GroÃÂ",
+      "xlarge": "Sehr groÃÂ"
+    },
+    "contrasts": {
+      "light": "Hell",
+      "dark": "Dunkel",
+      "sepia": "Sepia",
+      "high": "Hoher Kontrast"
+    },
+    "reset": "Auf Standard zurÃÂ¼cksetzen",
+    "save": "Speichern"
+  },
+  "theme": {
+    "light": "Heller Modus",
+    "dark": "Dunkler Modus",
+    "system": "Auto (System)"
+  },
+  "worker": {
+    "started": "Datenabruf gestartet! Die Verarbeitung kann einige Minuten dauern.",
+    "reprocessStarted": "Neubearbeitung gestartet! Inhalte und Kommentare werden aktualisiert.",
+    "error": "Worker konnte nicht gestartet werden.",
+    "reprocessError": "Neubearbeitung konnte nicht gestartet werden.",
+    "starting": "Datenabruf wird gestartet..."
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "delete": "LÃÂ¶schen",
+    "close": "SchlieÃÂen",
+    "back": "ZurÃÂ¼ck"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 <b>{count} neue Geschichten</b> auf Hacker News zusammengefasst und bereit zum Lesen!",
+      "check_link": "🔗 <a href=\"{url}\">Jetzt ansehen</a>",
+      "no_stories": "🫡 Heute gibt es keine neuen Geschichten auf Hacker News. Bis zum nächsten Scan!",
+      "errors": "⚠️ <b>{count} Fehler</b> sind aufgetreten."
+    }
+  }
+}

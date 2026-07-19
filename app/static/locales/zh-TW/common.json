@@ -23,7 +23,11 @@
     "summaryNotAvailable": "摘要不可用",
     "commentSummaryNotAvailable": "評論摘要不可用",
     "contentNotAvailable": "內容摘要不可用",
-    "originalTitle": "原始標題"
+    "originalTitle": "原始標題",
+    "todaysBest": "今日最佳",
+    "loadingMore": "正在載入更多故事...",
+    "allLoaded": "所有故事已載入",
+    "offline": "離線模式 - 查看緩存內容"
   },
   "settings": {
     "title": "設定",
@@ -136,7 +140,8 @@
     "started": "資料取得已開始！處理可能需要幾分鐘。",
     "reprocessStarted": "重新處理已開始！內容和評論正在重新整理。",
     "error": "無法啟動工作程式。",
-    "reprocessError": "無法啟動重新處理。"
+    "reprocessError": "無法啟動重新處理。",
+    "starting": "正在開始獲取數據..."
   },
   "common": {
     "loading": "載入中...",
@@ -147,5 +152,13 @@
     "delete": "刪除",
     "close": "關閉",
     "back": "返回"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 Hacker News 上 <b>{count} 篇新故事</b> 已摘要完畢，隨時可讀！",
+      "check_link": "🔗 <a href=\"{url}\">立即查看</a>",
+      "no_stories": "🫡 今天 Hacker News 沒有新故事。下次掃描再見！",
+      "errors": "⚠️ 發生了 <b>{count} 個錯誤</b>。"
+    }
   }
 }

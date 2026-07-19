@@ -1,14 +1,98 @@
 {
-  "app": { "title": "ملخص HN AI", "description": "ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي", "footer": "ملخص HN AI - ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي" },
-  "nav": { "home": "الرئيسية", "settings": "الإعدادات", "themeToggle": "تغيير المظهر", "displaySettings": "إعدادات العرض", "refresh": "تحديث الصفحة" },
-  "home": { "title": "أحدث القصص", "noStories": "لا توجد قصص متاحة بعد.", "loading": "جاري تحميل القصص...", "error": "فشل تحميل القصص", "score": "النتيجة", "author": "المؤلف", "comments": "التعليقات", "readMore": "اقرأ المزيد", "summaryNotAvailable": "الملخص غير متاح", "commentSummaryNotAvailable": "ملخص التعليقات غير متاح", "contentNotAvailable": "ملخص المحتوى غير متاح", "originalTitle": "العنوان الأصلي" },
+  "app": {
+    "title": "ملخص HN AI",
+    "description": "ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي",
+    "footer": "ملخص HN AI - ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "settings": "الإعدادات",
+    "themeToggle": "تغيير المظهر",
+    "displaySettings": "إعدادات العرض",
+    "refresh": "تحديث الصفحة"
+  },
+  "home": {
+    "title": "أحدث القصص",
+    "noStories": "لا توجد قصص متاحة بعد.",
+    "loading": "جاري تحميل القصص...",
+    "error": "فشل تحميل القصص",
+    "score": "النتيجة",
+    "author": "المؤلف",
+    "comments": "التعليقات",
+    "readMore": "اقرأ المزيد",
+    "summaryNotAvailable": "الملخص غير متاح",
+    "commentSummaryNotAvailable": "ملخص التعليقات غير متاح",
+    "contentNotAvailable": "ملخص المحتوى غير متاح",
+    "originalTitle": "العنوان الأصلي",
+    "todaysBest": "أفضل ما اليوم",
+    "loadingMore": "جارٍ تحميل المزيد من القصص...",
+    "allLoaded": "تم تحميل جميع القصص",
+    "offline": "وضع غير متصل - عرض المحتوى المخبأ"
+  },
   "settings": {
     "title": "الإعدادات",
-    "language": { "title": "إعدادات اللغة", "uiLabel": "لغة الواجهة", "translationLabel": "لغة ترجمة المحتوى", "uiDescription": "اللغة المستخدمة للواجهة والقوائم والأزرار", "translationDescription": "اللغة التي سيتم ترجمة محتوى Hacker News إليها", "independentNote": "هذان الإعدادان مستقلان تماماً" },
-    "ai": { "title": "موفر الذكاء الاصطناعي", "description": "يتم تكوين مفاتيح API عبر ملف .env. يتم عرض الموفرين الذين لديهم مفاتيح مهيأة فقط.", "providerLabel": "موفر الذكاء الاصطناعي", "providerPlaceholder": "-- اختر موفراً --", "configLabel": "عنوان الموفر (اختياري)", "configPlaceholder": "http://localhost:11434", "configHelp": "أدخل العنوان للموفرين المحليين مثل LM Studio أو Ollama", "keyConfigured": "✓ تم تكوين مفتاح API في .env", "keyLocal": "ℹ موفر محلي (لا يحتاج مفتاح API)", "modelLabel": "نموذج الذكاء الاصطناعي", "modelPlaceholder": "-- اختر نموذجاً --", "modelSelectFirst": "-- اختر موفراً أولاً --", "modelLoading": "جاري تحميل النماذج...", "modelRefresh": "تحديث النماذج", "modelSearch": "البحث عن نماذج...", "modelNotFound": "لم يتم العثور على نموذج مطابق", "modelCount": "تم العثور على {count} نموذج", "modelError": "فشل تحميل النماذج" },
-    "data": { "title": "معالجة البيانات", "description": "جلب ومعالجة بيانات Hacker News يدوياً.", "fetchButton": "بدء جلب البيانات", "reprocessButton": "إعادة معالجة غير المترجمة", "statusText": "جاري المعالجة... الرجاء الانتظار." },
-    "fetch": { "title": "إعدادات الجلب", "hour": "الساعة", "minute": "الدقيقة", "days": "الأيام", "monday": "الاثنين", "tuesday": "الثلاثاء", "wednesday": "الأربعاء", "thursday": "الخميس", "friday": "الجمعة", "saturday": "السبت", "sunday": "الأحد", "daysHelp": "اختر أيام التشغيل", "minScore": "الحد الأدنى للنتيجة", "minScoreHelp": "سيتم معالجة القصص ذات النتيجة الأعلى فقط", "retentionDays": "الاحتفاظ بالبيانات (أيام)", "retentionDaysHelp": "سيتم حذف البيانات الأقدم تلقائياً" },
-    "preferences": { "title": "تفضيلات المستخدم", "highlightKeywords": "الكلمات المفتاحية المميزة", "highlightPlaceholder": "ذكاء اصطناعي، تعلم آلة، علم بيانات", "highlightHelp": "أدخل مفصولة بفواصل", "blocklistKeywords": "الكلمات المفتاحية المحظورة", "blocklistPlaceholder": "سياسة، جدول أعمال، نقاش", "blocklistHelp": "سيتم تعتيم المحتوى الذي يحتوي على هذه الكلمات" },
+    "language": {
+      "title": "إعدادات اللغة",
+      "uiLabel": "لغة الواجهة",
+      "translationLabel": "لغة ترجمة المحتوى",
+      "uiDescription": "اللغة المستخدمة للواجهة والقوائم والأزرار",
+      "translationDescription": "اللغة التي سيتم ترجمة محتوى Hacker News إليها",
+      "independentNote": "هذان الإعدادان مستقلان تماماً"
+    },
+    "ai": {
+      "title": "موفر الذكاء الاصطناعي",
+      "description": "يتم تكوين مفاتيح API عبر ملف .env. يتم عرض الموفرين الذين لديهم مفاتيح مهيأة فقط.",
+      "providerLabel": "موفر الذكاء الاصطناعي",
+      "providerPlaceholder": "-- اختر موفراً --",
+      "configLabel": "عنوان الموفر (اختياري)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "أدخل العنوان للموفرين المحليين مثل LM Studio أو Ollama",
+      "keyConfigured": "✓ تم تكوين مفتاح API في .env",
+      "keyLocal": "ℹ موفر محلي (لا يحتاج مفتاح API)",
+      "modelLabel": "نموذج الذكاء الاصطناعي",
+      "modelPlaceholder": "-- اختر نموذجاً --",
+      "modelSelectFirst": "-- اختر موفراً أولاً --",
+      "modelLoading": "جاري تحميل النماذج...",
+      "modelRefresh": "تحديث النماذج",
+      "modelSearch": "البحث عن نماذج...",
+      "modelNotFound": "لم يتم العثور على نموذج مطابق",
+      "modelCount": "تم العثور على {count} نموذج",
+      "modelError": "فشل تحميل النماذج"
+    },
+    "data": {
+      "title": "معالجة البيانات",
+      "description": "جلب ومعالجة بيانات Hacker News يدوياً.",
+      "fetchButton": "بدء جلب البيانات",
+      "reprocessButton": "إعادة معالجة غير المترجمة",
+      "statusText": "جاري المعالجة... الرجاء الانتظار."
+    },
+    "fetch": {
+      "title": "إعدادات الجلب",
+      "hour": "الساعة",
+      "minute": "الدقيقة",
+      "days": "الأيام",
+      "monday": "الاثنين",
+      "tuesday": "الثلاثاء",
+      "wednesday": "الأربعاء",
+      "thursday": "الخميس",
+      "friday": "الجمعة",
+      "saturday": "السبت",
+      "sunday": "الأحد",
+      "daysHelp": "اختر أيام التشغيل",
+      "minScore": "الحد الأدنى للنتيجة",
+      "minScoreHelp": "سيتم معالجة القصص ذات النتيجة الأعلى فقط",
+      "retentionDays": "الاحتفاظ بالبيانات (أيام)",
+      "retentionDaysHelp": "سيتم حذف البيانات الأقدم تلقائياً"
+    },
+    "preferences": {
+      "title": "تفضيلات المستخدم",
+      "highlightKeywords": "الكلمات المفتاحية المميزة",
+      "highlightPlaceholder": "ذكاء اصطناعي، تعلم آلة، علم بيانات",
+      "highlightHelp": "أدخل مفصولة بفواصل",
+      "blocklistKeywords": "الكلمات المفتاحية المحظورة",
+      "blocklistPlaceholder": "سياسة، جدول أعمال، نقاش",
+      "blocklistHelp": "سيتم تعتيم المحتوى الذي يحتوي على هذه الكلمات"
+    },
     "telegram": {
       "title": "??????? Telegram",
       "description": "??? ??? ????? ????? ?? ??? ??? .env ?? TELEGRAM_BOT_TOKEN=. ??? ????? ?? ????? ????? ??? ??????? ????????? ?? ????? ??? ?? ??? ??????.",
@@ -18,10 +102,63 @@
       "enabledLabel": "????? ??????? Telegram",
       "enabledHelp": "??? ???????? ?????? ????? Telegram ??? ???? ?? ????? ???? ??? ???????? ??????."
     },
-    "save": "حفظ الإعدادات", "saving": "جاري الحفظ...", "saveSuccess": "تم حفظ الإعدادات بنجاح!", "saveError": "حدث خطأ أثناء حفظ الإعدادات."
+    "save": "حفظ الإعدادات",
+    "saving": "جاري الحفظ...",
+    "saveSuccess": "تم حفظ الإعدادات بنجاح!",
+    "saveError": "حدث خطأ أثناء حفظ الإعدادات."
   },
-  "display": { "title": "إعدادات العرض", "fontFamily": "نوع الخط", "fontSize": "حجم الخط", "contrast": "التباين", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "صغير", "medium": "متوسط", "large": "كبير", "xlarge": "كبير جداً" }, "contrasts": { "light": "فاتح", "dark": "داكن", "sepia": "بني داكن", "high": "تباين عالٍ" }, "reset": "استعادة الإعدادات الافتراضية", "save": "حفظ" },
-  "theme": { "light": "الوضع الفاتح", "dark": "الوضع الداكن", "system": "تلقائي (النظام)" },
-  "worker": { "started": "تم بدء جلب البيانات! قد تستغرق المعالجة بضع دقائق.", "reprocessStarted": "تم بدء إعادة المعالجة! يتم تحديث المحتوى والتعليقات.", "error": "تعذر بدء العامل.", "reprocessError": "تعذر بدء إعادة المعالجة." },
-  "common": { "loading": "جاري التحميل...", "error": "خطأ", "success": "نجاح", "cancel": "إلغاء", "save": "حفظ", "delete": "حذف", "close": "إغلاق", "back": "رجوع" }
+  "display": {
+    "title": "إعدادات العرض",
+    "fontFamily": "نوع الخط",
+    "fontSize": "حجم الخط",
+    "contrast": "التباين",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "صغير",
+      "medium": "متوسط",
+      "large": "كبير",
+      "xlarge": "كبير جداً"
+    },
+    "contrasts": {
+      "light": "فاتح",
+      "dark": "داكن",
+      "sepia": "بني داكن",
+      "high": "تباين عالٍ"
+    },
+    "reset": "استعادة الإعدادات الافتراضية",
+    "save": "حفظ"
+  },
+  "theme": {
+    "light": "الوضع الفاتح",
+    "dark": "الوضع الداكن",
+    "system": "تلقائي (النظام)"
+  },
+  "worker": {
+    "started": "تم بدء جلب البيانات! قد تستغرق المعالجة بضع دقائق.",
+    "reprocessStarted": "تم بدء إعادة المعالجة! يتم تحديث المحتوى والتعليقات.",
+    "error": "تعذر بدء العامل.",
+    "reprocessError": "تعذر بدء إعادة المعالجة.",
+    "starting": "جاري بدء جلب البيانات..."
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "close": "إغلاق",
+    "back": "رجوع"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 تم تلخيص <b>{count} قصة جديدة</b> على Hacker News وجاهزة للقراءة!",
+      "check_link": "🔗 <a href=\"{url}\">اطلع الآن</a>",
+      "no_stories": "🫡 لا توجد قصص جديدة على Hacker News اليوم. نراكم في المسح التالي!",
+      "errors": "⚠️ حدث <b>{count} أخطاء</b>."
+    }
+  }
 }

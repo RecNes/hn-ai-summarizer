@@ -1,14 +1,98 @@
 {
-  "app": { "title": "HN AI Стиснювач", "description": "Стиснювач Hacker News на основі ШІ", "footer": "HN AI Стиснювач - Стиснювач Hacker News на основі ШІ" },
-  "nav": { "home": "Головна", "settings": "Налаштування", "themeToggle": "Змінити тему", "displaySettings": "Налаштування відображення", "refresh": "Оновити сторінку" },
-  "home": { "title": "Останні історії", "noStories": "Історій поки немає.", "loading": "Завантаження історій...", "error": "Не вдалося завантажити історії", "score": "Очки", "author": "Автор", "comments": "Коментарі", "readMore": "Читати далі", "summaryNotAvailable": "Підсумок недоступний", "commentSummaryNotAvailable": "Підсумок коментарів недоступний", "contentNotAvailable": "Підсумок вмісту недоступний", "originalTitle": "Оригінальна назва" },
+  "app": {
+    "title": "HN AI Стиснювач",
+    "description": "Стиснювач Hacker News на основі ШІ",
+    "footer": "HN AI Стиснювач - Стиснювач Hacker News на основі ШІ"
+  },
+  "nav": {
+    "home": "Головна",
+    "settings": "Налаштування",
+    "themeToggle": "Змінити тему",
+    "displaySettings": "Налаштування відображення",
+    "refresh": "Оновити сторінку"
+  },
+  "home": {
+    "title": "Останні історії",
+    "noStories": "Історій поки немає.",
+    "loading": "Завантаження історій...",
+    "error": "Не вдалося завантажити історії",
+    "score": "Очки",
+    "author": "Автор",
+    "comments": "Коментарі",
+    "readMore": "Читати далі",
+    "summaryNotAvailable": "Підсумок недоступний",
+    "commentSummaryNotAvailable": "Підсумок коментарів недоступний",
+    "contentNotAvailable": "Підсумок вмісту недоступний",
+    "originalTitle": "Оригінальна назва",
+    "todaysBest": "Найкраще сьогодні",
+    "loadingMore": "Завантаження інших історій...",
+    "allLoaded": "Усі історії завантажено",
+    "offline": "Офлайн-режим - Перегляд кешованого вмісту"
+  },
   "settings": {
     "title": "Налаштування",
-    "language": { "title": "Мовні налаштування", "uiLabel": "Мова інтерфейсу", "translationLabel": "Мова перекладу вмісту", "uiDescription": "Мова для інтерфейсу, меню та кнопок", "translationDescription": "Мова, на яку буде перекладено вміст Hacker News", "independentNote": "Ці два налаштування повністю незалежні" },
-    "ai": { "title": "Постачальник ШІ", "description": "API-ключі налаштовуються через файл .env. Відображаються лише постачальники з налаштованими ключами.", "providerLabel": "Постачальник ШІ", "providerPlaceholder": "-- Виберіть постачальника --", "configLabel": "Адреса постачальника (опціонально)", "configPlaceholder": "http://localhost:11434", "configHelp": "Введіть адресу для локальних постачальників, як LM Studio або Ollama", "keyConfigured": "✓ API-ключ налаштовано в .env", "keyLocal": "ℹ Локальний постачальник (API-ключ не потрібен)", "modelLabel": "Модель ШІ", "modelPlaceholder": "-- Виберіть модель --", "modelSelectFirst": "-- Спочатку виберіть постачальника --", "modelLoading": "Завантаження моделей...", "modelRefresh": "Оновити моделі", "modelSearch": "Пошук моделей...", "modelNotFound": "Збігів не знайдено", "modelCount": "Знайдено {count} моделей", "modelError": "Не вдалося завантажити моделі" },
-    "data": { "title": "Обробка даних", "description": "Вручну отримати та обробити дані Hacker News.", "fetchButton": "Почати отримання даних", "reprocessButton": "Переобробити неперекладені", "statusText": "Обробка... Зачекайте." },
-    "fetch": { "title": "Налаштування отримання", "hour": "Година", "minute": "Хвилина", "days": "Дні", "monday": "Понеділок", "tuesday": "Вівторок", "wednesday": "Середа", "thursday": "Четвер", "friday": "П'ятниця", "saturday": "Субота", "sunday": "Неділя", "daysHelp": "Виберіть дні виконання", "minScore": "Мінімальний рахунок", "minScoreHelp": "Лише історії з рахунком вище будуть оброблені", "retentionDays": "Зберігання даних (дні)", "retentionDaysHelp": "Старіші дані буде автоматично видалено" },
-    "preferences": { "title": "Уподобання користувача", "highlightKeywords": "Ключові слова для виділення", "highlightPlaceholder": "ШІ, машинне навчання, наука про дані", "highlightHelp": "Введіть через кому", "blocklistKeywords": "Заблоковані ключові слова", "blocklistPlaceholder": "політика, порядок денний, дебати", "blocklistHelp": "Вміст із цими словами буде затемнено" },
+    "language": {
+      "title": "Мовні налаштування",
+      "uiLabel": "Мова інтерфейсу",
+      "translationLabel": "Мова перекладу вмісту",
+      "uiDescription": "Мова для інтерфейсу, меню та кнопок",
+      "translationDescription": "Мова, на яку буде перекладено вміст Hacker News",
+      "independentNote": "Ці два налаштування повністю незалежні"
+    },
+    "ai": {
+      "title": "Постачальник ШІ",
+      "description": "API-ключі налаштовуються через файл .env. Відображаються лише постачальники з налаштованими ключами.",
+      "providerLabel": "Постачальник ШІ",
+      "providerPlaceholder": "-- Виберіть постачальника --",
+      "configLabel": "Адреса постачальника (опціонально)",
+      "configPlaceholder": "http://localhost:11434",
+      "configHelp": "Введіть адресу для локальних постачальників, як LM Studio або Ollama",
+      "keyConfigured": "✓ API-ключ налаштовано в .env",
+      "keyLocal": "ℹ Локальний постачальник (API-ключ не потрібен)",
+      "modelLabel": "Модель ШІ",
+      "modelPlaceholder": "-- Виберіть модель --",
+      "modelSelectFirst": "-- Спочатку виберіть постачальника --",
+      "modelLoading": "Завантаження моделей...",
+      "modelRefresh": "Оновити моделі",
+      "modelSearch": "Пошук моделей...",
+      "modelNotFound": "Збігів не знайдено",
+      "modelCount": "Знайдено {count} моделей",
+      "modelError": "Не вдалося завантажити моделі"
+    },
+    "data": {
+      "title": "Обробка даних",
+      "description": "Вручну отримати та обробити дані Hacker News.",
+      "fetchButton": "Почати отримання даних",
+      "reprocessButton": "Переобробити неперекладені",
+      "statusText": "Обробка... Зачекайте."
+    },
+    "fetch": {
+      "title": "Налаштування отримання",
+      "hour": "Година",
+      "minute": "Хвилина",
+      "days": "Дні",
+      "monday": "Понеділок",
+      "tuesday": "Вівторок",
+      "wednesday": "Середа",
+      "thursday": "Четвер",
+      "friday": "П'ятниця",
+      "saturday": "Субота",
+      "sunday": "Неділя",
+      "daysHelp": "Виберіть дні виконання",
+      "minScore": "Мінімальний рахунок",
+      "minScoreHelp": "Лише історії з рахунком вище будуть оброблені",
+      "retentionDays": "Зберігання даних (дні)",
+      "retentionDaysHelp": "Старіші дані буде автоматично видалено"
+    },
+    "preferences": {
+      "title": "Уподобання користувача",
+      "highlightKeywords": "Ключові слова для виділення",
+      "highlightPlaceholder": "ШІ, машинне навчання, наука про дані",
+      "highlightHelp": "Введіть через кому",
+      "blocklistKeywords": "Заблоковані ключові слова",
+      "blocklistPlaceholder": "політика, порядок денний, дебати",
+      "blocklistHelp": "Вміст із цими словами буде затемнено"
+    },
     "telegram": {
       "title": "?????????? Telegram",
       "description": "??????? ????? ?????? Telegram-???? ? ???? .env ?? TELEGRAM_BOT_TOKEN=. ????? ???? ?????? ?? ???????????? ? ????????, ??? ????????? ???? ????????.",
@@ -18,10 +102,63 @@
       "enabledLabel": "????????? ?????????? Telegram",
       "enabledHelp": "??? ?????????? ?? ?????? ?????????? ?????????? Telegram ??? ?????? ?????? ????????? ?????????? ???????."
     },
-    "save": "Зберегти налаштування", "saving": "Збереження...", "saveSuccess": "Налаштування успішно збережено!", "saveError": "Сталася помилка при збереженні налаштувань."
+    "save": "Зберегти налаштування",
+    "saving": "Збереження...",
+    "saveSuccess": "Налаштування успішно збережено!",
+    "saveError": "Сталася помилка при збереженні налаштувань."
   },
-  "display": { "title": "Налаштування відображення", "fontFamily": "Шрифт", "fontSize": "Розмір шрифту", "contrast": "Контраст", "fonts": { "atkinson": "Atkinson Hyperlegible", "merriweather": "Merriweather" }, "sizes": { "small": "Маленький", "medium": "Середній", "large": "Великий", "xlarge": "Дуже великий" }, "contrasts": { "light": "Світлий", "dark": "Темний", "sepia": "Сепія", "high": "Високий контраст" }, "reset": "Скинути налаштування", "save": "Зберегти" },
-  "theme": { "light": "Світла тема", "dark": "Темна тема", "system": "Авто (система)" },
-  "worker": { "started": "Отримання запущено! Обробка може зайняти кілька хвилин.", "reprocessStarted": "Переобробку запущено! Вміст і коментарі оновлюються.", "error": "Не вдалося запустити worker.", "reprocessError": "Не вдалося запустити переобробку." },
-  "common": { "loading": "Завантаження...", "error": "Помилка", "success": "Успішно", "cancel": "Скасувати", "save": "Зберегти", "delete": "Видалити", "close": "Закрити", "back": "Назад" }
+  "display": {
+    "title": "Налаштування відображення",
+    "fontFamily": "Шрифт",
+    "fontSize": "Розмір шрифту",
+    "contrast": "Контраст",
+    "fonts": {
+      "atkinson": "Atkinson Hyperlegible",
+      "merriweather": "Merriweather"
+    },
+    "sizes": {
+      "small": "Маленький",
+      "medium": "Середній",
+      "large": "Великий",
+      "xlarge": "Дуже великий"
+    },
+    "contrasts": {
+      "light": "Світлий",
+      "dark": "Темний",
+      "sepia": "Сепія",
+      "high": "Високий контраст"
+    },
+    "reset": "Скинути налаштування",
+    "save": "Зберегти"
+  },
+  "theme": {
+    "light": "Світла тема",
+    "dark": "Темна тема",
+    "system": "Авто (система)"
+  },
+  "worker": {
+    "started": "Отримання запущено! Обробка може зайняти кілька хвилин.",
+    "reprocessStarted": "Переобробку запущено! Вміст і коментарі оновлюються.",
+    "error": "Не вдалося запустити worker.",
+    "reprocessError": "Не вдалося запустити переобробку.",
+    "starting": "Запуск отримання даних..."
+  },
+  "common": {
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "success": "Успішно",
+    "cancel": "Скасувати",
+    "save": "Зберегти",
+    "delete": "Видалити",
+    "close": "Закрити",
+    "back": "Назад"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 <b>{count} нових історій</b> на Hacker News готові до читання!",
+      "check_link": "🔗 <a href=\"{url}\">Переглянути</a>",
+      "no_stories": "🫡 Сьогодні на Hacker News немає нових історій. До наступного сканування!",
+      "errors": "⚠️ Сталося <b>{count} помилок</b>."
+    }
+  }
 }

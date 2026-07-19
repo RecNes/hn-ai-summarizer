@@ -23,7 +23,11 @@
     "summaryNotAvailable": "Özet mevcut değil",
     "commentSummaryNotAvailable": "Yorum özeti mevcut değil",
     "contentNotAvailable": "İçerik özeti mevcut değil",
-    "originalTitle": "Orijinal başlık"
+    "originalTitle": "Orijinal başlık",
+    "todaysBest": "Bugünün En İyileri",
+    "loadingMore": "Daha fazla hikaye yükleniyor...",
+    "allLoaded": "Tüm hikayeler yüklendi",
+    "offline": "Çevrimdışı mod - Önbellekten içerik görüntüleniyor"
   },
   "settings": {
     "title": "Ayarlar",
@@ -136,7 +140,8 @@
     "started": "Veri çekimi başlatıldı! İşlem birkaç dakika sürebilir.",
     "reprocessStarted": "Yeniden işleme başlatıldı! İçerik ve yorumlar tazeleniyor...",
     "error": "Worker başlatılamadı.",
-    "reprocessError": "Yeniden işleme başlatılamadı."
+    "reprocessError": "Yeniden işleme başlatılamadı.",
+    "starting": "Veri çekimi başlatılıyor..."
   },
   "common": {
     "loading": "Yükleniyor...",
@@ -147,5 +152,13 @@
     "delete": "Sil",
     "close": "Kapat",
     "back": "Geri"
+  },
+  "telegram": {
+    "notification": {
+      "new_stories": "📰 Hacker News'te <b>{count} yeni konu</b> özetlendi ve okunmaya hazır!",
+      "check_link": "🔗 <a href=\"{url}\">Hemen göz at</a>",
+      "no_stories": "🫡 Bugün Hacker News'te yeni bir konu yok. Bir sonraki taramada görüşmek üzere!",
+      "errors": "⚠️ <b>{count} hata</b> oluştu."
+    }
   }
 }

@@ -1,6 +1,12 @@
-"""Telegram notification service for sending messages via Bot API."""
+"""Telegram notification service for sending messages via Bot API.
 
+Supports i18n: messages are read from locale JSON files (app/static/locales/{lang}/common.json)
+based on the user's UI language preference. Falls back to English if language is not found.
+"""
+
+import json
 import logging
+from pathlib import Path
 from typing import Optional
 
 import httpx
@@ -8,6 +14,50 @@ import httpx
 from app.core.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
+
+# Locale dosyalarının konumu
+_LOCALE_DIR = Path(__file__).resolve().parent.parent / "static" / "locales"
+
+
+def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
+    """Locale JSON'dan mesajı okur, yoksa İngilizce fallback.
+
+    Args:
+        key: Mesaj anahtarı (örn. "new_stories")
+        language_code: Dil kodu (örn. "tr", "en", "de")
+        **kwargs: format() için parametreler
+
+    Returns:
+        Formatlanmış mesaj metni
+    """
+    # Önce istenen dilde dene
+    locale_path = _LOCALE_DIR / language_code / "common.json"
+    try:
+        with open(locale_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        template = data.get("telegram", {}).get("notification", {}).get(key)
+        if template:
+            return template.format(**kwargs)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logger.warning(f"Locale file not found/readable for '{language_code}': {e}")
+
+    # Fallback: İngilizce
+    fallback_path = _LOCALE_DIR / "en" / "common.json"
+    try:
+        with open(fallback_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        template = data.get("telegram", {}).get("notification", {}).get(key, "")
+        return template.format(**kwargs)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logger.warning(f"Fallback locale (en) also failed: {e}")
+        # Hardcoded fallback (son çare)
+        fallbacks = {
+            "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
+            "check_link": "🔗 <a href=\"{url}\">Check them out</a>",
+            "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
+            "errors": "⚠️ <b>{count} errors</b> occurred.",
+        }
+        return fallbacks.get(key, "").format(**kwargs)
 
 
 class TelegramNotConfiguredError(Exception):
@@ -73,19 +123,19 @@ class TelegramService:
             return False
 
     async def send_notification(
-        self, new_count: int, settings_obj, error_count: int = 0
+        self, new_count: int, settings_obj, error_count: int = 0,
+        language_code: str = "en",
     ) -> bool:
         """Send a notification about new processed stories.
 
-        Message format (English):
-        "📰 Hacker News'te {new_count} yeni konu özetlendi ve okunmaya hazır!"
-
-        Falls back to API's chat_id if settings_obj.telegram_chat_id is not set.
+        Message is read from locale JSON files based on language_code.
+        Falls back to English if the language or key is not found.
 
         Args:
             new_count: Number of newly processed stories.
             settings_obj: Setting model instance (must have telegram_chat_id).
             error_count: Number of errors encountered during processing.
+            language_code: User's UI language code (e.g. "tr", "en", "de").
 
         Returns:
             True if sent successfully, False otherwise.
@@ -99,27 +149,27 @@ class TelegramService:
             return False
 
         public_url = app_settings.PUBLIC_URL or "http://localhost:8000"
-        text = (
-            f"\U0001F4F0 Hacker News'te <b>{new_count} yeni konu</b> özetlendi "
-            f"ve okunmaya haz\u0131r!\n\n"
-            f"\U0001F517 <a href=\"{public_url}\">Hemen göz at</a>"
-        )
+
+        text = _get_locale_message("new_stories", language_code, count=new_count)
+        text += "\n\n"
+        text += _get_locale_message("check_link", language_code, url=public_url)
 
         if error_count > 0:
-            text += (
-                f"\n\n\u26A0\uFE0F <b>{error_count} hata</b> olu\u015Ftu."
-            )
+            text += "\n\n"
+            text += _get_locale_message("errors", language_code, count=error_count)
 
         return await self.send_message(chat_id, text)
 
-    async def send_empty_notification(self, settings_obj) -> bool:
+    async def send_empty_notification(
+        self, settings_obj, language_code: str = "en"
+    ) -> bool:
         """Send a notification when there are no new stories.
 
-        Message format:
-        "🫡 Bugün Hacker News'te yeni bir konu yok. Bir sonraki taramada görüşmek üzere!"
+        Message is read from locale JSON files based on language_code.
 
         Args:
             settings_obj: Setting model instance (must have telegram_chat_id).
+            language_code: User's UI language code (e.g. "tr", "en", "de").
 
         Returns:
             True if sent successfully, False otherwise.
@@ -132,9 +182,6 @@ class TelegramService:
             logger.warning("Telegram chat_id not configured")
             return False
 
-        text = (
-            "\U0001FAE1 Bug\xfcn Hacker News'te yeni bir konu yok. "
-            "Bir sonraki taramada g\xf6r\xfc\u015fmek \xfczere!"
-        )
+        text = _get_locale_message("no_stories", language_code)
 
         return await self.send_message(chat_id, text)
