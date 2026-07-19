@@ -1,5 +1,44 @@
 # Installation Guide
 
+## Quick Start
+
+### Docker (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/RecNes/hn-ai-summarizer.git
+cd hn-ai-summarizer
+
+# Copy and configure environment
+cp .env.example .env
+# Edit .env and set at least one AI provider API key
+
+# Start with internal PostgreSQL and Redis
+docker compose --profile internal up
+```
+
+Open [http://localhost:8000](http://localhost:8000) in your browser.
+
+### Local Development (No Docker)
+
+```powershell
+# Windows (PowerShell)
+cp .env.example .env
+# Set DEVELOPMENT=True in .env
+.\start.ps1
+```
+
+```bash
+# Linux / macOS
+cp .env.example .env
+# Set DEVELOPMENT=True in .env
+./start.sh
+```
+
+> **Note:** Local mode uses SQLite (no PostgreSQL needed). Redis is still required for the worker and scheduler — the startup script will auto-start a Redis container if Docker is available.
+
+---
+
 ## Prerequisites
 
 ### Core Requirements
