@@ -6,6 +6,7 @@ based on the user's UI language preference. Falls back to English if language is
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -15,8 +16,23 @@ from app.core.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
-# Locale dosyalarının konumu
-_LOCALE_DIR = Path(__file__).resolve().parent.parent / "static" / "locales"
+# Locale dosyalarının konumu: çalışma dizini (WORKDIR) altındaki app/static/locales
+# Docker'da WORKDIR=/app → /app/static/locales
+# Yerelde proje kökü → C:/.../hn-reader/static/locales
+# İkinci seçenek olarak LOCALE_DIR env var veya __file__ tabanlı fallback
+_cwd = Path(os.getcwd())
+# Docker'da WORKDIR=/app → /app/static/locales
+# Yerelde proje kökü → C:/.../hn-reader/app/static/locales veya C:/.../hn-reader/static/locales
+for _candidate in [
+    _cwd / "static" / "locales",                      # Docker: /app/static/locales
+    _cwd / "app" / "static" / "locales",              # Yerel: proje/app/static/locales
+    Path(__file__).resolve().parent.parent / "static" / "locales",  # site-packages
+]:
+    if _candidate.exists():
+        _LOCALE_DIR = _candidate
+        break
+else:
+    _LOCALE_DIR = _cwd / "static" / "locales"  # fallback
 
 
 def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
