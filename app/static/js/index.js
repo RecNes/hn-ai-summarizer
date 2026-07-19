@@ -298,6 +298,13 @@ async function reprocessUntranslatedHome() {
     if (window.updateWorkerProgress) window.updateWorkerProgress(0);
     if (window.showWorkerLabel) window.showWorkerLabel('0 / 0 - %0');
 
+    function resetButton() {
+        button.disabled = false;
+        btnText.textContent = 'Çevrilmemişleri İşle';
+        spinner.classList.add('hidden');
+        statusText.classList.add('hidden');
+    }
+
     const sse = window.createSSEConnection('/api/stories/reprocess-untranslated/stream', {
         'progress': function(data) {
             if (window.updateWorkerProgress) {
@@ -319,6 +326,7 @@ async function reprocessUntranslatedHome() {
         },
         'complete': function(data) {
             sse.closeAndStop();
+            resetButton();
 
             if (window.updateWorkerProgress) window.updateWorkerProgress(100);
             if (window.showWorkerLabel) window.showWorkerLabel(`${data.processed} / ${data.total} - %100`);
@@ -346,6 +354,10 @@ async function reprocessUntranslatedHome() {
         'error': function(data) {
             showToast('error', data.detail || 'SSE bağlantı hatası');
             sse.closeAndStop();
+            resetButton();
+
+            if (window.hideWorkerProgress) window.hideWorkerProgress();
+            if (window.hideWorkerLabel) window.hideWorkerLabel();
         },
     }, { reconnectDelay: 3000 });
 }
