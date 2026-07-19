@@ -303,6 +303,8 @@ async function reprocessUntranslatedHome() {
         btnText.textContent = 'Çevrilmemişleri İşle';
         spinner.classList.add('hidden');
         statusText.classList.add('hidden');
+        const cancelBtn = document.getElementById('cancel-reprocess-home');
+        if (cancelBtn) cancelBtn.classList.add('hidden');
     }
 
     // Use raw EventSource (no reconnect) — if connection drops,
