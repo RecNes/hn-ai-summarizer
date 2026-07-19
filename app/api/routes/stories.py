@@ -109,6 +109,15 @@ async def reprocess_untranslated_status():
     return await get_reprocess_state()
 
 
+@router.post("/reprocess-untranslated/cancel")
+async def cancel_reprocess():
+    """Cancel the currently running reprocess job by setting cancelled flag in Redis."""
+    from app.services.reprocess_state import set_reprocess_state
+
+    await set_reprocess_state(cancelled=True)
+    return {"message": "Reprocess cancellation requested"}
+
+
 @router.get("/poll-stream")
 async def story_poll_stream(request: Request):
     """SSE endpoint: streams new stories as they arrive."""
@@ -171,11 +180,11 @@ async def reprocess_untranslated_stream(request: Request):
 
     Only one reprocess stream is allowed at a time.
     If another stream is already running, returns 409 Conflict.
-    Updates Redis-based reprocess state so page refreshes restore UI state.
+    Checks Redis 'cancelled' flag before each story; exits early if set.
     """
     from app.core.database import AsyncSessionLocal
     from app.models.preference import UserPreference
-    from app.services.reprocess_state import get_reprocess_state, set_reprocess_state
+    from app.services.reprocess_state import get_reprocess_state, reset_reprocess_state, set_reprocess_state
     from app.shared.languages import TranslationLanguageResolver
 
     # Check if a reprocess is already running
@@ -203,14 +212,23 @@ async def reprocess_untranslated_stream(request: Request):
                 target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
 
                 total = len(stories)
-                await set_reprocess_state(running=True, current=0, total=total, percentage=0)
+                await set_reprocess_state(running=True, current=0, total=total, percentage=0, cancelled=False)
                 yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0, "running": True})
 
                 processed = 0
                 errors = 0
+                cancelled = False
 
                 for idx, story in enumerate(stories, 1):
                     if await request.is_disconnected():
+                        break
+
+                    # Check if user requested cancellation
+                    state_check = await get_reprocess_state()
+                    if state_check.get("cancelled"):
+                        cancelled = True
+                        print(f"[SSE/reprocess] Cancelled at {idx}/{total}")
+                        yield await _sse_event("cancelled", {"current": idx, "total": total, "percentage": round((idx / total) * 100) if total > 0 else 0})
                         break
 
                     try:
@@ -244,11 +262,12 @@ async def reprocess_untranslated_stream(request: Request):
                         errors += 1
                         print(f"[SSE/reprocess] Error reprocessing story {story.id}: {e}")
 
-                await set_reprocess_state(running=False, current=0, total=0, percentage=100, story_id=None)
-                yield await _sse_event("complete", {"message": "Done", "total": total, "processed": processed, "errors": errors})
+                if not cancelled:
+                    await reset_reprocess_state()
+                    yield await _sse_event("complete", {"message": "Done", "total": total, "processed": processed, "errors": errors})
 
         except Exception as e:
-            await set_reprocess_state(running=False, current=0, total=0, percentage=0)
+            await reset_reprocess_state()
             yield await _sse_event("error", {"detail": str(e)})
         finally:
             await fetcher.close()

@@ -443,9 +443,11 @@ async function checkReprocessState() {
         const btn = document.getElementById('reprocess-home');
         const btnText = document.getElementById('reprocess-home-text');
         const spinner = document.getElementById('reprocess-home-spinner');
+        const cancelBtn = document.getElementById('cancel-reprocess-home');
         if (btn) btn.disabled = true;
         if (btnText) btnText.textContent = 'İşleniyor...';
         if (spinner) spinner.classList.remove('hidden');
+        if (cancelBtn) cancelBtn.classList.remove('hidden');
 
         // Restore progress bar
         if (window.showWorkerProgress) window.showWorkerProgress();
@@ -461,6 +463,24 @@ async function checkReprocessState() {
         console.warn('[checkReprocessState] Failed:', e);
     }
 }
+
+/**
+ * Cancel the currently running reprocess job.
+ * Sets cancelled=true in Redis. The SSE stream will detect it and exit.
+ */
+window.cancelReprocess = async function() {
+    try {
+        const res = await fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' });
+        if (!res.ok) {
+            showToast('error', 'İptal isteği gönderilemedi.');
+            return;
+        }
+        showToast('info', 'İşlem iptal ediliyor...');
+    } catch (e) {
+        console.error('[cancelReprocess] Error:', e);
+        showToast('error', 'İptal sırasında hata oluştu.');
+    }
+};
 
 // ──────────────────────────────────────────────
 // AI Activity Panel

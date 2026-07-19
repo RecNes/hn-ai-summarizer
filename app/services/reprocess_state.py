@@ -7,20 +7,14 @@ Uses hash key 'reprocess:state' with fields:
   - total (str)
   - percentage (str)
   - story_id (str)
+  - cancelled (str '1'/'0')
 """
-
-import json
 
 from app.core.config import settings
 
 
 def _redis_key() -> str:
     return "reprocess:state"
-
-
-def _hash(state: dict) -> dict:
-    """Convert state dict to Redis hash-safe string values."""
-    return {k: str(v) if not isinstance(v, str) else v for k, v in state.items()}
 
 
 def _unhash(data: dict) -> dict:
@@ -31,6 +25,7 @@ def _unhash(data: dict) -> dict:
         "total": int(data.get("total", 0)),
         "percentage": int(data.get("percentage", 0)),
         "story_id": int(data.get("story_id", 0)) if data.get("story_id", "0") != "None" else None,
+        "cancelled": data.get("cancelled", "0") == "1",
     }
 
 
@@ -47,10 +42,10 @@ async def get_reprocess_state() -> dict:
         await r.aclose()
         if data:
             return _unhash(data)
-        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None}
+        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
     except Exception as e:
         print(f"[ReprocessState] Redis read error: {e}")
-        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None}
+        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
 
 
 async def set_reprocess_state(**kwargs) -> None:
@@ -70,13 +65,14 @@ async def set_reprocess_state(**kwargs) -> None:
         # Read current state to merge
         current = await r.hgetall(_redis_key())
         if not current:
-            current = {"running": "0", "current": "0", "total": "0", "percentage": "0", "story_id": "None"}
+            current = {"running": "0", "current": "0", "total": "0", "percentage": "0", "story_id": "None", "cancelled": "0"}
 
         # Update with provided kwargs
-        new_running = kwargs.get("running", current.get("running") == "1")
-        current["running"] = "1" if new_running else "0"
+        if "running" in kwargs:
+            new_running = kwargs["running"]
+            current["running"] = "1" if new_running else "0"
 
-        for field in ("current", "total", "percentage", "story_id"):
+        for field in ("current", "total", "percentage", "story_id", "cancelled"):
             if field in kwargs:
                 val = kwargs[field]
                 current[field] = str(val) if val is not None else "None"
@@ -85,3 +81,15 @@ async def set_reprocess_state(**kwargs) -> None:
         await r.aclose()
     except Exception as e:
         print(f"[ReprocessState] Redis write error: {e}")
+
+
+async def reset_reprocess_state() -> None:
+    """Reset all reprocess state fields to defaults."""
+    await set_reprocess_state(
+        running=False,
+        current=0,
+        total=0,
+        percentage=0,
+        story_id=None,
+        cancelled=False,
+    )
