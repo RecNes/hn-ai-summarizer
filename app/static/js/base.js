@@ -423,6 +423,9 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Check if there's an ongoing reprocess job (survives page refresh)
     checkReprocessState();
+
+    // Poll reprocess state every 15s so UI doesn't freeze if SSE drops
+    window._reprocessStateInterval = setInterval(checkReprocessState, 15000);
 });
 
 /**

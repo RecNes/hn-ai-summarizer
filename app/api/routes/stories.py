@@ -169,12 +169,22 @@ async def story_poll_stream(request: Request):
 async def reprocess_untranslated_stream(request: Request):
     """SSE endpoint: reprocess untranslated stories with live progress updates.
 
+    Only one reprocess stream is allowed at a time.
+    If another stream is already running, returns 409 Conflict.
     Updates Redis-based reprocess state so page refreshes restore UI state.
     """
     from app.core.database import AsyncSessionLocal
     from app.models.preference import UserPreference
-    from app.services.reprocess_state import set_reprocess_state
+    from app.services.reprocess_state import get_reprocess_state, set_reprocess_state
     from app.shared.languages import TranslationLanguageResolver
+
+    # Check if a reprocess is already running
+    current_state = await get_reprocess_state()
+    if current_state.get("running"):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Reprocess already running: {current_state['current']}/{current_state['total']} (%{current_state['percentage']})",
+        )
 
     async def event_stream():
         fetcher = FetcherService()
