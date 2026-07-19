@@ -1,5 +1,67 @@
 # Architecture: Scheduler, Worker, and System Design
 
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python 3.11+, FastAPI (Async), SQLAlchemy (Async), Pydantic |
+| **Database** | PostgreSQL (production), SQLite (development/testing) |
+| **Task Queue** | Redis + Arq |
+| **Scheduling** | aioschedule + Redis-based ScheduleManager |
+| **AI/LLM** | OpenAI, Anthropic, DeepSeek, OpenRouter, Gemini, Ollama, LM Studio |
+| **Frontend** | Server-side rendered Jinja2 + TailwindCSS + Vanilla JS |
+| **Infrastructure** | Docker & Docker Compose |
+| **CI/CD** | Woodpecker CI (`.woodpecker.yml`) |
+
+---
+
+## Project Structure
+
+```
+hn-ai-summarizer/
+├── app/
+│   ├── api/           # FastAPI routes (REST endpoints)
+│   ├── core/          # Config, database, dependency injection
+│   ├── models/        # SQLAlchemy models (Story, Setting, Preference)
+│   ├── schemas/       # Pydantic schemas
+│   ├── services/      # Business logic (fetcher, AI service, provider registry)
+│   ├── tasks/         # Background jobs (worker, scheduler, schedule manager)
+│   ├── templates/     # Jinja2 HTML templates
+│   ├── utils/         # Scraping utilities
+│   └── cli.py         # CLI entry point
+├── docs/              # Documentation
+├── migrations/        # Alembic database migrations
+├── tests/             # Test suite
+├── docker-compose.yml # Docker Compose (production)
+├── docker-compose.dev.yml # Docker Compose (development)
+├── Dockerfile
+├── start.ps1          # Windows native startup script
+├── start.sh           # Unix native startup script
+└── pyproject.toml     # Python project configuration
+```
+
+---
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/stories/` | Paginated story list |
+| GET | `/api/stories/{id}` | Single story detail |
+| POST | `/api/stories/feedback/negative/{story_id}` | Mark story as irrelevant |
+| GET | `/api/settings/schedule-status` | Current schedule status |
+| POST | `/api/settings/` | Update settings (AI provider, schedule) |
+| GET | `/api/preferences/` | User keyword preferences |
+| GET | `/health` | Health check |
+
+---
+
+## CI/CD
+
+The project uses [Woodpecker CI](.woodpecker.yml) for continuous integration and delivery, with Docker image publishing.
+
+---
+
 ## System Architecture Overview
 
 The application is built as a **three-process asynchronous system** connected through Redis. Each process runs independently and communicates via two Redis channels:

@@ -5,222 +5,162 @@
 <h1 align="center">HN-AI-Summarizer</h1>
 
 <p align="center">
-  <em>AI-powered Hacker News reader — automatically fetches, summarizes, and translates top stories daily.</em>
+  <em>Your morning coffee, AI-summarized Hacker News stories in your language — delivered daily.</em>
 </p>
 
-**HN-AI-Summarizer** is a self-hosted web application that scrapes top Hacker News stories, processes them through AI services for translation and summarization, and presents them in a clean, readable interface optimized for mobile users and accessibility.
+<br>
+
+<p align="center">
+  <strong>🧾 Like reading your daily newspaper — but smarter, translated, and tailored just for you.</strong>
+</p>
+
+<br>
+<br>
+
+> Imagine: Every morning before work, the best tech stories you missed overnight are already waiting for you — summarized by AI, translated into your native language, and filtered to only show what interests you. No scrolling, no noise, no language barriers. That's **HN-AI-Summarizer**.
+
+<br>
+
+## ✨ Features
+
+### 🧠 Your Personal AI Reader
+HN-AI-Summarizer automatically fetches the top Hacker News stories every day, summarizes them, and translates them into your preferred language. Every story above 100 upvotes gets processed automatically — just sit back and read.
+
+### 🌍 No Language Barrier
+Don't speak English? No problem. HN-AI-Summarizer uses 7 different AI providers (OpenAI, Anthropic Claude, DeepSeek, Google Gemini, and more) to translate story titles and content into your language automatically. Article content is condensed into 3-bullet-point summaries.
+
+Every story includes direct links to the **original Hacker News discussion** and the **source article** — so you can always jump to the full context when a summary catches your eye.
+
+### 🎯 Only What Interests You
+Set your interest keywords — the system highlights stories that match. Into "blockchain", "machine learning", or "Rust"? Only see those. Mark stories as "not interested" and they won't appear again.
+
+### 📱 Designed for Aging Eyes
+Can't read tiny fonts anymore? HN-AI-Summarizer was built with older users in mind: large fonts, high contrast, clean interface. Whether on phone or tablet, it's the most readable HN reader out there.
+
+### 🔄 Three Processes, One Purpose
+While you sleep, the system works:
+1. **Scheduler** runs at your configured time (e.g., 09:00)
+2. **Worker** fetches stories, processes them with AI, saves to database
+3. **Web server** serves the polished result in a clean interface
+
+### 📬 Telegram Notifications
+Get instant notifications on Telegram when new stories are ready. Your daily tech briefing delivered to your pocket.
 
 ---
 
-## Features
-
-- **Automated Daily Fetching** — Pulls top stories from Hacker News on a configurable schedule (cron-based)
-- **AI-Powered Translation** — Translates story titles and content into your preferred language
-- **Smart Summarization** — Generates concise 3-bullet-point summaries of article content
-- **Comment Analysis** — Summarizes HN discussion threads to give you the gist without scrolling
-- **Multi-Provider AI Support** — Works with OpenAI, Anthropic, DeepSeek, OpenRouter, Google Gemini, Ollama, LM Studio
-- **Negative Feedback Filtering** — Mark irrelevant stories to prevent similar content from reappearing
-- **Keyword Preferences** — Filter stories based on your interests
-- **Responsive Design** — Built for readability on mobile, tablet, and desktop (40+ age-friendly)
-- **Fully Self-Hosted** — Your data, your API keys, your infrastructure
-- **Telegram Notifications** — Get notified when new stories are processed, directly on Telegram
-- **Docker Support** — One-command deployment with Docker Compose
-
----
-
-## Architecture Overview
-
-```
-┌──────────────┐      ┌─────────────┐     ┌──────────────────┐
-│  HN Firebase │────▶│   Fetcher   │────▶│   AI Service     │
-│    API       │      │  (services) │     │  (OpenAI/etc.)   │
-└──────────────┘      └──────┬──────┘     └────────┬─────────┘
-                             │                     │
-                             ▼                     ▼
-                     ┌──────────────────────────────────┐
-                     │         PostgreSQL / SQLite      │
-                     │   (Story, Setting, Preference)   │
-                     └────────────┬─────────────────────┘
-                                  │
-                                  ▼
-                     ┌───────────────────────────────────┐
-                     │   FastAPI + Jinja2 + TailwindCSS  │
-                     │      Web Server (port 8000)       │
-                     └───────────────────────────────────┘
-```
-
-The application runs **three separate processes** that work together:
-
-| Process | Role | Command |
-|---------|------|---------|
-| **Server** | FastAPI web server — serves REST API and UI | `hn-ai-summerizer server` |
-| **Worker** | Arq background worker — processes stories with AI | `hn-ai-summerizer worker` |
-| **Scheduler** | Cron-based scheduler — triggers daily fetches | `hn-ai-summerizer scheduler` |
-
-All three share state through **Redis**, which acts as the message broker and schedule coordination layer.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Python 3.11+, FastAPI (Async), SQLAlchemy (Async), Pydantic |
-| **Database** | PostgreSQL (production), SQLite (development/testing) |
-| **Task Queue** | Redis + Arq |
-| **Scheduling** | aioschedule + Redis-based ScheduleManager |
-| **AI/LLM** | OpenAI, Anthropic, DeepSeek, OpenRouter, Gemini, Ollama, LM Studio |
-| **Frontend** | Server-side rendered Jinja2 + TailwindCSS + Vanilla JS |
-| **Infrastructure** | Docker & Docker Compose |
-| **CI/CD** | Woodpecker CI (`.woodpecker.yml`) |
-
----
-
-## Quick Start
-
-### Docker (Recommended)
+## 🚀 Quick Start (1 Minute)
 
 ```bash
 # Clone the repository
 git clone https://github.com/RecNes/hn-ai-summarizer.git
 cd hn-ai-summarizer
 
-# Copy and configure environment
+# Configure environment (just one API key needed)
 cp .env.example .env
-# Edit .env and set at least one AI provider API key
+# Edit .env and add OPENAI_API_KEY (or any other AI provider key)
 
-# Start with internal PostgreSQL and Redis
+# Start everything with one command (PostgreSQL + Redis included)
 docker compose --profile internal up
 ```
 
-Open [http://localhost:8000](http://localhost:8000) in your browser.
+Open **[http://localhost:8000](http://localhost:8000)** — that's it.
 
-### Local Development (No Docker)
+For detailed setup options: [docs/INSTALLATION.md](docs/INSTALLATION.md)
 
-```powershell
-# Windows (PowerShell)
-cp .env.example .env
-# Set DEVELOPMENT=True in .env
-.\start.ps1
-```
-
-```bash
-# Linux / macOS
-cp .env.example .env
-# Set DEVELOPMENT=True in .env
-./start.sh
-```
-
-> **Note:** Local mode uses SQLite (no PostgreSQL needed). Redis is still required for the worker and scheduler — the startup script will auto-start a Redis container if Docker is available.
+> **Windows users:** No Docker? Run `.\start.ps1` directly. Uses SQLite, auto-starts Redis.
 
 ---
 
-## 📸 Screenshots
+## 🖼️ Screenshots
 
-| Home Page | Settings |
+| Home Page — Summarized Stories | Settings — AI Provider & Scheduling |
 |-----------|----------|
 | ![Home](docs/images/screenshot.png) | ![Settings](docs/images/settings.png) |
 
 ---
 
-## Project Structure
+## 🤖 Supported AI Providers
 
-```
-hn-ai-summarizer/
-├── app/
-│   ├── api/           # FastAPI routes (REST endpoints)
-│   ├── core/          # Config, database, dependency injection
-│   ├── models/        # SQLAlchemy models (Story, Setting, Preference)
-│   ├── schemas/       # Pydantic schemas
-│   ├── services/      # Business logic (fetcher, AI service, provider registry)
-│   ├── tasks/         # Background jobs (worker, scheduler, schedule manager)
-│   ├── templates/     # Jinja2 HTML templates
-│   ├── utils/         # Scraping utilities
-│   └── cli.py         # CLI entry point
-├── docs/              # Documentation
-├── migrations/        # Alembic database migrations
-├── tests/             # Test suite
-├── docker-compose.yml # Docker Compose (production)
-├── docker-compose.dev.yml # Docker Compose (development)
-├── Dockerfile
-├── start.ps1          # Windows native startup script
-├── start.sh           # Unix native startup script
-└── pyproject.toml     # Python project configuration
-```
+| Provider | Type | Notable Model |
+|-----------|-----|-----------------|
+| **OpenAI** | ☁️ Cloud | GPT-4o, GPT-4o-mini |
+| **Anthropic** | ☁️ Cloud | Claude Sonnet, Claude Haiku |
+| **DeepSeek** | ☁️ Cloud | DeepSeek V3 |
+| **OpenRouter** | ☁️ Cloud | Multi-model access |
+| **Google Gemini** | ☁️ Cloud | Gemini Pro |
+| **Ollama** | 🖥️ Local | Llama 3, Mistral |
+| **LM Studio** | 🖥️ Local | Any GGUF model |
+
+> API keys are stored exclusively in `.env` — never in the database, never exposed to the frontend.
 
 ---
 
-## Documentation
+## 🌐 Supported Languages
+
+HN-AI-Summarizer can translate stories into **20+ languages**. The interface language and the translation language are configured independently — you can browse in English while reading stories in Turkish, or use a Turkish UI while reading stories in Japanese.
+
+> **UI Language** controls the interface text (buttons, labels).  
+> **Translation Language** controls what language stories are translated into.
+
+| Language | Native Name | Code |
+|----------|-------------|------|
+| 🇬🇧 English | English | `en` |
+| 🇹🇷 Turkish | Türkçe | `tr` |
+| 🇩🇪 German | Deutsch | `de` |
+| 🇫🇷 French | Français | `fr` |
+| 🇪🇸 Spanish | Español | `es` |
+| 🇮🇹 Italian | Italiano | `it` |
+| 🇵🇹 Portuguese | Português | `pt` |
+| 🇷🇺 Russian | Русский | `ru` |
+| 🇺🇦 Ukrainian | Українська | `uk` |
+| 🇵🇱 Polish | Polski | `pl` |
+| 🇳🇱 Dutch | Nederlands | `nl` |
+| 🇨🇿 Czech | Čeština | `cs` |
+| 🇸🇦 Arabic | العربية | `ar` |
+| 🇮🇷 Persian | فارسی | `fa` |
+| 🇮🇳 Hindi | हिन्दी | `hi` |
+| 🇧🇩 Bengali | বাংলা | `bn` |
+| 🇨🇳 Chinese (Simplified) | 中文 | `zh-CN` |
+| 🇹🇼 Chinese (Traditional) | 中文 | `zh-TW` |
+| 🇯🇵 Japanese | 日本語 | `ja` |
+| 🇰🇷 Korean | 한국어 | `ko` |
+
+---
+
+## 📖 Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Installation Guide](docs/INSTALLATION.md) | Detailed setup instructions (local & Docker) |
-| [Architecture](docs/ARCHITECTURE.md) | Scheduler, worker, and system architecture deep-dive |
-| [Redis Scheduling](docs/redis_scheduling.md) | Redis-based schedule synchronization details |
+| [Installation Guide](docs/INSTALLATION.md) | Step-by-step setup (Docker, local, Windows) |
+| [Architecture](docs/ARCHITECTURE.md) | System design, scheduler, worker internals |
+| [.env Reference](.env.example) | All configuration options |
 
 ---
 
-## Configuration
-
-See [`.env.example`](.env.example) for all available configuration options.
-
-### Telegram Notifications
-
-To receive notifications on Telegram when new stories are processed:
-
-1. Create a bot via [@BotFather](https://t.me/BotFather) on Telegram and get your bot token
-2. Add the token to your `.env` file: `TELEGRAM_BOT_TOKEN=your_bot_token_here`
-3. Open Settings page, enter your **Telegram Chat ID**, and enable notifications
-
-> **How to find your Chat ID:** Send a message to your bot, then visit `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates` — your Chat ID will appear in the JSON response.
-
-### Minimal Configuration
+## 🔧 Minimal Configuration
 
 ```env
-# At least one AI provider API key:
+# All you need: one AI API key
 OPENAI_API_KEY=sk-...
 
-# For development (uses SQLite):
+# Development mode (uses SQLite, no PostgreSQL required):
 DEVELOPMENT=True
-
-# For production (requires PostgreSQL):
-DEVELOPMENT=False
-DATABASE_HOST=your-db-host
-DATABASE_PASSWORD=your-db-password
 ```
 
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/stories/` | Paginated story list |
-| GET | `/api/stories/{id}` | Single story detail |
-| POST | `/api/stories/feedback/negative/{story_id}` | Mark story as irrelevant |
-| GET | `/api/settings/schedule-status` | Current schedule status |
-| POST | `/api/settings/` | Update settings (AI provider, schedule) |
-| GET | `/api/preferences/` | User keyword preferences |
-| GET | `/health` | Health check |
+See [`.env.example`](.env.example) for the full list of configuration options.
 
 ---
 
-## CI/CD
-
-The project uses [Woodpecker CI](.woodpecker.yml) for continuous integration and delivery, with Docker image publishing.
-
----
-
-## License
+## 📜 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-## Related
+## 💡 Why HN-AI-Summarizer?
 
-Built as an accessible, self-hosted alternative to commercial HN readers. Inspired by the need for:
-- Privacy-first news consumption
-- Language barrier reduction through AI translation
-- Accessible interfaces for aging eyes
-- Offline-capable, self-contained deployments
+- **Privacy-first:** All data stays on your server, under your control
+- **Language barrier breaker:** AI translation makes HN accessible to non-English speakers
+- **Eye-friendly:** Optimized for users 40+ with large fonts and high contrast
+- **Self-contained:** Single Docker deployment, no external service dependencies
+- **Customizable:** You decide which stories to see and when
