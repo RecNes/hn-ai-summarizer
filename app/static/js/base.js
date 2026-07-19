@@ -420,7 +420,44 @@ document.addEventListener('DOMContentLoaded', function() {
     if (aiPanelOverlay) {
         aiPanelOverlay.addEventListener('click', toggleAiPanel);
     }
+
+    // Check if there's an ongoing reprocess job (survives page refresh)
+    checkReprocessState();
 });
+
+/**
+ * Check if a reprocess-untranslated job is currently running on the server.
+ * If so, restore the UI state (button, progress bar, label).
+ */
+async function checkReprocessState() {
+    try {
+        const res = await fetch('/api/stories/reprocess-untranslated/status');
+        if (!res.ok) return;
+        const state = await res.json();
+        if (!state.running) return;
+
+        // Restore button state
+        const btn = document.getElementById('reprocess-home');
+        const btnText = document.getElementById('reprocess-home-text');
+        const spinner = document.getElementById('reprocess-home-spinner');
+        if (btn) btn.disabled = true;
+        if (btnText) btnText.textContent = 'İşleniyor...';
+        if (spinner) spinner.classList.remove('hidden');
+
+        // Restore progress bar
+        if (window.showWorkerProgress) window.showWorkerProgress();
+        if (window.updateWorkerProgress) window.updateWorkerProgress(state.percentage || 0);
+        if (window.showWorkerLabel) {
+            const current = state.current || 0;
+            const total = state.total || 0;
+            const pct = state.percentage || 0;
+            window.showWorkerLabel(`${current} / ${total} - %${pct}`);
+        }
+    } catch (e) {
+        // Ignore — server may not have the endpoint yet
+        console.warn('[checkReprocessState] Failed:', e);
+    }
+}
 
 // ──────────────────────────────────────────────
 // AI Activity Panel

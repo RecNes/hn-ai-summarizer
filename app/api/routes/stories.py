@@ -102,17 +102,16 @@ async def get_stories(
     return stories
 
 
+@router.get("/reprocess-untranslated/status")
+async def reprocess_untranslated_status():
+    """Return current reprocess job state (Redis-backed, survives server restart)."""
+    from app.services.reprocess_state import get_reprocess_state
+    return await get_reprocess_state()
+
+
 @router.get("/poll-stream")
 async def story_poll_stream(request: Request):
-    """SSE endpoint: streams new stories as they arrive.
-
-    Polls DB every 3 seconds for stories newer than the last known ID.
-    Replaces the old polling-based initPolling() on the frontend.
-
-    Events:
-      - story_update: {story dict} — a single new story
-      - keepalive: {} — sent every 30s to keep connection alive
-    """
+    """SSE endpoint: streams new stories as they arrive."""
     from app.core.database import AsyncSessionLocal
 
     async def event_stream():
@@ -135,17 +134,14 @@ async def story_poll_stream(request: Request):
                 if stories:
                     current_max_id = max(s.id for s in stories)
                     if last_max_id == 0:
-                        # First run: just record the max ID, don't send anything
                         last_max_id = current_max_id
                     elif current_max_id > last_max_id:
-                        # New stories found
                         new_ones = [s for s in stories if s.id > last_max_id]
                         new_ones.sort(key=lambda s: s.id)
                         for story in new_ones:
                             yield await _sse_event("story_update", _story_to_dict(story))
                         last_max_id = current_max_id
                     elif current_max_id == last_max_id:
-                        # No new stories — send keepalive every 10th iteration (~30s)
                         keepalive_counter += 1
                         if keepalive_counter >= 10:
                             yield await _sse_event("keepalive", {})
@@ -173,14 +169,11 @@ async def story_poll_stream(request: Request):
 async def reprocess_untranslated_stream(request: Request):
     """SSE endpoint: reprocess untranslated stories with live progress updates.
 
-    Streams events:
-      - progress: {"current": N, "total": M, "percentage": X, "story_id": ID}
-      - story_update: {"id": ID, "title_tr": "...", ...}
-      - complete: {"message": "Done", "total": M, "processed": N, "errors": E}
-      - error: {"detail": "..."}
+    Updates Redis-based reprocess state so page refreshes restore UI state.
     """
     from app.core.database import AsyncSessionLocal
     from app.models.preference import UserPreference
+    from app.services.reprocess_state import set_reprocess_state
     from app.shared.languages import TranslationLanguageResolver
 
     async def event_stream():
@@ -200,7 +193,8 @@ async def reprocess_untranslated_stream(request: Request):
                 target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
 
                 total = len(stories)
-                yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0})
+                await set_reprocess_state(running=True, current=0, total=total, percentage=0)
+                yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0, "running": True})
 
                 processed = 0
                 errors = 0
@@ -232,16 +226,19 @@ async def reprocess_untranslated_stream(request: Request):
                         processed += 1
 
                         pct = round((idx / total) * 100) if total > 0 else 100
-                        yield await _sse_event("progress", {"current": idx, "total": total, "percentage": pct, "story_id": story.id})
+                        await set_reprocess_state(current=idx, percentage=pct, story_id=story.id)
+                        yield await _sse_event("progress", {"current": idx, "total": total, "percentage": pct, "story_id": story.id, "running": True})
                         yield await _sse_event("story_update", _story_to_dict(story))
 
                     except Exception as e:
                         errors += 1
                         print(f"[SSE/reprocess] Error reprocessing story {story.id}: {e}")
 
+                await set_reprocess_state(running=False, current=0, total=0, percentage=100, story_id=None)
                 yield await _sse_event("complete", {"message": "Done", "total": total, "processed": processed, "errors": errors})
 
         except Exception as e:
+            await set_reprocess_state(running=False, current=0, total=0, percentage=0)
             yield await _sse_event("error", {"detail": str(e)})
         finally:
             await fetcher.close()
@@ -273,10 +270,7 @@ async def reprocess_story(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    """Reprocess a single story: refetch from HN, re-translate, re-summarize
-
-    HN data is fetched synchronously (fast), AI processing runs in background.
-    """
+    """Reprocess a single story: refetch from HN, re-translate, re-summarize"""
     result = await db.execute(select(Story).where(Story.id == story_id))
     story = result.scalar_one_or_none()
     if not story:
