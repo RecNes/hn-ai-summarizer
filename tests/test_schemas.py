@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from app.schemas.story import StoryCreate, StoryResponse
 from app.schemas.setting import SettingBase, SettingUpdate, SettingResponse
-from app.schemas.preference import PreferenceBase, PreferenceResponse
+from app.schemas.preference import PreferenceBase
 from app.schemas.activity_log import AiActivityLogResponse
 
 
