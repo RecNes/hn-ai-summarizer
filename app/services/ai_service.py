@@ -18,7 +18,7 @@ from sqlalchemy.future import select
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.models.ai_activity_log import AiActivityLog
+from app.models.activity_log import AiActivityLog
 from app.models.setting import Setting
 from app.services.provider_registry import get_provider
 
