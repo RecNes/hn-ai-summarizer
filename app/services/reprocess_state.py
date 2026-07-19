@@ -10,6 +10,8 @@ Uses hash key 'reprocess:state' with fields:
   - cancelled (str '1'/'0')
 """
 
+import redis.asyncio as aioredis
+
 from app.core.config import settings
 
 
@@ -32,13 +34,11 @@ def _unhash(data: dict) -> dict:
 async def get_reprocess_state() -> dict:
     """Read current reprocess state from Redis."""
     try:
-        import redis.asyncio as aioredis
-
-        r = aioredis.from_url(
+        r: aioredis.Redis = aioredis.from_url(
             settings.REDIS_CONNECTION_URL,
             decode_responses=True,
         )
-        data = await r.hgetall(_redis_key())
+        data = await r.hgetall(_redis_key()) # type: ignore
         await r.aclose()
         if data:
             return _unhash(data)
@@ -55,15 +55,13 @@ async def set_reprocess_state(**kwargs) -> None:
     Only the provided fields are updated; others remain unchanged.
     """
     try:
-        import redis.asyncio as aioredis
-
-        r = aioredis.from_url(
+        r: aioredis.Redis = aioredis.from_url(
             settings.REDIS_CONNECTION_URL,
             decode_responses=True,
         )
 
         # Read current state to merge
-        current = await r.hgetall(_redis_key())
+        current = await r.hgetall(_redis_key()) # type: ignore
         if not current:
             current = {"running": "0", "current": "0", "total": "0", "percentage": "0", "story_id": "None", "cancelled": "0"}
 
@@ -77,7 +75,7 @@ async def set_reprocess_state(**kwargs) -> None:
                 val = kwargs[field]
                 current[field] = str(val) if val is not None else "None"
 
-        await r.hset(_redis_key(), mapping=current)
+        await r.hset(_redis_key(), mapping=current) # type: ignore
         await r.aclose()
     except Exception as e:
         print(f"[ReprocessState] Redis write error: {e}")

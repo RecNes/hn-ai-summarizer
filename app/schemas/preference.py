@@ -9,8 +9,8 @@ class PreferenceBase(BaseModel):
     """Base schema for user preferences."""
     highlight_keywords: Optional[str] = None
     blocklist_keywords: Optional[str] = None
-    ui_language: Optional[str] = "en"
-    translation_language: Optional[str] = "en"
+    ui_language: str = "en"
+    translation_language: str = "en"
 
 
 class PreferenceUpdate(PreferenceBase):
@@ -23,7 +23,7 @@ class PreferenceResponse(PreferenceBase):
     id: int
     ui_language: str = "en"
     translation_language: str = "en"
-    available_languages: list = []  # populated by API
+    available_languages: list[str] = []  # populated by API
 
     class Config:
         """Pydantic configuration to work with ORM objects."""

@@ -189,11 +189,15 @@ async def reprocess_untranslated_stories(ctx):
 
             reprocessed_count = 0
             for story in stories_needing_ai:
+                if story.hacker_news_id is None:
+                    print(f"Skipping story DB id={story.id}: hacker_news_id is None")
+                    continue
+
                 ai_service = AIService(story_id=int(story.hacker_news_id))
                 try:
                     print(f"Reprocessing story {story.hacker_news_id} (DB id={story.id}, title={story.title[:60]})...")
 
-                    fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
+                    fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url or "")
                     if not fresh_data:
                         print(f"Failed to refetch data for story {story.hacker_news_id}")
                         continue
@@ -226,7 +230,7 @@ async def debug_untranslated_stories(ctx):
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(Story)
-            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
+            .where((Story.is_translated.is_(None)) | (not Story.is_translated))
             .order_by(Story.created_at.desc())
         )
         stories_needing_ai = result.scalars().all()
@@ -263,12 +267,16 @@ async def reprocess_all_stories(ctx):
 
             reprocessed_count = 0
             for story in all_stories:
+                if story.hacker_news_id is None:
+                    print(f"Skipping story DB id={story.id}: hacker_news_id is None")
+                    continue
+
                 ai_service = AIService(story_id=int(story.hacker_news_id))
                 try:
                     if not story.is_translated:
                         print(f"Reprocessing story {story.hacker_news_id}...")
 
-                        fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url)
+                        fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url or "")
                         if not fresh_data:
                             print(f"Failed to refetch data for story {story.hacker_news_id}")
                             continue
