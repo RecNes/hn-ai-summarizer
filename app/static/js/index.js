@@ -287,7 +287,7 @@ async function triggerWorkerHome() {
 }
 
 // ──────────────────────────────────────────────
-// Reprocess untranslated stories from home page (toast + loader)
+// Reprocess untranslated stories from home page (SSE with live progress)
 // ──────────────────────────────────────────────
 async function reprocessUntranslatedHome() {
     const button = document.getElementById('reprocess-home');
@@ -300,33 +300,97 @@ async function reprocessUntranslatedHome() {
     spinner.classList.remove('hidden');
     statusText.classList.remove('hidden');
 
-    if (window.showWorkerProgress) {
-        window.showWorkerProgress();
-        window.updateWorkerProgress(0);
-    }
+    // Reset and show progress bar
+    if (window.showWorkerProgress) window.showWorkerProgress();
+    if (window.updateWorkerProgress) window.updateWorkerProgress(0);
+    if (window.showWorkerLabel) window.showWorkerLabel('0 / 0 - %0');
 
-    try {
-        const response = await fetch('/api/settings/reprocess-untranslated', { method: 'POST' });
+    const eventSource = new EventSource('/api/stories/reprocess-untranslated/stream');
 
-        if (response.ok) {
-            const result = await response.json();
-            showToast('success', 'Yeniden işleme başlatıldı! ' + (result.message || ''));
-            simulateWorkerProgress();
-        } else {
-            const err = await response.json();
-            showToast('error', err.detail || 'Yeniden işleme başlatılamadı');
-            if (window.hideWorkerProgress) window.hideWorkerProgress();
+    let totalStories = 0;
+
+    eventSource.addEventListener('progress', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            totalStories = data.total;
+
+            if (window.updateWorkerProgress) {
+                window.updateWorkerProgress(data.percentage);
+            }
+
+            if (window.showWorkerLabel) {
+                const pct = data.percentage;
+                const label = `${data.current} / ${data.total} - %${pct}`;
+                window.showWorkerLabel(label);
+            }
+
+            if (data.story_id) {
+                statusText.textContent = `İşleniyor: #${data.story_id} (${data.current}/${data.total})`;
+                statusText.classList.remove('hidden');
+            }
+        } catch (err) {
+            console.error('SSE progress parse error:', err);
         }
-    } catch (error) {
-        console.error('Error triggering reprocess:', error);
-        showToast('error', 'Yeniden işleme başlatılırken bir hata oluştu.');
-        if (window.hideWorkerProgress) window.hideWorkerProgress();
-    } finally {
-        button.disabled = false;
-        btnText.textContent = 'Çevrilmemişleri İşle';
-        spinner.classList.add('hidden');
-        statusText.classList.add('hidden');
-    }
+    });
+
+    eventSource.addEventListener('story_update', function(e) {
+        try {
+            const story = JSON.parse(e.data);
+            // Update the card in-place using existing function
+            if (typeof window.updateStoryCard === 'function') {
+                window.updateStoryCard(story);
+            }
+        } catch (err) {
+            console.error('SSE story_update parse error:', err);
+        }
+    });
+
+    eventSource.addEventListener('complete', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            eventSource.close();
+
+            if (window.updateWorkerProgress) window.updateWorkerProgress(100);
+            if (window.showWorkerLabel) window.showWorkerLabel(`${data.processed} / ${data.total} - %100`);
+
+            setTimeout(() => {
+                if (window.hideWorkerProgress) window.hideWorkerProgress();
+                if (window.hideWorkerLabel) window.hideWorkerLabel();
+            }, 2000);
+
+            const msg = data.processed > 0
+                ? `${data.processed} hikaye işlendi. ${data.errors > 0 ? `${data.errors} hata.` : ''}`
+                : 'İşlenecek hikaye bulunamadı.';
+            showToast(data.errors > 0 ? 'warning' : 'success', msg);
+
+            // Reload first page if stories were processed
+            if (data.processed > 0) {
+                setTimeout(() => {
+                    currentPage = 0;
+                    hasMoreStories = true;
+                    document.getElementById('end-of-content').classList.add('hidden');
+                    loadStories();
+                }, 1000);
+            }
+        } catch (err) {
+            console.error('SSE complete parse error:', err);
+        }
+    });
+
+    eventSource.addEventListener('error', function(e) {
+        try {
+            const data = JSON.parse(e.data);
+            showToast('error', data.detail || 'SSE bağlantı hatası');
+        } catch {
+            showToast('error', 'Çeviri işlemi sırasında bağlantı hatası oluştu.');
+        }
+        eventSource.close();
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        eventSource.close();
+    }, { once: true });
 }
 
 // ──────────────────────────────────────────────

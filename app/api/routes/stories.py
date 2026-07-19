@@ -1,8 +1,10 @@
 """API routes for managing stories."""
 
+import json
 from typing import List
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -68,6 +70,117 @@ async def get_stories(
     return stories
 
 
+@router.get("/reprocess-untranslated/stream")
+async def reprocess_untranslated_stream(request: Request):
+    """SSE endpoint: reprocess untranslated stories with live progress updates.
+
+    Streams events:
+      - progress: {"current": N, "total": M, "percentage": X, "story_id": ID}
+      - story_update: {"id": ID, "title_tr": "...", ...}
+      - complete: {"message": "Done", "total": M, "processed": N, "errors": E}
+      - error: {"detail": "..."}
+    """
+    from app.core.database import AsyncSessionLocal
+    from app.models.preference import UserPreference
+    from app.shared.languages import TranslationLanguageResolver
+
+    async def event_stream():
+        fetcher = FetcherService()
+        try:
+            async with AsyncSessionLocal() as db:
+                # Find untranslated stories
+                result = await db.execute(
+                    select(Story)
+                    .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
+                    .order_by(Story.created_at.desc())
+                )
+                stories = result.scalars().all()
+
+                # Read language preference
+                prefs_result = await db.execute(
+                    select(UserPreference).limit(1)
+                )
+                prefs = prefs_result.scalar_one_or_none()
+                target_lang_code = prefs.translation_language if prefs else "en"
+                target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
+
+                total = len(stories)
+                yield f"event: progress\ndata: {json.dumps({'current': 0, 'total': total, 'percentage': 0})}\n\n"
+
+                processed = 0
+                errors = 0
+
+                for idx, story in enumerate(stories, 1):
+                    # Check if client disconnected
+                    if await request.is_disconnected():
+                        break
+
+                    try:
+                        hn_id = int(story.hacker_news_id)
+                        ai_service = AIService(story_id=hn_id)
+
+                        fresh_data = await fetcher.refetch_story_content(hn_id, story.url or "")
+                        if not fresh_data:
+                            errors += 1
+                            continue
+
+                        title_tr = await ai_service.translate_title(fresh_data["title"], target_lang_name)
+                        content_tr = await ai_service.summarize_content(fresh_data.get("content", ""), target_lang_name)
+                        comments_summary = await ai_service.summarize_comments(fresh_data.get("comments", []), target_lang_name)
+
+                        story.title_tr = title_tr
+                        story.content_tr = content_tr
+                        story.comments_summary = comments_summary
+                        story.is_translated = ai_service.check_translation_complete(story)
+                        await db.commit()
+                        await db.refresh(story)
+
+                        processed += 1
+
+                        # Send progress
+                        pct = round((idx / total) * 100) if total > 0 else 100
+                        yield f"event: progress\ndata: {json.dumps({'current': idx, 'total': total, 'percentage': pct, 'story_id': story.id})}\n\n"
+
+                        # Send story update for live card refresh
+                        story_data = {
+                            "id": story.id,
+                            "hacker_news_id": story.hacker_news_id,
+                            "title": story.title,
+                            "title_tr": story.title_tr,
+                            "url": story.url,
+                            "score": story.score,
+                            "author": story.author,
+                            "content_tr": story.content_tr,
+                            "comments_summary": story.comments_summary,
+                            "is_translated": story.is_translated,
+                            "is_read": story.is_read,
+                            "hn_created_at": story.hn_created_at.isoformat() if story.hn_created_at else None,
+                            "created_at": story.created_at.isoformat() if story.created_at else None,
+                        }
+                        yield f"event: story_update\ndata: {json.dumps(story_data)}\n\n"
+
+                    except Exception as e:
+                        errors += 1
+                        print(f"[SSE] Error reprocessing story {story.id}: {e}")
+
+                yield f"event: complete\ndata: {json.dumps({'message': 'Done', 'total': total, 'processed': processed, 'errors': errors})}\n\n"
+
+        except Exception as e:
+            yield f"event: error\ndata: {json.dumps({'detail': str(e)})}\n\n"
+        finally:
+            await fetcher.close()
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
 @router.get("/{story_id}", response_model=StoryResponse)
 async def get_story(story_id: int, db: AsyncSession = Depends(get_db)):
     """Get a specific story by ID"""
@@ -84,8 +197,8 @@ async def reprocess_story(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    """Reprocess a single story: refetch from HN, re-translate, re-summarize.
-    
+    """Reprocess a single story: refetch from HN, re-translate, re-summarize
+
     HN data is fetched synchronously (fast), AI processing runs in background.
     """
     result = await db.execute(select(Story).where(Story.id == story_id))
@@ -114,6 +227,7 @@ async def reprocess_story(
     # Schedule AI processing in background (won't block the response)
     # We need to get a fresh session for the background task
     from app.core.database import AsyncSessionLocal
+
     async def _run_ai():
         async with AsyncSessionLocal() as bg_db:
             await _reprocess_ai(story_id, bg_db)
