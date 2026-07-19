@@ -68,13 +68,6 @@ async function loadStories(page = 0, append = false) {
                 document.getElementById('end-of-content').classList.add('hidden');
             }
             
-            // İlk sayfadaki en yüksek story ID'sini polling tracker'a bildir
-            if (page === 0 && stories.length > 0) {
-                const maxId = stories.reduce((max, s) => s.id > max ? s.id : max, 0);
-                if (typeof window.updateLastKnownStoryId === 'function') {
-                    window.updateLastKnownStoryId(maxId);
-                }
-            }
         }
     } catch (error) {
         console.error('Error loading stories:', error);
@@ -305,50 +298,27 @@ async function reprocessUntranslatedHome() {
     if (window.updateWorkerProgress) window.updateWorkerProgress(0);
     if (window.showWorkerLabel) window.showWorkerLabel('0 / 0 - %0');
 
-    const eventSource = new EventSource('/api/stories/reprocess-untranslated/stream');
-
-    let totalStories = 0;
-
-    eventSource.addEventListener('progress', function(e) {
-        try {
-            const data = JSON.parse(e.data);
-            totalStories = data.total;
-
+    const sse = window.createSSEConnection('/api/stories/reprocess-untranslated/stream', {
+        'progress': function(data) {
             if (window.updateWorkerProgress) {
                 window.updateWorkerProgress(data.percentage);
             }
-
             if (window.showWorkerLabel) {
-                const pct = data.percentage;
-                const label = `${data.current} / ${data.total} - %${pct}`;
+                const label = `${data.current} / ${data.total} - %${data.percentage}`;
                 window.showWorkerLabel(label);
             }
-
             if (data.story_id) {
                 statusText.textContent = `İşleniyor: #${data.story_id} (${data.current}/${data.total})`;
                 statusText.classList.remove('hidden');
             }
-        } catch (err) {
-            console.error('SSE progress parse error:', err);
-        }
-    });
-
-    eventSource.addEventListener('story_update', function(e) {
-        try {
-            const story = JSON.parse(e.data);
-            // Update the card in-place using existing function
+        },
+        'story_update': function(story) {
             if (typeof window.updateStoryCard === 'function') {
                 window.updateStoryCard(story);
             }
-        } catch (err) {
-            console.error('SSE story_update parse error:', err);
-        }
-    });
-
-    eventSource.addEventListener('complete', function(e) {
-        try {
-            const data = JSON.parse(e.data);
-            eventSource.close();
+        },
+        'complete': function(data) {
+            sse.closeAndStop();
 
             if (window.updateWorkerProgress) window.updateWorkerProgress(100);
             if (window.showWorkerLabel) window.showWorkerLabel(`${data.processed} / ${data.total} - %100`);
@@ -372,25 +342,12 @@ async function reprocessUntranslatedHome() {
                     loadStories();
                 }, 1000);
             }
-        } catch (err) {
-            console.error('SSE complete parse error:', err);
-        }
-    });
-
-    eventSource.addEventListener('error', function(e) {
-        try {
-            const data = JSON.parse(e.data);
+        },
+        'error': function(data) {
             showToast('error', data.detail || 'SSE bağlantı hatası');
-        } catch {
-            showToast('error', 'Çeviri işlemi sırasında bağlantı hatası oluştu.');
-        }
-        eventSource.close();
-    });
-
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', function() {
-        eventSource.close();
-    }, { once: true });
+            sse.closeAndStop();
+        },
+    }, { reconnectDelay: 3000 });
 }
 
 // ──────────────────────────────────────────────
@@ -615,9 +572,12 @@ window.onNewStorySSE = window.onNewStoryPoll;
 // DOMContentLoaded (index page)
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        initPolling();
-    }, 5000);
+    // Start SSE for live new story notifications
+    if (typeof initSSE === 'function') {
+        setTimeout(() => {
+            initSSE();
+        }, 5000);
+    }
 
     updateOnlineStatus();
 
