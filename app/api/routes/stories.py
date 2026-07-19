@@ -1,5 +1,6 @@
 """API routes for managing stories."""
 
+import asyncio
 import json
 from typing import List
 
@@ -16,6 +17,35 @@ from app.services.fetcher import FetcherService
 
 router = APIRouter()
 
+# ── Shared SSE helpers ──────────────────────
+
+
+async def _sse_event(event_type: str, data: dict) -> str:
+    """Format an SSE event string."""
+    return f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
+
+
+def _story_to_dict(story) -> dict:
+    """Convert a Story ORM object to a plain dict for SSE."""
+    return {
+        "id": story.id,
+        "hacker_news_id": story.hacker_news_id,
+        "title": story.title,
+        "title_tr": story.title_tr,
+        "url": story.url,
+        "score": story.score,
+        "author": story.author,
+        "content_tr": story.content_tr,
+        "comments_summary": story.comments_summary,
+        "is_translated": story.is_translated,
+        "is_read": story.is_read,
+        "hn_created_at": story.hn_created_at.isoformat() if story.hn_created_at else None,
+        "created_at": story.created_at.isoformat() if story.created_at else None,
+    }
+
+
+# ── Background AI reprocess ──────────────────
+
 
 async def _reprocess_ai(story_id: int, db: AsyncSession):
     """Background task: run AI translation/summarization after HN data is fetched."""
@@ -29,7 +59,6 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
         if not hn_id:
             return
 
-        # Refetch fresh data (already done in main request, but redo for simplicity)
         fetcher = FetcherService()
         fresh_data = await fetcher.refetch_story_content(int(hn_id), story.url or "")
         if not fresh_data or not fresh_data.get("title"):
@@ -58,6 +87,9 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
         await db.close()
 
 
+# ── Routes ──────────────────────────────────
+
+
 @router.get("/", response_model=List[StoryResponse])
 async def get_stories(
     skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
@@ -68,6 +100,73 @@ async def get_stories(
     )
     stories = result.scalars().all()
     return stories
+
+
+@router.get("/poll-stream")
+async def story_poll_stream(request: Request):
+    """SSE endpoint: streams new stories as they arrive.
+
+    Polls DB every 3 seconds for stories newer than the last known ID.
+    Replaces the old polling-based initPolling() on the frontend.
+
+    Events:
+      - story_update: {story dict} — a single new story
+      - keepalive: {} — sent every 30s to keep connection alive
+    """
+    from app.core.database import AsyncSessionLocal
+
+    async def event_stream():
+        last_max_id = 0
+        keepalive_counter = 0
+
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+
+                async with AsyncSessionLocal() as db:
+                    result = await db.execute(
+                        select(Story)
+                        .order_by(Story.id.desc())
+                        .limit(5)
+                    )
+                    stories = result.scalars().all()
+
+                if stories:
+                    current_max_id = max(s.id for s in stories)
+                    if last_max_id == 0:
+                        # First run: just record the max ID, don't send anything
+                        last_max_id = current_max_id
+                    elif current_max_id > last_max_id:
+                        # New stories found
+                        new_ones = [s for s in stories if s.id > last_max_id]
+                        new_ones.sort(key=lambda s: s.id)
+                        for story in new_ones:
+                            yield await _sse_event("story_update", _story_to_dict(story))
+                        last_max_id = current_max_id
+                    elif current_max_id == last_max_id:
+                        # No new stories — send keepalive every 10th iteration (~30s)
+                        keepalive_counter += 1
+                        if keepalive_counter >= 10:
+                            yield await _sse_event("keepalive", {})
+                            keepalive_counter = 0
+
+                await asyncio.sleep(3)
+
+        except asyncio.CancelledError:
+            pass
+        finally:
+            print("[SSE/poll-stream] Client disconnected")
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/reprocess-untranslated/stream")
@@ -88,7 +187,6 @@ async def reprocess_untranslated_stream(request: Request):
         fetcher = FetcherService()
         try:
             async with AsyncSessionLocal() as db:
-                # Find untranslated stories
                 result = await db.execute(
                     select(Story)
                     .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
@@ -96,22 +194,18 @@ async def reprocess_untranslated_stream(request: Request):
                 )
                 stories = result.scalars().all()
 
-                # Read language preference
-                prefs_result = await db.execute(
-                    select(UserPreference).limit(1)
-                )
+                prefs_result = await db.execute(select(UserPreference).limit(1))
                 prefs = prefs_result.scalar_one_or_none()
                 target_lang_code = prefs.translation_language if prefs else "en"
                 target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
 
                 total = len(stories)
-                yield f"event: progress\ndata: {json.dumps({'current': 0, 'total': total, 'percentage': 0})}\n\n"
+                yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0})
 
                 processed = 0
                 errors = 0
 
                 for idx, story in enumerate(stories, 1):
-                    # Check if client disconnected
                     if await request.is_disconnected():
                         break
 
@@ -137,36 +231,18 @@ async def reprocess_untranslated_stream(request: Request):
 
                         processed += 1
 
-                        # Send progress
                         pct = round((idx / total) * 100) if total > 0 else 100
-                        yield f"event: progress\ndata: {json.dumps({'current': idx, 'total': total, 'percentage': pct, 'story_id': story.id})}\n\n"
-
-                        # Send story update for live card refresh
-                        story_data = {
-                            "id": story.id,
-                            "hacker_news_id": story.hacker_news_id,
-                            "title": story.title,
-                            "title_tr": story.title_tr,
-                            "url": story.url,
-                            "score": story.score,
-                            "author": story.author,
-                            "content_tr": story.content_tr,
-                            "comments_summary": story.comments_summary,
-                            "is_translated": story.is_translated,
-                            "is_read": story.is_read,
-                            "hn_created_at": story.hn_created_at.isoformat() if story.hn_created_at else None,
-                            "created_at": story.created_at.isoformat() if story.created_at else None,
-                        }
-                        yield f"event: story_update\ndata: {json.dumps(story_data)}\n\n"
+                        yield await _sse_event("progress", {"current": idx, "total": total, "percentage": pct, "story_id": story.id})
+                        yield await _sse_event("story_update", _story_to_dict(story))
 
                     except Exception as e:
                         errors += 1
-                        print(f"[SSE] Error reprocessing story {story.id}: {e}")
+                        print(f"[SSE/reprocess] Error reprocessing story {story.id}: {e}")
 
-                yield f"event: complete\ndata: {json.dumps({'message': 'Done', 'total': total, 'processed': processed, 'errors': errors})}\n\n"
+                yield await _sse_event("complete", {"message": "Done", "total": total, "processed": processed, "errors": errors})
 
         except Exception as e:
-            yield f"event: error\ndata: {json.dumps({'detail': str(e)})}\n\n"
+            yield await _sse_event("error", {"detail": str(e)})
         finally:
             await fetcher.close()
 
@@ -210,13 +286,11 @@ async def reprocess_story(
     if not hn_id:
         raise HTTPException(status_code=400, detail="Story has no HN id")
 
-    # Get fresh data from HN (fast network operation)
     fetcher = FetcherService()
     fresh_data = await fetcher.refetch_story_content(int(hn_id), story.url or "")
     if not fresh_data or not fresh_data.get("title"):
         raise HTTPException(status_code=500, detail="Failed to refetch story from HN")
 
-    # Update DB with fresh HN data immediately
     story.title = fresh_data.get("title", story.title)
     story.url = fresh_data.get("url", story.url)
     story.score = fresh_data.get("score", story.score)
@@ -224,8 +298,6 @@ async def reprocess_story(
     story.content = fresh_data.get("content", story.content)
     await db.commit()
 
-    # Schedule AI processing in background (won't block the response)
-    # We need to get a fresh session for the background task
     from app.core.database import AsyncSessionLocal
 
     async def _run_ai():

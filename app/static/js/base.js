@@ -237,52 +237,101 @@ window.hideWorkerLabel = function() {
 };
 
 // ──────────────────────────────────────────────
-// Polling — check every 30s if new stories arrived
-// Track by max story ID for reliable detection.
+// Reusable SSE connection manager
 // ──────────────────────────────────────────────
-let lastKnownStoryId = 0;
+let activeSSEConnections = [];
 
-/** Callback — sayfa-specific JS (index.js) bunu set etmeli */
-window.updateLastKnownStoryId = function(id) {
-    if (id > lastKnownStoryId) lastKnownStoryId = id;
+/**
+ * Create an SSE connection with automatic reconnection and cleanup.
+ *
+ * @param {string} url - SSE endpoint URL
+ * @param {Object} handlers - Event handlers: { eventName: fn(data) }
+ * @param {Object} [options]
+ * @param {number} [options.reconnectDelay=5000] - ms before reconnecting on error
+ * @returns {EventSource} the EventSource instance
+ */
+window.createSSEConnection = function(url, handlers, options) {
+    options = options || {};
+    const reconnectDelay = options.reconnectDelay || 5000;
+    let es = null;
+    let reconnectTimer = null;
+
+    function connect() {
+        // Close existing if any
+        if (es) es.close();
+
+        es = new EventSource(url);
+        activeSSEConnections.push(es);
+
+        // Register event handlers
+        for (const [eventName, handler] of Object.entries(handlers)) {
+            es.addEventListener(eventName, function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    handler(data);
+                } catch (err) {
+                    console.error(`[SSE/${eventName}] Parse error:`, err);
+                }
+            });
+        }
+
+        es.addEventListener('error', function() {
+            console.warn(`[SSE] Connection lost for ${url}, reconnecting in ${reconnectDelay}ms...`);
+            es.close();
+            // Remove from active list
+            const idx = activeSSEConnections.indexOf(es);
+            if (idx !== -1) activeSSEConnections.splice(idx, 1);
+            // Auto-reconnect
+            if (reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(connect, reconnectDelay);
+        });
+
+        return es;
+    }
+
+    const instance = connect();
+    // Store close method that stops reconnection
+    instance.closeAndStop = function() {
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        if (es) {
+            es.close();
+            const idx = activeSSEConnections.indexOf(es);
+            if (idx !== -1) activeSSEConnections.splice(idx, 1);
+        }
+    };
+
+    return instance;
 };
 
-function initPolling() {
-    setInterval(async () => {
-        try {
-            // Sadece en yeni 1 story'yi çek — ID karşılaştırması için yeterli
-            const res = await fetch('/api/stories/?skip=0&limit=1');
-            const stories = await res.json();
-            if (stories.length === 0) return;
+/** Cleanup all active SSE connections (call on page unload) */
+function cleanupSSEConnections() {
+    activeSSEConnections.forEach(es => {
+        if (es.closeAndStop) es.closeAndStop();
+        else es.close();
+    });
+    activeSSEConnections = [];
+}
 
-            const latest = stories[0];
-            if (latest.id > lastKnownStoryId && lastKnownStoryId > 0) {
-                // Yeni story var — hepsini çekip başa ekle
-                const newRes = await fetch('/api/stories/?skip=0&limit=5');
-                const newStories = await newRes.json();
-                const freshOnes = newStories.filter(s => s.id > lastKnownStoryId);
-                // Büyük fark varsa sayfayı yenile (çok sayıda kaçırmış olabiliriz)
-                if (freshOnes.length > 3) {
-                    console.log('[Poll] Significant change, refreshing...');
-                    location.reload();
-                    return;
-                }
-                // Sırala (en eski yeni önce eklensin)
-                freshOnes.sort((a, b) => a.id - b.id);
-                if (typeof window.onNewStoryPoll === 'function') {
-                    freshOnes.forEach(s => window.onNewStoryPoll(s));
-                }
-                // lastKnownStoryId'i güncelle
-                const maxId = newStories.reduce((max, s) => s.id > max ? s.id : max, 0);
-                if (maxId > lastKnownStoryId) lastKnownStoryId = maxId;
-            } else if (latest.id > lastKnownStoryId) {
-                // İlk çalıştırma — sadece ID'yi set et
-                lastKnownStoryId = latest.id;
+// ──────────────────────────────────────────────
+// Live polling via SSE — replaces old HTTP polling
+// ──────────────────────────────────────────────
+/** Callback — sayfa-specific JS (index.js) bunu set etmeli */
+window.onNewStorySSE = null;
+
+function initSSE() {
+    const sse = window.createSSEConnection('/api/stories/poll-stream', {
+        'story_update': function(story) {
+            if (typeof window.onNewStorySSE === 'function') {
+                window.onNewStorySSE(story);
             }
-        } catch (e) {
-            // Ignore polling errors
-        }
-    }, 30000);
+        },
+        'keepalive': function() {
+            // Connection is alive, nothing to do
+        },
+    }, { reconnectDelay: 5000 });
+
+    // Store for cleanup
+    window._pollSSE = sse;
 }
 
 // ──────────────────────────────────────────────
