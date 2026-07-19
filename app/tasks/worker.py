@@ -13,6 +13,7 @@ from app.models.setting import Setting
 from app.models.story import Story
 from app.services.ai_service import AIService
 from app.services.fetcher import FetcherService
+from app.services.story_service import StoryService
 from app.shared.languages import TranslationLanguageResolver
 
 
@@ -33,12 +34,9 @@ async def process_story(ctx, story_data):
             target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
             print(f"[Worker] Target translation language: {target_lang_name} ({target_lang_code})")
 
-            result = await db.execute(
-                select(Story).where(
-                    Story.hacker_news_id == story_data["hacker_news_id"]
-                )
+            existing_story = await StoryService.get_by_hn_id(
+                db, story_data["hacker_news_id"]
             )
-            existing_story = result.scalar_one_or_none()
 
             if existing_story:
                 if not existing_story.is_translated:
@@ -46,21 +44,31 @@ async def process_story(ctx, story_data):
                         f"Story {story_data['hacker_news_id']} exists but needs AI processing..."
                     )
 
-                    if not existing_story.title_tr or existing_story.title_tr.startswith("[TR]"):
-                        title_tr = await ai_service.translate_title(existing_story.title, target_lang_name)
-                        existing_story.title_tr = title_tr
+                    title_tr = existing_story.title_tr
+                    content_tr = existing_story.content_tr
+                    comments_summary = existing_story.comments_summary
 
-                    if not existing_story.content_tr:
-                        content_tr = await ai_service.summarize_content(existing_story.content or "", target_lang_name)
-                        existing_story.content_tr = content_tr
+                    if not title_tr or title_tr.startswith("[TR]"):
+                        title_tr = await ai_service.translate_title(
+                            existing_story.title, target_lang_name
+                        )
 
-                    if not existing_story.comments_summary:
-                        comments_summary = await ai_service.summarize_comments(story_data.get("comments", []), target_lang_name)
-                        existing_story.comments_summary = comments_summary
+                    if not content_tr:
+                        content_tr = await ai_service.summarize_content(
+                            existing_story.content or "", target_lang_name
+                        )
 
-                    existing_story.is_translated = ai_service.check_translation_complete(existing_story)
+                    if not comments_summary:
+                        comments_summary = await ai_service.summarize_comments(
+                            story_data.get("comments", []), target_lang_name
+                        )
 
-                    await db.commit()
+                    await StoryService.update_translations(
+                        db, existing_story,
+                        title_tr=title_tr,
+                        content_tr=content_tr,
+                        comments_summary=comments_summary,
+                    )
                     return "ai_processed"
                 else:
                     print(f"Story {story_data['hacker_news_id']} already exists and is fully processed, skipping...")
@@ -78,27 +86,14 @@ async def process_story(ctx, story_data):
             content_tr = await ai_service.summarize_content(story_data.get("content", ""), target_lang_name)
             comments_summary = await ai_service.summarize_comments(story_data.get("comments", []), target_lang_name)
 
-            story = Story(
-                hacker_news_id=story_data["hacker_news_id"],
-                title=story_data["title"],
-                title_tr=title_tr,
-                url=story_data["url"],
-                score=story_data["score"],
-                author=story_data["author"],
-                content=story_data["content"],
-                content_tr=content_tr,
-                comments_summary=comments_summary,
-                hn_created_at=story_data.get("hn_created_at"),
-                is_blocked=False,
-            )
-            story.is_translated = ai_service.check_translation_complete(story)
+            story_data_with_tr = dict(story_data)
+            story_data_with_tr["title_tr"] = title_tr
+            story_data_with_tr["content_tr"] = content_tr
+            story_data_with_tr["comments_summary"] = comments_summary
 
-            db.add(story)
-            await db.commit()
-
+            await StoryService.create(db, story_data_with_tr)
             return "processed"
         except Exception as e:
-            await db.rollback()
             print(f"Error processing story {story_data.get('hacker_news_id')}: {e}")
             return f"error: {str(e)}"
 
@@ -177,12 +172,7 @@ async def reprocess_untranslated_stories(ctx):
 
     try:
         async with AsyncSessionLocal() as db:
-            result = await db.execute(
-                select(Story)
-                .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
-                .order_by(Story.created_at.desc())
-            )
-            stories_needing_ai = result.scalars().all()
+            stories_needing_ai = await StoryService.get_untranslated(db)
 
             print(f"Found {len(stories_needing_ai)} stories needing AI processing")
 
@@ -197,21 +187,22 @@ async def reprocess_untranslated_stories(ctx):
                         print(f"Failed to refetch data for story {story.hacker_news_id}")
                         continue
 
+                    await StoryService.update_from_fetch(db, story, fresh_data)
+
                     title_tr = await ai_service.translate_title(fresh_data["title"])
                     content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
                     comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
 
-                    story.title_tr = title_tr
-                    story.content_tr = content_tr
-                    story.comments_summary = comments_summary
-                    story.is_translated = ai_service.check_translation_complete(story)
-
-                    await db.commit()
+                    await StoryService.update_translations(
+                        db, story,
+                        title_tr=title_tr,
+                        content_tr=content_tr,
+                        comments_summary=comments_summary,
+                    )
                     reprocessed_count += 1
                     print(f"Successfully reprocessed story {story.hacker_news_id}")
 
                 except Exception as e:
-                    await db.rollback()
                     print(f"Error reprocessing story {story.hacker_news_id}: {e}")
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
@@ -271,23 +262,24 @@ async def reprocess_all_stories(ctx):
                             print(f"Failed to refetch data for story {story.hacker_news_id}")
                             continue
 
+                        await StoryService.update_from_fetch(db, story, fresh_data)
+
                         title_tr = await ai_service.translate_title(fresh_data["title"])
                         content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
                         comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
 
-                        story.title_tr = title_tr
-                        story.content_tr = content_tr
-                        story.comments_summary = comments_summary
-                        story.is_translated = ai_service.check_translation_complete(story)
-
-                        await db.commit()
+                        await StoryService.update_translations(
+                            db, story,
+                            title_tr=title_tr,
+                            content_tr=content_tr,
+                            comments_summary=comments_summary,
+                        )
                         reprocessed_count += 1
                         print(f"Successfully reprocessed story {story.hacker_news_id}")
                     else:
                         print(f"Story {story.hacker_news_id} is already fully processed")
 
                 except Exception as e:
-                    await db.rollback()
                     print(f"Error reprocessing story {story.hacker_news_id}: {e}")
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
