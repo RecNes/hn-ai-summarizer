@@ -67,9 +67,13 @@ class StoryService:
     async def get_all(
         session: AsyncSession, skip: int = 0, limit: int = 20
     ) -> List[Story]:
-        """Tüm story'leri sayfalanmış şekilde getir."""
+        """Tüm story'leri sayfalanmış şekilde getir (bloklanmış olanlar hariç)."""
         result = await session.execute(
-            select(Story).order_by(Story.created_at.desc()).offset(skip).limit(limit)
+            select(Story)
+            .where(Story.is_blocked.is_(False))
+            .order_by(Story.created_at.desc())
+            .offset(skip)
+            .limit(limit)
         )
         return list(result.scalars().all())
 

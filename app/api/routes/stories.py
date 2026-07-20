@@ -92,11 +92,8 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
 async def get_stories(
     skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
 ):
-    """Get all stories with pagination"""
-    result = await db.execute(
-        select(Story).order_by(Story.created_at.desc()).offset(skip).limit(limit)
-    )
-    stories = result.scalars().all()
+    """Get all stories with pagination (blocked stories excluded)"""
+    stories = await StoryService.get_all(db, skip=skip, limit=limit)
     return stories
 
 
@@ -133,6 +130,7 @@ async def story_poll_stream(request: Request):
                 async with AsyncSessionLocal() as db:
                     result = await db.execute(
                         select(Story)
+                        .where(Story.is_blocked.is_(False))
                         .order_by(Story.id.desc())
                         .limit(5)
                     )
@@ -199,7 +197,10 @@ async def reprocess_untranslated_stream(request: Request):
             async with AsyncSessionLocal() as db:
                 result = await db.execute(
                     select(Story)
-                    .where((Story.is_translated.is_(None)) | (not Story.is_translated))
+                    .where(
+                        (Story.is_blocked.is_(False)) &
+                        ((Story.is_translated.is_(None)) | (not Story.is_translated))
+                    )
                     .order_by(Story.created_at.desc())
                 )
                 stories = result.scalars().all()
