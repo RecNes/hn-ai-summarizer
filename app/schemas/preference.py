@@ -23,7 +23,7 @@ class PreferenceResponse(PreferenceBase):
     id: int
     ui_language: str = "en"
     translation_language: str = "en"
-    available_languages: list[str] = []  # populated by API
+    available_languages: list[dict] = []  # populated by API
 
     class Config:
         """Pydantic configuration to work with ORM objects."""
