@@ -297,7 +297,7 @@ async function saveSettings(event) {
 
         // Update UI language immediately without page reload
         const newUiLang = document.getElementById('ui_language').value;
-        if (typeof changeUILanguage === 'function') {
+        if (newUiLang && typeof changeUILanguage === 'function') {
             await changeUILanguage(newUiLang);
         }
 

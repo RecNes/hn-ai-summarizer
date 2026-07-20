@@ -90,6 +90,9 @@ async function changeUILanguage(lang) {
         return;
     }
 
+    // Fallback to English if lang is empty
+    lang = lang || 'en';
+
     const loadPath = `/static/locales/{{lng}}/common.json`;
     const url = loadPath.replace('{{lng}}', lang);
 
