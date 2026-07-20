@@ -1,10 +1,12 @@
-"""Scheduler tasks for periodic jobs"""
+"""Scheduler tasks for periodic jobs
+
+Uses aioscheduler.TimedScheduler for reliable async scheduling.
+"""
 
 import asyncio
 import os
 from datetime import datetime
 
-import aioschedule
 from arq import create_pool
 from arq.connections import RedisSettings
 from sqlalchemy.future import select
@@ -39,7 +41,6 @@ async def initialize_schedule_from_db():
         setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
     )
 
-    # Get schedule manager and update Redis
     schedule_manager = await get_schedule_manager()
     await schedule_manager.update_schedule(cron_schedule)
 
@@ -47,50 +48,43 @@ async def initialize_schedule_from_db():
 
 
 def parse_cron_to_time(cron_schedule: str) -> str:
-    """Parse cron schedule to time string for aioschedule"""
-    # Cron format: "minute hour day month weekday"
-    # We only care about minute and hour for daily scheduling
+    """Parse cron schedule to time string for scheduling"""
     parts = cron_schedule.split()
     if len(parts) != 5:
-        return "09:00"  # Default time
+        return "09:00"
 
     minute, hour, _, _, _ = parts
 
-    # Convert to time format (HH:MM)
     try:
         hour_int = int(hour) if hour.isdigit() else 9
         minute_int = int(minute) if minute.isdigit() else 0
         return f"{hour_int:02d}:{minute_int:02d}"
     except ValueError:
-        return "09:00"  # Default time if parsing fails
+        return "09:00"
 
 
 def parse_cron_to_days(cron_schedule: str) -> list:
-    """Parse cron schedule to get list of weekdays (0=Monday, 6=Sunday)"""
+    """Parse cron schedule to get list of weekdays (cron: 0=Sunday)"""
     parts = cron_schedule.split()
     if len(parts) != 5:
-        return [1, 2, 3, 4, 5]  # Default: weekdays (Mon-Fri)
+        return [1, 2, 3, 4, 5]
 
     _, _, _, _, weekday_part = parts
 
-    # Handle different cron weekday formats
     if weekday_part == "*":
-        return []  # No specific days - meaning no scheduling
+        return []
     elif "," in weekday_part:
-        # Multiple days like "1,2,3"
         try:
             return [int(day) for day in weekday_part.split(",") if day.isdigit()]
         except ValueError:
             return []
     elif "-" in weekday_part:
-        # Range like "1-5"
         try:
             start, end = map(int, weekday_part.split("-"))
             return list(range(start, end + 1))
         except ValueError:
             return []
     elif weekday_part.isdigit():
-        # Single day
         return [int(weekday_part)]
     else:
         return []
@@ -99,72 +93,17 @@ def parse_cron_to_days(cron_schedule: str) -> list:
 def format_days_to_cron(days: list, hour: int, minute: int) -> str:
     """Format days, hour, minute to cron schedule"""
     if not days:
-        return ""  # No scheduling when no days selected
-
-    # Convert days list to cron weekday format
+        return ""
     weekday_part = ",".join(map(str, sorted(days)))
-
     return f"{minute} {hour} * * {weekday_part}"
 
 
-# Create a closure to capture the current day_name and redis_pool
-async def create_job_for_day(day_name):
-    """Create and enqueue the worker job for the given day.
-
-    Creates its OWN Redis connection so that multiple scheduled days
-    do not share (and accidentally close) the same pool.
-    """
-
-    print(f"Job triggered for {day_name}")
-    try:
-        redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
-        redis_settings = RedisSettings.from_dsn(redis_url)
-        pool = await create_pool(redis_settings)
-
-        job = await pool.enqueue_job("fetch_and_process_stories")
-        if job:
-            print(f">>> Worker job enqueued successfully for {day_name}")
-        else:
-            print(f">>> Failed to enqueue worker job for {day_name}")
-
-        await pool.close()
-    except Exception as e:
-        print(f">>> Error enqueuing worker job for {day_name}: {e}")
-
-
-async def schedule_worker(cron_schedule=None):
-    """Schedule the worker based on settings using Redis-based schedule manager"""
-    try:
-        # Get schedule manager
-        schedule_manager = await get_schedule_manager()
-
-        if cron_schedule is not None:
-            # Update schedule if provided
-            success = await schedule_manager.update_schedule(cron_schedule)
-            if not success:
-                print("Failed to update schedule")
-                return
-        else:
-            # Apply current schedule from Redis
-            await schedule_manager.apply_schedule_from_redis()
-
-        print(f"Scheduling worker with cron: {cron_schedule or 'from Redis'}")
-
-    except Exception as e:
-        print(f"Error scheduling worker: {e}")
-        import traceback
-
-        traceback.print_exc()
-
-
 async def run_scheduler():
-    """Run the scheduler with Redis-based schedule management"""
-    # Initialize schedule from database and store in Redis
+    """Run the scheduler with Redis-based schedule management."""
     print("Initializing schedule from database...")
     await initialize_schedule_from_db()
 
     # Catch-up: check if today's scheduled time has already passed
-    # and run a fetch immediately if so
     try:
         schedule_manager = await get_schedule_manager()
         config = await schedule_manager.get_schedule_config()
@@ -174,18 +113,15 @@ async def run_scheduler():
             scheduled_days = parse_cron_to_days(cron_schedule)
 
             now = datetime.now()
-            # Python weekday: 0=Monday..6=Sunday → cron weekday: 0=Sunday..6=Saturday
             today_cron_weekday = (now.weekday() + 1) % 7
             current_time_minutes = now.hour * 60 + now.minute
 
-            # Parse scheduled time to minutes
             try:
                 parts = scheduled_time.split(":")
                 scheduled_minutes = int(parts[0]) * 60 + int(parts[1])
             except (ValueError, IndexError):
                 scheduled_minutes = None
 
-            # If today is a scheduled day and the time has passed, do a catch-up fetch
             days_match = not scheduled_days or today_cron_weekday in scheduled_days
             if (
                 days_match
@@ -211,21 +147,16 @@ async def run_scheduler():
     except Exception as e:
         print(f"Error during catch-up check: {e}")
 
-    # Start monitoring for schedule changes in background
+    # Monitor schedule changes in background
     print("Starting schedule change monitoring...")
-    monitor_task = asyncio.create_task(monitor_schedule_changes())
+    monitor_task = asyncio.create_task(_monitor_schedule_changes())
 
     try:
-        # Run the scheduler — check pending jobs periodically
+        # Keep the scheduler alive by sleeping forever
+        # aioscheduler.TimedScheduler runs its own loop internally
         while True:
-            _debug("Scheduler running... checking for pending tasks.")
-            for item in asyncio.all_tasks():
-                _debug("Scheduled job:", item)
-            for job in aioschedule.jobs:
-                _debug("Job definition:", job)
-
-            await aioschedule.run_pending()
-            await asyncio.sleep(30)  # Check every 30 seconds
+            await asyncio.sleep(60)
+            _debug("Scheduler alive check...")
     finally:
         monitor_task.cancel()
         try:
@@ -234,7 +165,7 @@ async def run_scheduler():
             pass
 
 
-async def monitor_schedule_changes():
-    """Monitor schedule changes in the background"""
+async def _monitor_schedule_changes():
+    """Monitor schedule changes in the background."""
     schedule_manager = await get_schedule_manager()
     await schedule_manager.monitor_schedule_changes()

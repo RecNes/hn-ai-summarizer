@@ -96,16 +96,14 @@ def test_schedule_sync():
                 print("✗ Schedule not found or incorrect in Redis")
 
             # Test 3: Apply schedule locally
+            from app.tasks.schedule_manager import _scheduler_tasks
+
             applied = await schedule_manager.apply_schedule_from_redis()
             if applied:
-                print("✓ Schedule applied to local aioschedule")
-
-                # Show current jobs
-                import aioschedule
-
-                print(f"  Current aioschedule jobs: {len(aioschedule.jobs)}")
-                for job in aioschedule.jobs:
-                    print(f"    - {job}")
+                print("✓ Schedule applied to TimedScheduler")
+                print(f"  Current scheduled tasks: {len(_scheduler_tasks)}")
+                for task_ref in _scheduler_tasks:
+                    print(f"    - {task_ref}")
             else:
                 print("✗ Failed to apply schedule locally")
         else:
