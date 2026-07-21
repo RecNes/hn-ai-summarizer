@@ -58,7 +58,7 @@ class StoryService:
         """Çevirisi tamamlanmamış story'leri getir."""
         result = await session.execute(
             select(Story)
-            .where((Story.is_translated.is_(None)) | (not Story.is_translated))
+            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))  # noqa: E712
             .order_by(Story.created_at.desc())
         )
         return list(result.scalars().all())

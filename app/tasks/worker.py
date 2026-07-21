@@ -230,7 +230,7 @@ async def debug_untranslated_stories(ctx):
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(Story)
-            .where((Story.is_translated.is_(None)) | (not Story.is_translated))
+            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
             .order_by(Story.created_at.desc())
         )
         stories_needing_ai = result.scalars().all()
