@@ -128,6 +128,9 @@ class ScheduleManager:
             try:
                 if _scheduler:
                     _scheduler.cancel(task_ref)
+                # Close the coroutine to avoid "coroutine was never awaited" warning.
+                if hasattr(task_ref, 'callback') and hasattr(task_ref.callback, 'close'):
+                    task_ref.callback.close()
             except Exception as e:
                 logger.debug(f"Error cancelling task: {e}")
         _scheduler_tasks = []
