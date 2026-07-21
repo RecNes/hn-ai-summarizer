@@ -8,7 +8,7 @@ import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from aioscheduler import TimedScheduler
 from arq.connections import RedisSettings
@@ -26,15 +26,43 @@ SCHEDULE_VERSION_KEY = "hn_reader:schedule:version"
 # Lock timeout in seconds
 LOCK_TIMEOUT = 10
 
-# Cron weekday → aioscheduler day name (same as aioschedule)
+# Cron weekday → day name mapping
 WEEKDAY_NAMES = [
     "sunday", "monday", "tuesday", "wednesday",
     "thursday", "friday", "saturday",
 ]
 
-# Global scheduler instance
+# Global scheduler state — encapsulated via accessor functions
 _scheduler: Optional[TimedScheduler] = None
-_scheduler_tasks: list = []  # list of scheduled Task objects
+_scheduler_tasks: List = []
+
+
+def _get_scheduler() -> Optional[TimedScheduler]:
+    """Return the global TimedScheduler instance."""
+    return _scheduler
+
+
+def _set_scheduler(instance: Optional[TimedScheduler]) -> None:
+    """Set the global TimedScheduler instance."""
+    global _scheduler  # pylint: disable=global-statement
+    _scheduler = instance
+
+
+def _get_scheduler_tasks() -> List:
+    """Return the list of scheduled task objects."""
+    return _scheduler_tasks
+
+
+def _set_scheduler_tasks(tasks: List) -> None:
+    """Replace the global scheduled tasks list."""
+    global _scheduler_tasks  # pylint: disable=global-statement
+    _scheduler_tasks = tasks
+
+
+def _clear_scheduler_tasks() -> None:
+    """Empty the scheduled tasks list."""
+    global _scheduler_tasks  # pylint: disable=global-statement
+    _scheduler_tasks = []
 
 
 class ScheduleManager:
@@ -123,30 +151,27 @@ class ScheduleManager:
 
     async def clear_schedule(self):
         """Cancel all scheduled tasks in the global scheduler."""
-        global _scheduler_tasks
-        for task_ref in _scheduler_tasks:
+        scheduler = _get_scheduler()
+        task_refs = _get_scheduler_tasks()
+        for task_ref in task_refs:
             try:
-                if _scheduler:
-                    _scheduler.cancel(task_ref)
-                # Close the coroutine to avoid "coroutine was never awaited" warning.
+                if scheduler:
+                    scheduler.cancel(task_ref)
                 if hasattr(task_ref, 'callback') and hasattr(task_ref.callback, 'close'):
                     task_ref.callback.close()
             except Exception as e:
                 logger.debug(f"Error cancelling task: {e}")
-        _scheduler_tasks = []
+        _clear_scheduler_tasks()
         logger.info("Cleared all scheduled tasks")
 
     async def apply_schedule_from_redis(self):
         """Apply schedule configuration from Redis to the global scheduler."""
-        global _scheduler, _scheduler_tasks
-
         config = await self.get_schedule_config()
         if not config:
             logger.warning("No schedule configuration found in Redis")
             return False
 
         try:
-            # Clear existing scheduled tasks
             await self.clear_schedule()
 
             cron_schedule = config.get("cron_schedule")
@@ -163,28 +188,28 @@ class ScheduleManager:
                 logger.info("No days selected for scheduling")
                 return True
 
-            # Ensure global scheduler exists
-            if _scheduler is None:
-                _scheduler = TimedScheduler(prefer_utc=False)
-                _scheduler.start()
+            scheduler = _get_scheduler()
+            if scheduler is None:
+                scheduler = TimedScheduler(prefer_utc=False)
+                scheduler.start()
+                _set_scheduler(scheduler)
 
-            # Schedule a recurring job for each day
+            task_refs = _get_scheduler_tasks()
+
             for day_num in scheduled_days:
                 day_name = WEEKDAY_NAMES[day_num]
 
                 async def job_wrapper(day=day_name):
-                    """Wrapper that runs the job and reschedules for next week."""
                     await _enqueue_fetch_job(day)
                     _reschedule_job(day)
 
-                # Calculate next occurrence
                 now = datetime.now()
                 target = _next_weekday_time(now, day_num, scheduled_time)
                 if target < now:
                     target += timedelta(days=7)
 
-                task_obj = _scheduler.schedule(job_wrapper(), target)
-                _scheduler_tasks.append(task_obj)
+                task_obj = scheduler.schedule(job_wrapper(), target)
+                task_refs.append(task_obj)
                 logger.info(f"Scheduled task for {day_name} at {scheduled_time} (next: {target})")
 
             self._schedule_version = await self.get_schedule_version()
@@ -263,7 +288,6 @@ def _next_weekday_time(now: datetime, target_weekday: int, time_str: str) -> dat
     # Python weekday: 0=Monday..6=Sunday
     # cron weekday: 0=Sunday..6=Saturday
     current_py_weekday = now.weekday()
-    # convert cron weekday to python weekday
     target_py = (target_weekday + 6) % 7  # cron→python: -1 mod 7
 
     days_ahead = target_py - current_py_weekday
@@ -295,12 +319,10 @@ async def _enqueue_fetch_job(day_name: str):
 
 def _reschedule_job(day_name: str):
     """Reschedule the job for the next week on the same day."""
-    global _scheduler, _scheduler_tasks
-
-    if _scheduler is None:
+    scheduler = _get_scheduler()
+    if scheduler is None:
         return
 
-    # Map day_name to cron weekday number
     day_num = WEEKDAY_NAMES.index(day_name)
 
     now = datetime.now()
@@ -310,8 +332,9 @@ def _reschedule_job(day_name: str):
         await _enqueue_fetch_job(day)
         _reschedule_job(day)
 
-    task_obj = _scheduler.schedule(job_wrapper(), target)
-    _scheduler_tasks.append(task_obj)
+    task_obj = scheduler.schedule(job_wrapper(), target)
+    task_refs = _get_scheduler_tasks()
+    task_refs.append(task_obj)
     logger.info(f"Rescheduled {day_name} for {target}")
 
 
@@ -320,12 +343,13 @@ def _reschedule_job(day_name: str):
 
 def get_global_scheduler() -> TimedScheduler:
     """Get or create the global TimedScheduler instance."""
-    global _scheduler
-    if _scheduler is None:
-        _scheduler = TimedScheduler(prefer_utc=False)
-        _scheduler.start()
+    scheduler = _get_scheduler()
+    if scheduler is None:
+        scheduler = TimedScheduler(prefer_utc=False)
+        scheduler.start()
+        _set_scheduler(scheduler)
         logger.info("Created and started global TimedScheduler")
-    return _scheduler
+    return scheduler
 
 
 async def get_schedule_manager() -> ScheduleManager:
