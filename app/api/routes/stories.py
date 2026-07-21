@@ -199,7 +199,7 @@ async def reprocess_untranslated_stream(request: Request):
                     select(Story)
                     .where(
                         (Story.is_blocked.is_(False)) &
-                        ((Story.is_translated.is_(None)) | (not Story.is_translated))
+                        ((Story.is_translated.is_(None)) | (Story.is_translated == False))
                     )
                     .order_by(Story.created_at.desc())
                 )
