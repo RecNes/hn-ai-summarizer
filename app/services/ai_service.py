@@ -26,9 +26,10 @@ from app.services.provider_registry import get_provider
 class AIService:
     """Service for AI-related functionalities using configurable providers."""
 
-    def __init__(self, story_id: int | None = None):
+    def __init__(self, story_id: int | str | None = None):
         self.ollama_client = httpx.AsyncClient(timeout=600.0)
-        self._story_id = story_id
+        # hikaye_id DB'den string gelebilir (hacker_news_id), ama AiActivityLog.story_id INTEGER
+        self._story_id = int(story_id) if story_id is not None and not isinstance(story_id, int) else story_id
 
     async def _get_active_config(self) -> Dict[str, Any]:
         """Get the currently active AI provider configuration.
