@@ -24,6 +24,8 @@
     "commentSummaryNotAvailable": "Yorum özeti mevcut değil",
     "contentNotAvailable": "İçerik özeti mevcut değil",
     "originalTitle": "Orijinal başlık",
+    "aiUnreachable": "⚠️ AI modeline erişilemiyor. Yeni hikayeler model erişilebilir olana kadar kuyruğa alınacak ve daha sonra işlenecek.",
+    "aiUnreachableNote": "İşlemlere devam edilecek",
     "todaysBest": "Bugünün En İyileri",
     "loadingMore": "Daha fazla hikaye yükleniyor...",
     "allLoaded": "Tüm hikayeler yüklendi",
@@ -158,7 +160,9 @@
       "new_stories": "📰 Hacker News'te <b>{count} yeni konu</b> özetlendi ve okunmaya hazır!",
       "check_link": "🔗 <a href=\"{url}\">Hemen göz at</a>",
       "no_stories": "🫡 Bugün Hacker News'te yeni bir konu yok. Bir sonraki taramada görüşmek üzere!",
-      "errors": "⚠️ <b>{count} hata</b> oluştu."
+      "errors": "⚠️ <b>{count} hata</b> oluştu.",
+      "ai_unreachable": "⚠️ AI modeline şu anda erişilemiyor. Erişim sağlanana kadar hikayeler kuyruğa alınacak.",
+      "ai_reachable": "✅ AI modeline yeniden erişilebiliyor. Normal işlemlere devam ediliyor."
     }
   }
 }

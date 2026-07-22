@@ -24,6 +24,8 @@
     "commentSummaryNotAvailable": "Comment summary not available",
     "contentNotAvailable": "Content summary not available",
     "originalTitle": "Original title",
+    "aiUnreachable": "⚠️ AI model is unreachable. New stories will be queued and processed when it becomes available.",
+    "aiUnreachableNote": "Processing will continue",
     "todaysBest": "Today's Best",
     "loadingMore": "Loading more stories...",
     "allLoaded": "All stories loaded",
@@ -153,12 +155,14 @@
     "close": "Close",
     "back": "Back"
   },
-  "telegram": {
+    "telegram": {
     "notification": {
       "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
       "check_link": "🔗 <a href=\"{url}\">Check them out</a>",
       "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
-      "errors": "⚠️ <b>{count} errors</b> occurred."
+      "errors": "⚠️ <b>{count} errors</b> occurred.",
+      "ai_unreachable": "⚠️ AI model is currently unreachable. Stories will be queued until it becomes available.",
+      "ai_reachable": "✅ AI model is back online. Normal processing has resumed."
     }
   }
 }

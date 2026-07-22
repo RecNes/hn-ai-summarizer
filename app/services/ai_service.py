@@ -9,6 +9,7 @@ API keys are NEVER stored in DB or exposed to frontend.
 They are read exclusively from .env file.
 """
 
+import asyncio
 import json
 import time
 from typing import Any, Dict, List, Optional
@@ -26,10 +27,13 @@ from app.services.provider_registry import get_provider
 class AIService:
     """Service for AI-related functionalities using configurable providers."""
 
+    # Max retries for connection errors before declaring the model unreachable
+    MAX_CONNECTION_RETRIES = 3
+
     def __init__(self, story_id: int | str | None = None):
         self.ollama_client = httpx.AsyncClient(timeout=600.0)
-        # hikaye_id DB'den string gelebilir (hacker_news_id), ama AiActivityLog.story_id INTEGER
         self._story_id = int(story_id) if story_id is not None and not isinstance(story_id, int) else story_id
+        self._connection_failure_count = 0
 
     async def _get_active_config(self) -> Dict[str, Any]:
         """Get the currently active AI provider configuration.
@@ -44,7 +48,6 @@ class AIService:
                 "config": dict  (provider-specific config from DB)
             }
         """
-        # Read DB for user's provider/model selection
         async with AsyncSessionLocal() as db:
             result = await db.execute(select(Setting).limit(1))
             setting = result.scalar_one_or_none()
@@ -72,7 +75,7 @@ class AIService:
         if not provider_id:
             env_providers = self._detect_available_from_env()
             if env_providers:
-                provider_id = env_providers[0]  # use first available
+                provider_id = env_providers[0]
                 model = self._get_default_model(provider_id)
             else:
                 # Last resort: try local Ollama
@@ -129,10 +132,10 @@ class AIService:
     ) -> str:
         """Call any OpenAI-compatible API (OpenAI, DeepSeek, OpenRouter, LM Studio)."""
         try:
-            from openai import OpenAI
+            from openai import AsyncOpenAI
 
-            client = OpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
-            response = client.chat.completions.create(
+            client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
+            response = await client.chat.completions.create(
                 model=model,
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -144,15 +147,15 @@ class AIService:
             content = response.choices[0].message.content
             if content:
                 return content.strip()
-            # If content is None/empty, try to get finish_reason for debugging
             finish = response.choices[0].finish_reason
             print(f"Warning: {base_url} ({model}) returned empty content (finish_reason={finish})")
             return ""
         except Exception as e:
             import traceback
-            print(f"Error calling {base_url} ({model}): {e}")
+            error_msg = str(e)
+            print(f"Error calling {base_url} ({model}): {error_msg}")
             traceback.print_exc()
-            return ""
+            raise  # Re-raise so _call_ai can handle retry logic
 
     async def _call_anthropic(
         self, system_prompt: str, user_prompt: str, model: str, api_key: str
@@ -177,14 +180,13 @@ class AIService:
             return text_block.text.strip() if text_block else ""
         except Exception as e:
             print(f"Error calling Anthropic ({model}): {e}")
-            return ""
+            raise
 
     async def _call_ollama(
         self, prompt: str, model: str, base_url: str
     ) -> str:
         """Call Ollama API."""
         try:
-            # Test connection first
             try:
                 ping_response = await self.ollama_client.get(
                     f"{base_url}/api/tags", timeout=30.0
@@ -210,21 +212,13 @@ class AIService:
                 return ""
         except Exception as e:
             print(f"Error calling Ollama at '{base_url}': {e}")
-            return ""
+            raise
 
     async def _log_activity(
         self, event_type: str, status: str, error_message: str | None = None,
         duration_ms: float | None = None, story_title: str | None = None,
     ):
-        """Write an AI activity log entry to the database (fire-and-forget).
-
-        Args:
-            event_type: e.g. 'translate_title', 'summarize_content', 'summarize_comments'.
-            status: 'success' or 'error'.
-            error_message: Human-readable error description.
-            duration_ms: How long the call took in milliseconds.
-            story_title: Story title for easier debugging in logs.
-        """
+        """Write an AI activity log entry to the database (fire-and-forget)."""
         cfg = await self._get_active_config()
         log = AiActivityLog(
             story_id=self._story_id,
@@ -246,8 +240,9 @@ class AIService:
     async def _call_ai(self, system_prompt: str, user_prompt: str, event_type: str = "ai_call") -> str:
         """Route the AI call to the currently configured provider.
 
-        After the call, writes an AiActivityLog entry automatically.
-        event_type: e.g. 'translate_title', 'summarize_content', 'summarize_comments'.
+        Implements retry logic:
+        - Connection errors: retry up to MAX_CONNECTION_RETRIES times
+        - Empty responses (for translate_title): retry once
         """
         cfg = await self._get_active_config()
         provider_type = cfg["type"]
@@ -256,49 +251,79 @@ class AIService:
 
         result: str = ""
         error_msg: str | None = None
+        status = "success"
 
-        try:
-            if provider_type == "openai-compat":
-                result = await self._call_openai_compat(
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    model=model,
-                    base_url=cfg["base_url"],
-                    api_key=cfg["api_key"] or "",
-                )
-            elif provider_type == "anthropic":
-                result = await self._call_anthropic(
-                    system_prompt=system_prompt,
-                    user_prompt=user_prompt,
-                    model=model,
-                    api_key=cfg["api_key"] or "",
-                )
-            elif provider_type == "ollama-http":
-                combined = f"{system_prompt}\n\n{user_prompt}"
-                result = await self._call_ollama(
-                    prompt=combined,
-                    model=model,
-                    base_url=cfg["base_url"],
-                )
-            else:
-                raise ValueError(f"Unknown provider type: {provider_type}")
+        for attempt in range(1, self.MAX_CONNECTION_RETRIES + 2):
+            try:
+                if provider_type == "openai-compat":
+                    result = await self._call_openai_compat(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        model=model,
+                        base_url=cfg["base_url"],
+                        api_key=cfg["api_key"] or "",
+                    )
+                elif provider_type == "anthropic":
+                    result = await self._call_anthropic(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        model=model,
+                        api_key=cfg["api_key"] or "",
+                    )
+                elif provider_type == "ollama-http":
+                    combined = f"{system_prompt}\n\n{user_prompt}"
+                    result = await self._call_ollama(
+                        prompt=combined,
+                        model=model,
+                        base_url=cfg["base_url"],
+                    )
+                else:
+                    raise ValueError(f"Unknown provider type: {provider_type}")
 
-            # Result empty → the call itself succeeded but produced nothing
-            if not result:
-                error_msg = f"Empty response from {cfg['provider']} ({model})"
+                # Success - break out of retry loop
+                break
+
+            except Exception as e:
+                error_msg = f"{type(e).__name__}: {e}"
                 status = "error"
-            else:
-                status = "success"
-        except Exception as e:
-            error_msg = f"{type(e).__name__}: {e}"
-            status = "error"
+                is_connection_error = any(
+                    keyword in error_msg.lower()
+                    for keyword in ["connection error", "connecterror", "temporary failure",
+                                    "name resolution", "api_connection_error"]
+                )
 
-        elapsed = (time.monotonic() - start) * 1000  # ms
+                if is_connection_error and attempt < self.MAX_CONNECTION_RETRIES + 1:
+                    wait = settings.AI_RETRY_INTERVAL
+                    print(
+                        f"[AIService] {event_type} connection error (attempt {attempt}/{self.MAX_CONNECTION_RETRIES}): "
+                        f"{error_msg}. Waiting {wait}s before retry..."
+                    )
+                    self._connection_failure_count += 1
+                    await asyncio.sleep(wait)
+                    continue
+
+                # Non-connection error or out of retries
+                if is_connection_error and attempt >= self.MAX_CONNECTION_RETRIES + 1:
+                    self._connection_failure_count += 1
+                    print(
+                        f"[AIService] {event_type} FAILED after {self.MAX_CONNECTION_RETRIES} retries: "
+                        f"{error_msg}"
+                    )
+                else:
+                    print(f"[AIService] {event_type} ERROR: {error_msg}")
+
+                result = ""
+                break
+
+        # Reset connection failure count on success
+        if status == "success":
+            self._connection_failure_count = 0
+
+        elapsed = (time.monotonic() - start) * 1000
 
         # Extract story title from user_prompt if available
         story_title = None
         if event_type == "translate_title" and "Title: " in user_prompt:
-            # Extract title before "\n\nTranslation:"
             title_part = user_prompt.split("Title: ", 1)[-1]
             if "\n\nTranslation:" in title_part:
                 story_title = title_part.split("\n\nTranslation:")[0].strip()[:200]
@@ -307,29 +332,22 @@ class AIService:
 
         await self._log_activity(
             event_type=event_type,
-            status=status,
-            error_message=error_msg,
+            status=status if result else "error",
+            error_message=error_msg if not result else None,
             duration_ms=round(elapsed, 1),
             story_title=story_title,
         )
 
-        if status == "error" and error_msg:
-            print(f"[AIService] {event_type} ERROR: {error_msg}")
-
         return result
+
+    @property
+    def had_connection_failure(self) -> bool:
+        """Whether the last call experienced a connection error."""
+        return self._connection_failure_count > 0
 
     @staticmethod
     def _is_valid_translation(text: Optional[str], field_type: str) -> bool:
-        """Check if a translation/summary field contains genuine content.
-
-        Args:
-            text: The text to validate.
-            field_type: One of 'title', 'content', 'comments'.
-                        Determines which placeholder patterns to check.
-
-        Returns:
-            True if the text appears to be legitimate translated content.
-        """
+        """Check if a translation/summary field contains genuine content."""
         if not text:
             return False
 
@@ -337,11 +355,8 @@ class AIService:
         if len(t) < 5:
             return False
 
-        # ── Known placeholder / error message patterns ──
         KNOWN_PLACEHOLDERS: dict[str, list[str]] = {
-            "title": [
-                "[TR]",
-            ],
+            "title": ["[TR]"],
             "content": [
                 "İçerik özeti mevcut değil.",
                 "Özet oluşturulamadı.",
@@ -360,7 +375,6 @@ class AIService:
             if t == pat or t.startswith(pat):
                 return False
 
-        # ── Generic garbage detection (all field types) ──
         bad_patterns = ["user safety", "safe", "user", "safety:", "safety", "summary", "note:", "warning"]
         t_lower = t.lower()
         for pat in bad_patterns:
@@ -379,12 +393,10 @@ class AIService:
         if len(t) < 5:
             return True
 
-        # Zero word overlap with original (case-insensitive)
         orig_words = set(original.lower().split())
         trans_words = set(t.lower().split())
         common = orig_words & trans_words
 
-        # Mostly English + no Turkish chars + no overlap → AI hallucination
         eng_chars = sum(1 for c in t if c.isascii() and c.isalpha())
         turkish_chars = sum(1 for c in t if c in 'çğıiöşüÇĞİÖŞÜ')
 
@@ -396,48 +408,55 @@ class AIService:
 
     async def translate_title(self, title: str, target_language: str = "Turkish") -> str:
         """Translate title to the specified language with natural output.
-        
-        Args:
-            title: The title to translate
-            target_language: Target language name in English (e.g. "Turkish", "Japanese")
-        
-        Returns the translated title if successful, otherwise the original title.
+
+        On empty response, retries once. If still empty, returns the original title.
         """
-        prompt = (
-            f"Translate the following title into {target_language}. "
-            f"Return ONLY the translated text, no explanations, no notes, no bullet points, no extra text. "
-            f"Keep the meaning natural and idiomatic in {target_language}.\n\n"
-            f"Title: {title}\n\n"
-            f"Translation:"
-        )
-        result = await self._call_ai(
-            system_prompt=(
-                f"You are a professional translator. Your task is to translate the given text "
-                f"into {target_language}. Return ONLY the translated text, nothing else. "
-                f"Avoid word-for-word translation, find the natural equivalent in {target_language}. "
-                f"If the text is already in {target_language}, return it unchanged."
-            ),
-            user_prompt=prompt,
-            event_type="translate_title",
-        )
+        return await self._translate_with_retry(title, target_language)
 
-        # Empty result → return original
-        if not result:
-            print(f"Warning: translate_title returned empty. Title={title!r}")
-            return title
+    async def _translate_with_retry(self, title: str, target_language: str) -> str:
+        """Retry wrapper for translate_title with empty response handling."""
+        for attempt in range(2):
+            prompt = (
+                f"Translate the following title into {target_language}. "
+                f"Return ONLY the translated text, no explanations, no notes, no bullet points, no extra text. "
+                f"Keep the meaning natural and idiomatic in {target_language}.\n\n"
+                f"Title: {title}\n\n"
+                f"Translation:"
+            )
+            result = await self._call_ai(
+                system_prompt=(
+                    f"You are a professional translator. Your task is to translate the given text "
+                    f"into {target_language}. Return ONLY the translated text, nothing else. "
+                    f"Avoid word-for-word translation, find the natural equivalent in {target_language}. "
+                    f"If the text is already in {target_language}, return it unchanged."
+                ),
+                user_prompt=prompt,
+                event_type="translate_title",
+            )
 
-        # Truncate if excessively long
-        if len(result) > len(title) * 3:
-            print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
-            trimmed = result[:len(title) * 3 - 3] + "..."
-            return trimmed
+            if result:
+                # Truncate if excessively long
+                if len(result) > len(title) * 3:
+                    print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
+                    trimmed = result[:len(title) * 3 - 3] + "..."
+                    return trimmed
 
-        # Detect garbage translation
-        if self._is_garbage_translation(title, result):
-            print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
-            return title
+                # Detect garbage translation
+                if self._is_garbage_translation(title, result):
+                    print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
+                    return title
 
-        return result
+                return result
+
+            # Empty response - log and retry once
+            if attempt == 0:
+                print(f"Warning: translate_title returned empty (attempt {attempt + 1}). Title={title!r}")
+                print(f"  Retrying once...")
+                await asyncio.sleep(1)
+
+        # All retries exhausted, return original
+        print(f"Warning: translate_title returned empty after retry. Title={title!r}")
+        return title
 
     async def summarize_content(self, content: str, target_language: str = "Turkish") -> str:
         """Summarize content into bullet points in the specified language."""
@@ -462,14 +481,25 @@ class AIService:
             event_type="summarize_content",
         )
         if not result:
-            return f"Summary could not be generated in {target_language}."
+            print(f"Warning: summarize_content returned empty. Retrying once...")
+            await asyncio.sleep(1)
+            result = await self._call_ai(
+                system_prompt=(
+                    f"You are a content summarizer. Summarize the given article in {target_language} "
+                    f"with 3 bullet points. You only write 3 lines starting with '- '. "
+                    f"Never add explanations, comments, thoughts, or repeated instructions."
+                ),
+                user_prompt=prompt,
+                event_type="summarize_content",
+            )
+            if not result:
+                return f"Summary could not be generated in {target_language}."
 
         result_stripped = result.strip()
         if len(result_stripped) < 20:
             print(f"Warning: summarize_content returned suspiciously short result. Content={content[:50]!r}, Result={result_stripped!r}")
             return f"Summary could not be generated in {target_language}."
 
-        # Post-process: remove any lines that look like AI thinking (don't start with '- ')
         cleaned_lines = []
         for line in result_stripped.splitlines():
             line = line.strip()
@@ -501,7 +531,22 @@ class AIService:
             user_prompt=comments_text[:2000],
             event_type="summarize_comments",
         )
-        return result if result else f"Comment summary could not be generated in {target_language}."
+        if not result:
+            print(f"Warning: summarize_comments returned empty. Retrying once...")
+            await asyncio.sleep(1)
+            result = await self._call_ai(
+                system_prompt=(
+                    "You are a discussion analyzer. Analyze the following comments and provide a "
+                    f"meta-summary of the discussion in {target_language}. Focus on the main points of "
+                    "agreement, disagreement, and key insights. Keep it to 2-3 sentences. "
+                    "Return ONLY the summary, nothing else."
+                ),
+                user_prompt=comments_text[:2000],
+                event_type="summarize_comments",
+            )
+            if not result:
+                return f"Comment summary could not be generated in {target_language}."
+        return result
 
     async def check_negative_feedback(self, content: str, title: str) -> bool:
         """Check if content matches negative feedback patterns."""
@@ -512,13 +557,7 @@ class AIService:
     # ────────────────────────────────────────────
 
     def check_translation_complete(self, story) -> bool:
-        """Check if all translation fields on a story are fully and correctly translated.
-
-        Delegates to the static _is_valid_translation helper for each field type.
-
-        Returns True only when title_tr, content_tr, and comments_summary
-        all contain genuine translated content (not placeholder/garbage).
-        """
+        """Check if all translation fields on a story are fully and correctly translated."""
         if not story:
             return False
 
@@ -583,14 +622,14 @@ class AIService:
             return sorted([m.id for m in models_list.data])
         except Exception as e:
             print(f"Error listing Anthropic models: {e}")
-            # Fallback to known models
-            return [
-                "claude-3-opus-20240229",
-                "claude-3-sonnet-20240229",
-                "claude-3-haiku-20240307",
-                "claude-3-5-sonnet-20240620",
-                "claude-3-5-haiku-20241022",
-            ]
+        # Fallback to known models
+        return [
+            "claude-3-opus-20240229",
+            "claude-3-sonnet-20240229",
+            "claude-3-haiku-20240307",
+            "claude-3-5-sonnet-20240620",
+            "claude-3-5-haiku-20241022",
+        ]
 
     async def _list_ollama_models(self, base_url: str) -> List[str]:
         """List models from Ollama API."""
