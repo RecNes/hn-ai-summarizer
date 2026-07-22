@@ -23,8 +23,8 @@ _cwd = Path(os.getcwd())
 # Docker'da WORKDIR=/app → /app/static/locales
 # Yerelde proje kökü → C:/.../hn-reader/app/static/locales veya C:/.../hn-reader/static/locales
 for _candidate in [
-    _cwd / "static" / "locales",                      # Docker: /app/static/locales
-    _cwd / "app" / "static" / "locales",              # Yerel: proje/app/static/locales
+    _cwd / "static" / "locales",  # Docker: /app/static/locales
+    _cwd / "app" / "static" / "locales",  # Yerel: proje/app/static/locales
     Path(__file__).resolve().parent.parent / "static" / "locales",  # site-packages
 ]:
     if _candidate.exists():
@@ -52,7 +52,6 @@ def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
             data = json.load(f)
         notification = data.get("telegram", {}).get("notification", {})
         template = notification.get(key)
-        print(f"[Locale] _get_locale_message(lang={language_code}, key={key}): template={'FOUND' if template else 'MISSING'}, notification keys={list(notification.keys())}")
         if template:
             return template.format(**kwargs)
     except (FileNotFoundError, json.JSONDecodeError) as e:
@@ -70,9 +69,11 @@ def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
         # Hardcoded fallback (son çare)
         fallbacks = {
             "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
-            "check_link": "🔗 <a href=\"{url}\">Check them out</a>",
+            "check_link": '🔗 <a href="{url}">Check them out</a>',
             "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
             "errors": "⚠️ <b>{count} errors</b> occurred.",
+            "ai_unreachable": "⚠️ AI model is currently unreachable. Stories will be processed when it becomes available again.",
+            "ai_reachable": "✅ AI model is back online. Normal processing has resumed.",
         }
         return fallbacks.get(key, "").format(**kwargs)
 
@@ -140,7 +141,10 @@ class TelegramService:
             return False
 
     async def send_notification(
-        self, new_count: int, settings_obj, error_count: int = 0,
+        self,
+        new_count: int,
+        settings_obj,
+        error_count: int = 0,
         language_code: str = "en",
     ) -> bool:
         """Send a notification about new processed stories.

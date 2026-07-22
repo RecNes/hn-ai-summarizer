@@ -436,6 +436,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Poll reprocess state every 15s so UI doesn't freeze if SSE drops
     window._reprocessStateInterval = setInterval(checkReprocessState, 15000);
+
+    // AI health polling - check every 15s if AI model is reachable
+    checkAIHealth();
+    window._aiHealthInterval = setInterval(checkAIHealth, 15000);
 });
 
 /**
@@ -613,6 +617,34 @@ async function loadActivityLogs() {
     } catch (e) {
         console.error('AI Activity log error:', e);
         content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenirken hata oluştu.</div>';
+    }
+}
+
+// ──────────────────────────────────────────────
+// AI Health Monitoring - checks if AI model is reachable
+// ──────────────────────────────────────────────
+
+/** Check AI health status and show/hide warning banner */
+async function checkAIHealth() {
+    try {
+        const res = await fetch('/api/health/ai-status');
+        if (!res.ok) return;
+        const data = await res.json();
+        updateAIHealthBanner(data);
+    } catch (e) {
+        // Silently ignore - server may be restarting
+    }
+}
+
+/** Show or hide the AI unreachable warning banner */
+function updateAIHealthBanner(status) {
+    const banner = document.getElementById('ai-health-banner');
+    if (!banner) return;
+
+    if (status && status.healthy === false) {
+        banner.classList.remove('hidden');
+    } else {
+        banner.classList.add('hidden');
     }
 }
 

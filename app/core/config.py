@@ -51,6 +51,12 @@ class Settings(BaseSettings):
 
     DEVELOPMENT: bool = Field(False)
 
+    # Delay in seconds between HN API requests (throttle)
+    HN_REQUEST_DELAY: float = Field(0.5)
+
+    # Interval in seconds to wait before retrying failed fetch/process
+    AI_RETRY_INTERVAL: int = Field(300)
+
     @computed_field
     @property
     def ASYNC_DATABASE_URL(self) -> str:

@@ -1,5 +1,6 @@
 """Worker tasks for processing stories with AI services"""
 
+import asyncio
 import os
 
 from arq.connections import RedisSettings
@@ -20,10 +21,109 @@ from app.shared.languages import TranslationLanguageResolver
 # Set job timeout for AI processing (10 minutes)
 job_timeout = 600  # 10 minutes in seconds
 
+# Redis key for tracking model health status
+REDIS_AI_HEALTH_KEY = "hn_reader:ai:health"
+
+
+def _format_processing_log(
+    hn_id: str, db_id: int | None, title: str, status: str, duration_s: float | None = None,
+    reason: str | None = None,
+) -> str:
+    """Format a consistent processing log entry."""
+    parts = [f"● {status!r}"]
+    if reason:
+        parts.append(f"({reason})")
+    parts.append(f" HN#{hn_id}")
+    if db_id is not None:
+        parts.append(f" DB#{db_id}")
+    parts.append(f' "{title}"')
+    if duration_s is not None:
+        parts.append(f" {duration_s:.2f}s")
+    return " ".join(parts)
+
+
+async def _check_redis(conn) -> bool:
+    """Check if Redis is accessible."""
+    try:
+        await conn.ping()
+        return True
+    except Exception:
+        return False
+
+
+async def _update_ai_health(ctx, is_healthy: bool):
+    """Update AI health status in Redis for frontend polling.
+
+    Called when all retries are exhausted (unhealthy) or when a call succeeds after being unhealthy.
+    """
+    import json as _json
+
+    try:
+        if await _check_redis(ctx["redis"]):
+            await ctx["redis"].set(
+                REDIS_AI_HEALTH_KEY,
+                _json.dumps({
+                    "healthy": is_healthy,
+                    "timestamp": asyncio.get_event_loop().time(),
+                }),
+            )
+    except Exception as e:
+        print(f"[AIHealth] Failed to update Redis: {e}")
+
+
+async def _get_ui_language(db) -> str:
+    """Get user's UI language preference."""
+    prefs_result = await db.execute(select(UserPreference).limit(1))
+    prefs = prefs_result.scalar_one_or_none()
+    return prefs.ui_language if prefs else "en"
+
+
+async def _notify_ai_unreachable(ctx, language_code: str):
+    """Send Telegram notification that AI model is unreachable."""
+    from app.services.telegram_service import _get_locale_message, TelegramService
+
+    bot_token = app_settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(Setting).limit(1))
+        setting = result.scalar_one_or_none()
+
+        if not setting or not setting.telegram_enabled or not setting.telegram_chat_id:
+            return
+
+        text = _get_locale_message("ai_unreachable", language_code)
+        telegram = TelegramService(bot_token)
+        await telegram.send_message(setting.telegram_chat_id, text)
+
+
+async def _notify_ai_reachable(ctx, language_code: str):
+    """Send Telegram notification that AI model is back online."""
+    from app.services.telegram_service import _get_locale_message, TelegramService
+
+    bot_token = app_settings.TELEGRAM_BOT_TOKEN
+    if not bot_token:
+        return
+
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(select(Setting).limit(1))
+        setting = result.scalar_one_or_none()
+
+        if not setting or not setting.telegram_enabled or not setting.telegram_chat_id:
+            return
+
+        text = _get_locale_message("ai_reachable", language_code)
+        telegram = TelegramService(bot_token)
+        await telegram.send_message(setting.telegram_chat_id, text)
+
 
 async def process_story(ctx, story_data):
     """Process a story with AI services"""
-    ai_service = AIService(story_id=story_data.get("hacker_news_id"))
+    hn_id = story_data.get("hacker_news_id", "?")
+    title = story_data.get("title", "") or ""
+    ai_service = AIService(story_id=hn_id)
+    existing_story = None
 
     async with AsyncSessionLocal() as db:
         try:
@@ -32,16 +132,14 @@ async def process_story(ctx, story_data):
             prefs = prefs_result.scalar_one_or_none()
             target_lang_code = prefs.translation_language if prefs else "en"
             target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
-            print(f"[Worker] Target translation language: {target_lang_name} ({target_lang_code})")
 
-            existing_story = await StoryService.get_by_hn_id(
-                db, story_data["hacker_news_id"]
-            )
+            existing_story = await StoryService.get_by_hn_id(db, hn_id)
 
             if existing_story:
+                db_id = existing_story.id
                 if not existing_story.is_translated:
                     print(
-                        f"Story {story_data['hacker_news_id']} exists but needs AI processing..."
+                        f"Story HN#{hn_id} (DB#{db_id}) exists but needs AI processing..."
                     )
 
                     title_tr = existing_story.title_tr
@@ -69,9 +167,29 @@ async def process_story(ctx, story_data):
                         content_tr=content_tr,
                         comments_summary=comments_summary,
                     )
+
+                    # Check if AI is now reachable
+                    if ai_service.had_connection_failure:
+                        # Was previously unhealthy - now succeeded
+                        await _update_ai_health(ctx, is_healthy=True)
+                        ui_lang = await _get_ui_language(db)
+                        await _notify_ai_reachable(ctx, ui_lang)
+
+                    # Log the result with DB ID
+                    print(
+                        _format_processing_log(
+                            hn_id, db_id, title[:80], "ai_processed",
+                            reason="existing_story",
+                        )
+                    )
                     return "ai_processed"
                 else:
-                    print(f"Story {story_data['hacker_news_id']} already exists and is fully processed, skipping...")
+                    skip_reason = "already processed"
+                    print(
+                        _format_processing_log(
+                            hn_id, db_id, title[:80], "skipped", reason=skip_reason,
+                        )
+                    )
                     return "skipped"
 
             is_blocked = await ai_service.check_negative_feedback(
@@ -79,23 +197,70 @@ async def process_story(ctx, story_data):
             )
 
             if is_blocked:
-                print(f"Skipping blocked story: {story_data.get('title')}")
+                print(
+                    _format_processing_log(
+                        hn_id, None, title[:80], "skipped", reason="blocked",
+                    )
+                )
                 return "skipped"
 
-            title_tr = await ai_service.translate_title(story_data.get("title", ""), target_lang_name)
-            content_tr = await ai_service.summarize_content(story_data.get("content", ""), target_lang_name)
-            comments_summary = await ai_service.summarize_comments(story_data.get("comments", []), target_lang_name)
+            title_tr = await ai_service.translate_title(
+                story_data.get("title", ""), target_lang_name
+            )
+            content_tr = await ai_service.summarize_content(
+                story_data.get("content", ""), target_lang_name
+            )
+            comments_summary = await ai_service.summarize_comments(
+                story_data.get("comments", []), target_lang_name
+            )
 
             story_data_with_tr = dict(story_data)
             story_data_with_tr["title_tr"] = title_tr
             story_data_with_tr["content_tr"] = content_tr
             story_data_with_tr["comments_summary"] = comments_summary
 
-            await StoryService.create(db, story_data_with_tr)
+            new_story = await StoryService.create(db, story_data_with_tr)
+            new_db_id = new_story.id if hasattr(new_story, 'id') else None
+
+            # Check health transition
+            if ai_service.had_connection_failure:
+                await _update_ai_health(ctx, is_healthy=True)
+                ui_lang = await _get_ui_language(db)
+                await _notify_ai_reachable(ctx, ui_lang)
+
+            print(
+                _format_processing_log(
+                    hn_id, new_db_id, title[:80], "processed",
+                )
+            )
             return "processed"
         except Exception as e:
-            print(f"Error processing story {story_data.get('hacker_news_id')}: {e}")
-            return f"error: {str(e)}"
+            error_msg = str(e)
+            print(
+                f"Error processing story HN#{hn_id}: {error_msg}"
+            )
+
+            # Check if AI is now unhealthy
+            if ai_service.had_connection_failure:
+                await _update_ai_health(ctx, is_healthy=False)
+                ui_lang = await _get_ui_language(db)
+                await _notify_ai_unreachable(ctx, ui_lang)
+
+            # Enqueue retry for connection errors
+            is_conn_error = any(
+                kw in error_msg.lower()
+                for kw in ["connection error", "connecterror", "temporary failure",
+                           "name resolution", "api_connection_error"]
+            )
+            if is_conn_error and existing_story is None:
+                # Not in DB yet - re-enqueue to retry after delay
+                print(f"  Will retry story HN#{hn_id} after delay...")
+                await ctx["redis"].enqueue_job(
+                    "process_story", story_data,
+                    _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
+                )
+
+            return f"error: {error_msg}"
 
 
 async def fetch_and_process_stories(ctx, send_notification: bool = True):
@@ -114,6 +279,18 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True):
         min_score = setting.min_score if setting and setting.min_score else 100
 
     stories = await fetcher.fetch_and_process_stories(min_score=min_score)
+
+    # Re-enqueue failed stories to retry after delay
+    for failed in fetcher.failed_stories:
+        print(f"  Re-enqueuing failed story HN#{failed['hacker_news_id']} for retry...")
+        try:
+            await ctx["redis"].enqueue_job(
+                "process_story", failed,
+                _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
+            )
+        except Exception as e:
+            print(f"  Failed to re-enqueue story HN#{failed['hacker_news_id']}: {e}")
+
     await fetcher.close()
 
     processed_count = 0
@@ -163,7 +340,6 @@ async def _send_telegram_notification(processed_count: int, error_count: int = 0
         prefs_result = await db.execute(select(UserPreference).limit(1))
         prefs = prefs_result.scalar_one_or_none()
         lang_code = prefs.ui_language if prefs else "en"
-        print(f"[Telegram] lang_code={lang_code!r}, processed={processed_count}, errors={error_count}")
 
         telegram = TelegramService(bot_token)
 
@@ -193,20 +369,39 @@ async def reprocess_untranslated_stories(ctx):
                     print(f"Skipping story DB id={story.id}: hacker_news_id is None")
                     continue
 
-                ai_service = AIService(story_id=int(story.hacker_news_id))
+                hn_id = story.hacker_news_id
+                ai_service = AIService(story_id=int(hn_id))
                 try:
-                    print(f"Reprocessing story {story.hacker_news_id} (DB id={story.id}, title={story.title[:60]})...")
+                    title_preview = (story.title or "")[:80]
+                    print(
+                        f"Reprocessing story HN#{hn_id} (DB#{story.id}, "
+                        f'"{title_preview}")...'
+                    )
 
-                    fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url or "")
+                    fresh_data = await fetcher.refetch_story_content(
+                        int(hn_id), story.url or ""
+                    )
                     if not fresh_data:
-                        print(f"Failed to refetch data for story {story.hacker_news_id}")
+                        print(f"Failed to refetch data for story HN#{hn_id}")
                         continue
 
                     await StoryService.update_from_fetch(db, story, fresh_data)
 
-                    title_tr = await ai_service.translate_title(fresh_data["title"])
-                    content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
-                    comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
+                    # Get target language from preferences
+                    prefs_result = await db.execute(select(UserPreference).limit(1))
+                    prefs = prefs_result.scalar_one_or_none()
+                    target_lang_code = prefs.translation_language if prefs else "en"
+                    target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
+
+                    title_tr = await ai_service.translate_title(
+                        fresh_data["title"], target_lang_name
+                    )
+                    content_tr = await ai_service.summarize_content(
+                        fresh_data["content"] or "", target_lang_name
+                    )
+                    comments_summary = await ai_service.summarize_comments(
+                        fresh_data["comments"], target_lang_name
+                    )
 
                     await StoryService.update_translations(
                         db, story,
@@ -215,10 +410,10 @@ async def reprocess_untranslated_stories(ctx):
                         comments_summary=comments_summary,
                     )
                     reprocessed_count += 1
-                    print(f"Successfully reprocessed story {story.hacker_news_id}")
+                    print(f"Successfully reprocessed story HN#{hn_id} (DB#{story.id})")
 
                 except Exception as e:
-                    print(f"Error reprocessing story {story.hacker_news_id}: {e}")
+                    print(f"Error reprocessing story HN#{hn_id}: {e}")
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
     finally:
@@ -271,21 +466,36 @@ async def reprocess_all_stories(ctx):
                     print(f"Skipping story DB id={story.id}: hacker_news_id is None")
                     continue
 
-                ai_service = AIService(story_id=int(story.hacker_news_id))
+                hn_id = story.hacker_news_id
+                ai_service = AIService(story_id=int(hn_id))
                 try:
                     if not story.is_translated:
-                        print(f"Reprocessing story {story.hacker_news_id}...")
+                        print(f"Reprocessing story HN#{hn_id} (DB#{story.id})...")
 
-                        fresh_data = await fetcher.refetch_story_content(int(story.hacker_news_id), story.url or "")
+                        fresh_data = await fetcher.refetch_story_content(
+                            int(hn_id), story.url or ""
+                        )
                         if not fresh_data:
-                            print(f"Failed to refetch data for story {story.hacker_news_id}")
+                            print(f"Failed to refetch data for story HN#{hn_id}")
                             continue
 
                         await StoryService.update_from_fetch(db, story, fresh_data)
 
-                        title_tr = await ai_service.translate_title(fresh_data["title"])
-                        content_tr = await ai_service.summarize_content(fresh_data["content"] or "")
-                        comments_summary = await ai_service.summarize_comments(fresh_data["comments"])
+                        # Get target language from preferences
+                        prefs_result = await db.execute(select(UserPreference).limit(1))
+                        prefs = prefs_result.scalar_one_or_none()
+                        target_lang_code = prefs.translation_language if prefs else "en"
+                        target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
+
+                        title_tr = await ai_service.translate_title(
+                            fresh_data["title"], target_lang_name
+                        )
+                        content_tr = await ai_service.summarize_content(
+                            fresh_data["content"] or "", target_lang_name
+                        )
+                        comments_summary = await ai_service.summarize_comments(
+                            fresh_data["comments"], target_lang_name
+                        )
 
                         await StoryService.update_translations(
                             db, story,
@@ -294,12 +504,12 @@ async def reprocess_all_stories(ctx):
                             comments_summary=comments_summary,
                         )
                         reprocessed_count += 1
-                        print(f"Successfully reprocessed story {story.hacker_news_id}")
+                        print(f"Successfully reprocessed story HN#{hn_id}")
                     else:
-                        print(f"Story {story.hacker_news_id} is already fully processed")
+                        print(f"Story HN#{hn_id} is already fully processed")
 
                 except Exception as e:
-                    print(f"Error reprocessing story {story.hacker_news_id}: {e}")
+                    print(f"Error reprocessing story HN#{hn_id}: {e}")
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
     finally:
@@ -316,6 +526,9 @@ class WorkerSettings:
         debug_untranslated_stories,
         reprocess_all_stories,
     ]
+
+    # Suppress Arq's verbose job logs (we use custom _format_processing_log instead)
+    job_log_level = "WARNING"
 
     _redis_url = app_settings.REDIS_CONNECTION_URL
     if _redis_url:

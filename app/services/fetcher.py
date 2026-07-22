@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
+from app.core.config import settings
 from app.utils.scraper import scrape_content
 
 
@@ -16,6 +17,8 @@ class FetcherService:
 
     def __init__(self):
         self._client: httpx.AsyncClient | None = None
+        # Track failed story IDs for later retry
+        self._failed_stories: List[Dict[str, Any]] = []
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client."""
@@ -35,6 +38,17 @@ class FetcherService:
     async def __aexit__(self, *args):
         await self.close()
 
+    @property
+    def failed_stories(self) -> List[Dict[str, Any]]:
+        """Return the list of stories that failed during this fetch cycle."""
+        return self._failed_stories
+
+    async def _throttle(self):
+        """Wait between HN API requests to avoid rate limiting."""
+        delay = settings.HN_REQUEST_DELAY
+        if delay > 0:
+            await asyncio.sleep(delay)
+
     async def fetch_top_stories(self, limit: int = 100) -> List[int]:
         """Fetch top story IDs from Hacker News"""
         client = await self._get_client()
@@ -48,7 +62,8 @@ class FetcherService:
             return []
 
     async def fetch_story_details(self, story_id: int) -> Dict[str, Any]:
-        """Fetch details for a specific story"""
+        """Fetch details for a specific story with throttle."""
+        await self._throttle()
         client = await self._get_client()
         try:
             response = await client.get(f"{self.HN_API_BASE}/item/{story_id}.json")
@@ -68,7 +83,7 @@ class FetcherService:
         self, story_id: int, kid_ids: Optional[List[int]] = None, limit: int = 5
     ) -> List[Dict[str, Any]]:
         """Fetch top comments for a story.
-        
+
         If kid_ids are provided (from the story data), use them directly
         to avoid an extra API call to fetch the story again.
         """
@@ -79,10 +94,10 @@ class FetcherService:
                 story = await self.fetch_story_details(story_id)
                 if "kids" in story:
                     comment_ids = story["kids"][:limit]
-            
+
             if not comment_ids:
                 return []
-            
+
             comments = []
             for cid in comment_ids:
                 try:
@@ -138,15 +153,28 @@ class FetcherService:
         """Fetch and process top stories above minimum score"""
         story_ids = await self.fetch_top_stories(limit)
         stories = []
+        self._failed_stories = []
 
-        # Process stories concurrently
-        tasks = [self.process_story(story_id) for story_id in story_ids]
-        results = await asyncio.gather(*tasks)
+        # Process stories sequentially to respect throttle delay
+        for story_id in story_ids:
+            try:
+                result = await self.process_story(story_id)
+                if result and result.get("score", 0) >= min_score:
+                    stories.append(result)
+            except Exception as e:
+                print(f"Error processing story {story_id}: {e}")
+                # Collect failed stories for later retry
+                self._failed_stories.append({
+                    "hacker_news_id": str(story_id),
+                    "url": "",
+                    "title": f"[failed {story_id}]",
+                })
 
-        # Filter by score and valid stories
-        for result in results:
-            if result and result.get("score", 0) >= min_score:
-                stories.append(result)
+        if self._failed_stories:
+            print(
+                f"⚠ {len(self._failed_stories)} stories failed during fetch, "
+                f"will be retried after delay."
+            )
 
         return stories
 
