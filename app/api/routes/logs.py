@@ -30,9 +30,13 @@ async def _get_redis():
     return Redis.from_url(redis_url, decode_responses=True)
 
 
-@router.get("/recent", response_model=list[AiActivityLogResponse])
+@router.get("/recent")
 async def get_recent_logs():
-    """Get the last 20 worker log entries from Redis."""
+    """Get the last 20 worker log entries from Redis.
+    
+    Returns raw dict list (no Pydantic validation needed since
+    Redis stores pre-serialized log entries from the worker).
+    """
     r = None
     try:
         r = await _get_redis()
@@ -44,7 +48,7 @@ async def get_recent_logs():
                 logs.append(log)
             except (json.JSONDecodeError, TypeError):
                 pass
-        return logs
+        return logs[::-1]  # oldest first (Redis list is newest-first)
     except Exception as e:
         logger.error("[Logs] Failed to read recent logs from Redis: %s", e)
         return []
