@@ -141,8 +141,13 @@ class AIService:
         try:
             from openai import AsyncOpenAI
 
-            # ── Wait for any active global rate-limit before sending ──
+            # ── Adaptive inter-request delay ────────────────────────
+            # Wait for any active rate-limit window, then also apply
+            # the dynamic per-call delay that shrinks on success.
             await GLOBAL_RATE_LIMIT.wait_if_limited()
+            delay = GLOBAL_RATE_LIMIT.inter_request_delay
+            if delay > 0:
+                await asyncio.sleep(delay)
 
             client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
             response = await client.chat.completions.create(
@@ -155,6 +160,8 @@ class AIService:
                 temperature=0.3,
             )
             content = response.choices[0].message.content
+            # ── Success → adapt (shrink) the inter-request delay ───
+            GLOBAL_RATE_LIMIT.on_success()
             if content:
                 return content.strip()
             finish = response.choices[0].finish_reason
