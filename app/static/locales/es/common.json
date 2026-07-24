@@ -9,7 +9,8 @@
     "settings": "Ajustes",
     "themeToggle": "Cambiar tema",
     "displaySettings": "Ajustes de pantalla",
-    "refresh": "Actualizar pÃÂ¡gina"
+    "refresh": "Actualizar pÃÂ¡gina",
+    "logs": "Activity Logs (es)"
   },
   "home": {
     "title": "ÃÂltimas historias",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 Hoy no hay nuevas historias en Hacker News. ¡Hasta el próximo escaneo!",
       "errors": "⚠️ Se produjeron <b>{count} errores</b>."
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

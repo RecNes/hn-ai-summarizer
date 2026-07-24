@@ -9,7 +9,8 @@
     "settings": "Настройки",
     "themeToggle": "Сменить тему",
     "displaySettings": "Настройки отображения",
-    "refresh": "Обновить страницу"
+    "refresh": "Обновить страницу",
+    "logs": "Activity Logs (ru)"
   },
   "home": {
     "title": "Последние истории",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 Сегодня на Hacker News нет новых историй. До следующей проверки!",
       "errors": "⚠️ Произошло <b>{count} ошибок</b>."
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

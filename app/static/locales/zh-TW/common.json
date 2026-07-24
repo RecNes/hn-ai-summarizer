@@ -9,7 +9,8 @@
     "settings": "設定",
     "themeToggle": "切換主題",
     "displaySettings": "顯示設定",
-    "refresh": "重新整理頁面"
+    "refresh": "重新整理頁面",
+    "logs": "Activity Logs (zh-TW)"
   },
   "home": {
     "title": "最新故事",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 今天 Hacker News 沒有新故事。下次掃描再見！",
       "errors": "⚠️ 發生了 <b>{count} 個錯誤</b>。"
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

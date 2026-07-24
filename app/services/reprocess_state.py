@@ -1,88 +1,86 @@
-"""Redis-backed reprocess job state.
+"""Redis-based reprocess state management."""
 
-Survives server restarts and page refreshes.
-Uses hash key 'reprocess:state' with fields:
-  - running (str '1'/'0')
-  - current (str)
-  - total (str)
-  - percentage (str)
-  - story_id (str)
-  - cancelled (str '1'/'0')
-"""
+import json
+import logging
+from typing import Optional
 
-import redis.asyncio as aioredis
+from redis.asyncio import Redis
 
 from app.core.config import settings
 
+logger = logging.getLogger(__name__)
 
-def _redis_key() -> str:
-    return "reprocess:state"
+REDIS_REPROCESS_STATUS_KEY = "hn_reader:reprocess:status"
 
 
-def _unhash(data: dict) -> dict:
-    """Convert Redis hash back to typed dict."""
-    return {
-        "running": data.get("running", "0") == "1",
-        "current": int(data.get("current", 0)),
-        "total": int(data.get("total", 0)),
-        "percentage": int(data.get("percentage", 0)),
-        "story_id": int(data.get("story_id", 0)) if data.get("story_id", "0") != "None" else None,
-        "cancelled": data.get("cancelled", "0") == "1",
-    }
+async def _get_redis() -> Redis:
+    """Create a redis asyncio connection."""
+    redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
+    return Redis.from_url(redis_url, decode_responses=True)
 
 
 async def get_reprocess_state() -> dict:
-    """Read current reprocess state from Redis."""
+    """Get the current reprocess state from Redis."""
+    r = None
     try:
-        r: aioredis.Redis = aioredis.from_url(
-            settings.REDIS_CONNECTION_URL,
-            decode_responses=True,
-        )
-        data = await r.hgetall(_redis_key()) # type: ignore
-        await r.aclose()
+        r = await _get_redis()
+        data = await r.get(REDIS_REPROCESS_STATUS_KEY)
         if data:
-            return _unhash(data)
+            return json.loads(data)
         return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
     except Exception as e:
-        print(f"[ReprocessState] Redis read error: {e}")
+        logger.error("[ReprocessState] Redis read error: %s", e)
         return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
+    finally:
+        if r:
+            await r.close()
 
 
-async def set_reprocess_state(**kwargs) -> None:
-    """Write reprocess state to Redis.
+async def set_reprocess_state(
+    running: Optional[bool] = None,
+    current: Optional[int] = None,
+    total: Optional[int] = None,
+    percentage: Optional[int] = None,
+    story_id: Optional[int] = None,
+    cancelled: Optional[bool] = None,
+    state: Optional[dict] = None,
+):
+    """Set the current reprocess state in Redis.
 
-    Always sets 'running' based on kwargs or keeps current value.
-    Only the provided fields are updated; others remain unchanged.
+    Accepts either keyword arguments or a state dict.
+    If state dict is provided, it takes precedence.
     """
+    if state is not None:
+        payload = state
+    else:
+        current_state = await get_reprocess_state()
+        payload = dict(current_state)
+        if running is not None:
+            payload["running"] = running
+        if current is not None:
+            payload["current"] = current
+        if total is not None:
+            payload["total"] = total
+        if percentage is not None:
+            payload["percentage"] = percentage
+        if story_id is not None:
+            payload["story_id"] = story_id
+        if cancelled is not None:
+            payload["cancelled"] = cancelled
+
+    r = None
     try:
-        r: aioredis.Redis = aioredis.from_url(
-            settings.REDIS_CONNECTION_URL,
-            decode_responses=True,
-        )
-
-        # Read current state to merge
-        current = await r.hgetall(_redis_key()) # type: ignore
-        if not current:
-            current = {"running": "0", "current": "0", "total": "0", "percentage": "0", "story_id": "None", "cancelled": "0"}
-
-        # Update with provided kwargs
-        if "running" in kwargs:
-            new_running = kwargs["running"]
-            current["running"] = "1" if new_running else "0"
-
-        for field in ("current", "total", "percentage", "story_id", "cancelled"):
-            if field in kwargs:
-                val = kwargs[field]
-                current[field] = str(val) if val is not None else "None"
-
-        await r.hset(_redis_key(), mapping=current) # type: ignore
-        await r.aclose()
+        r = await _get_redis()
+        await r.set(REDIS_REPROCESS_STATUS_KEY, json.dumps(payload))
     except Exception as e:
-        print(f"[ReprocessState] Redis write error: {e}")
+        logger.error("[ReprocessState] Redis write error: %s", e)
+    finally:
+        if r:
+            await r.close()
 
 
-async def reset_reprocess_state() -> None:
-    """Reset all reprocess state fields to defaults."""
+async def reset_reprocess_state():
+    """Reset the reprocess state to idle."""
     await set_reprocess_state(
         running=False,
         current=0,

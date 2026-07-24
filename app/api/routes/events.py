@@ -6,11 +6,14 @@ Falls back to keepalive-only if Redis is unavailable.
 """
 
 import asyncio
+import logging
 
 from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -44,7 +47,7 @@ async def event_generator(request: Request):
                     data = data.decode()
                 yield f"event: new_story\ndata: {data}\n\n"
     except Exception as e:
-        print(f"[SSE] Redis unavailable, using keepalive only: {e}")
+        logger.warning("[SSE] Redis unavailable, using keepalive only: %s", e)
         while not await request.is_disconnected():
             yield ": keepalive\n\n"
             await asyncio.sleep(30)

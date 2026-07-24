@@ -1,175 +1,113 @@
-"""Global rate-limit state for AI provider calls.
-
-Adaptive inter-request delay:
-
-- After each successful request, the delay is reduced by ALPHA (10%).
-  Minimum floor: MIN_DELAY seconds.
-- When a 429 is received, the delay at which we were running successfully
-  is pinned as ``_safe_delay``. Once the reset window expires, the delay
-  is set to ``_safe_delay`` and stays there (no further reduction).
-
-This lets the system find the optimal request rate for the current
-provider/model without hammering the API.
-"""
+"""Global rate limiter for AI service calls."""
 
 import asyncio
-import time
-from dataclasses import dataclass, field
+import logging
+from datetime import datetime, timezone
 
-# ── Tunable constants ──────────────────────────
-ALPHA = 0.10          # fractional reduction per successful call
-MIN_DELAY = 1.5       # minimum inter-request delay (seconds)
-INITIAL_DELAY = 16.0  # starting delay after a 429
+logger = logging.getLogger(__name__)
 
 
-@dataclass
-class RateLimitState:
-    """Provider-agnostic rate-limit state, shared across all AIService instances.
+class GlobalRateLimit:
+    """Global rate limiter for AI service calls.
 
-    When a 429 is received, ``until`` is set to the absolute timestamp (seconds)
-    from X-RateLimit-Reset or from a parsed error body.  All callers wait until
-    that timestamp passes before making the next request.
-
-    Additionally, an adaptive ``_inter_request_delay`` is maintained so that
-    even outside a rate-limit window, calls are spaced by a dynamically-
-    discovered safe interval.
+    Detects 429 responses, imposes a cooldown window, and gradually shrinks
+    the inter-request delay on successful calls.  All AIService instances
+    share this single instance so that every provider call observes the
+    same back-off state.
     """
 
-    # ── Rate-limit window ──────────────────────
-    until: float = 0.0        # monotonic timestamp until which we must wait
-    _event: asyncio.Event = field(default_factory=asyncio.Event)
+    MIN_DELAY: float = 0.05    # 50 ms — fast path once proven stable
+    MAX_DELAY: float = 10.0    # 10 s  — deep back-off
+    SAFE_DELAY: float = 2.0    # delay when recovering from a 429
+    DECAY: float = 0.9         # multiply delay by this on each success
 
-    # ── Adaptive inter-request delay ───────────
-    _inter_request_delay: float = INITIAL_DELAY
-    _safe_delay: float | None = None   # pinned after a 429
-    _pinned: bool = False              # True once a 429 has been seen
+    def __init__(self):
+        self._inter_request_delay: float = self.MIN_DELAY
+        self._limited_until: float = 0.0  # monotonic clock timestamp
+        self._remaining_seconds: float = 0.0
 
-    def __post_init__(self):
-        self._event.set()
-
-    # ── Rate-limit window API ──────────────────
-
-    @property
-    def is_limited(self) -> bool:
-        """True if a rate limit is currently active."""
-        return time.monotonic() < self.until
-
-    @property
-    def remaining_seconds(self) -> float:
-        """Seconds until the rate-lift window expires (0 if not limited)."""
-        if self.is_limited:
-            return self.until - time.monotonic()
-        return 0.0
-
-    def set_limited(self, seconds_from_now: float):
-        """Activate rate-limit for the given duration.
-
-        Args:
-            seconds_from_now: How many seconds to wait before allowing
-                              the next request.
-        """
-        new_until = time.monotonic() + seconds_from_now
-        if new_until > self.until:
-            self.until = new_until
-        self._event.clear()
-
-        # Pin the current delay as the safe level – this is the speed we
-        # were running at before hitting the limit.
-        current = self._inter_request_delay if not self._pinned else (self._safe_delay or MIN_DELAY)
-        if self._safe_delay is None or current < self._safe_delay:
-            self._safe_delay = current
-        self._pinned = True
-
-        print(
-            f"[RateLimit] 429 received – pinned safe delay at "
-            f"{self._safe_delay:.2f}s. Current delay: {self._inter_request_delay:.2f}s. "
-            f"Waiting {seconds_from_now:.0f}s."
-        )
-
-        asyncio.get_event_loop().call_later(seconds_from_now, self._release)
-
-    def _release(self):
-        """Re-open the gate and lock the safe delay."""
-        self.until = 0.0
-        self._event.set()
-
-        # ── After 429 → pin to the safe delay ──
-        if self._pinned and self._safe_delay is not None:
-            self._inter_request_delay = self._safe_delay
-            print(
-                f"[RateLimit] Window expired – pinned inter-request delay "
-                f"at {self._inter_request_delay:.2f}s (safe level)."
-            )
-
-    async def wait_if_limited(self):
-        """Block the current coroutine until the rate-lift window passes."""
-        if self.is_limited:
-            wait = self.remaining_seconds
-            print(f"[RateLimit] Holding off for {wait:.1f}s (reset in {wait:.0f}s)...")
-            await asyncio.sleep(wait)
-
-    # ── Adaptive delay API ─────────────────────
+    # ── public API ──────────────────────────────────────────────────
 
     @property
     def inter_request_delay(self) -> float:
-        """Current adaptive delay applied between every call."""
         return self._inter_request_delay
 
-    def on_success(self):
-        """Called after every successful API call.
+    @property
+    def remaining_seconds(self) -> float:
+        remaining = self._limited_until - asyncio.get_event_loop().time()
+        return max(0.0, remaining)
 
-        Reduces the inter-request delay by ALPHA (10%), but never below
-        MIN_DELAY.  If we have been pinned after a 429, do NOT reduce
-        further – we stay at the safe level.
+    def parse_reset_seconds(self, err_body: dict) -> float:
+        """Try to extract the retry-after / reset timestamp from an error body.
+
+        Checks multiple common fields in order of preference.
         """
-        if self._pinned:
-            return  # stay at the safe delay, don't try to speed up
+        now = asyncio.get_event_loop().time()
 
-        new = self._inter_request_delay * (1.0 - ALPHA)
-        self._inter_request_delay = max(new, MIN_DELAY)
+        # Retry-After header (seconds)
+        retry_after = err_body.get("Retry-After") or err_body.get("retry-after")
+        if retry_after is not None:
+            try:
+                return float(retry_after)
+            except (ValueError, TypeError):
+                pass
 
-    # ── Helper ─────────────────────────────────
+        # OpenAI-style: error.code == "rate_limit_exceeded" with a message
+        # e.g. "Rate limit exceeded for … (Please retry after X seconds.)"
+        msg = err_body.get("message", "") or err_body.get("error", {}).get("message", "")
+        import re
+        match = re.search(r"retry\s+after\s+(\d+)", msg, re.IGNORECASE)
+        if match:
+            return float(match.group(1))
 
-    @staticmethod
-    def parse_reset_seconds(error_body: dict, default: float = 60.0) -> float:
-        """Try to extract the reset-window duration from a 429 error payload.
+        # Anthropic-style: headers contain retry-after-ms as int
+        headers = err_body.get("headers", {})
+        retry_after_ms = headers.get("retry-after-ms") or headers.get("x-ratelimit-reset-requests")
+        if retry_after_ms is not None:
+            try:
+                return float(retry_after_ms) / 1000.0
+            except (ValueError, TypeError):
+                pass
 
-        Strategy (in order):
-          1. ``X-RateLimit-Reset`` in metadata headers (OpenRouter – ms timestamp).
-          2. ``Retry-After`` header value.
-          3. ``rate_limit.reset`` in metadata (ms timestamp).
-          4. Fall back to ``default`` seconds.
+        # Fallback: reset based on the rate limit window (e.g. 60s)
+        return 60.0
+
+    def set_limited(self, wait_seconds: float) -> None:
+        """Enter rate-limit cooldown mode.
+
+        Args:
+            wait_seconds: Number of seconds to wait before retrying.
         """
-        now_ms = time.time() * 1000
-        metadata: dict = error_body.get("metadata", {}) or {}
+        now = asyncio.get_event_loop().time()
+        self._limited_until = now + wait_seconds
+        self._remaining_seconds = wait_seconds
+        self._inter_request_delay = self.SAFE_DELAY
+        logger.warning(
+            "[RateLimit] 429 received – pinned safe delay at %.1fs for %.0fs",
+            self.SAFE_DELAY, wait_seconds,
+        )
 
-        # 1 – metadata.headers.X-RateLimit-Reset (ms epoch)
-        try:
-            headers = metadata.get("headers", {}) or {}
-            reset_str = headers.get("X-RateLimit-Reset", "") or ""
-            if reset_str:
-                reset_ms = int(reset_str)
-                if reset_ms > now_ms:
-                    return (reset_ms - now_ms) / 1000.0
-        except (ValueError, TypeError):
-            pass
+    def on_success(self) -> None:
+        """Called after a successful API call – gradually shrink delay."""
+        if self._inter_request_delay > self.MIN_DELAY:
+            self._inter_request_delay = max(
+                self.MIN_DELAY, self._inter_request_delay * self.DECAY,
+            )
+            logger.info(
+                "[RateLimit] Window expired – pinned inter-request delay "
+                "decayed to %.3fs",
+                self._inter_request_delay,
+            )
 
-        # 2 – metadata.rate_limit.reset (ms epoch)
-        try:
-            rl = metadata.get("rate_limit", {}) or {}
-            reset_ms = int(rl.get("reset", 0))
-            if reset_ms > now_ms:
-                return (reset_ms - now_ms) / 1000.0
-        except (ValueError, TypeError):
-            pass
-
-        # 3 – free-models-per-min / requests-per-min hint
-        msg = (error_body.get("message", "") or "").lower()
-        if "per-min" in msg or "per_min" in msg:
-            return 60.0
-
-        return default
+    async def wait_if_limited(self) -> None:
+        """If we are in a rate-limit cooldown, wait until the window expires."""
+        wait = self.remaining_seconds
+        if wait > 0:
+            logger.info(
+                "[RateLimit] Holding off for %.1fs (reset in %.0fs)...",
+                wait, wait,
+            )
+            await asyncio.sleep(wait)
 
 
-# Singleton – tüm AIService instance'ları bunu paylaşır
-GLOBAL_RATE_LIMIT = RateLimitState()
+GLOBAL_RATE_LIMIT = GlobalRateLimit()

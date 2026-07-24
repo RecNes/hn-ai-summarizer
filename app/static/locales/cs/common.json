@@ -9,7 +9,8 @@
     "settings": "Nastavení",
     "themeToggle": "Změnit motiv",
     "displaySettings": "Nastavení zobrazení",
-    "refresh": "Obnovit stránku"
+    "refresh": "Obnovit stránku",
+    "logs": "Activity Logs (cs)"
   },
   "home": {
     "title": "Nejnovější příběhy",
@@ -151,5 +152,29 @@
       "no_stories": "🫡 Dnes na Hacker News nejsou žádné nové příběhy. Uvidíme se při příštím skenování!",
       "errors": "⚠️ Došlo k <b>{count} chybám</b>."
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

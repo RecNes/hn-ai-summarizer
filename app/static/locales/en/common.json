@@ -7,9 +7,34 @@
   "nav": {
     "home": "Home",
     "settings": "Settings",
+    "logs": "Activity Logs",
     "themeToggle": "Toggle theme",
     "displaySettings": "Display Settings",
     "refresh": "Refresh page"
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   },
   "home": {
     "title": "Latest Stories",
@@ -155,7 +180,7 @@
     "close": "Close",
     "back": "Back"
   },
-    "telegram": {
+  "telegram": {
     "notification": {
       "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
       "check_link": "🔗 <a href=\"{url}\">Check them out</a>",

@@ -12,7 +12,11 @@ from sqlalchemy.future import select
 from app.core.database import get_db
 from app.models.story import Story
 from app.schemas.story import StoryResponse
+import logging
+
 from app.services.ai_service import AIService
+
+logger = logging.getLogger(__name__)
 from app.services.fetcher import FetcherService
 from app.services.story_service import StoryNotFoundError, StoryService
 
@@ -78,9 +82,9 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
             content_tr=content_tr,
             comments_summary=comments_summary,
         )
-        print(f"[Background] Successfully reprocessed story {story_id} (HN={hn_id})")
+        logger.info("[Background] Successfully reprocessed story %s (HN=%s)", story_id, hn_id)
     except Exception as e:
-        print(f"[Background] Error reprocessing story {story_id}: {e}")
+        logger.error("[Background] Error reprocessing story %s: %s", story_id, e)
     finally:
         await db.close()
 
@@ -157,7 +161,7 @@ async def story_poll_stream(request: Request):
         except asyncio.CancelledError:
             pass
         finally:
-            print("[SSE/poll-stream] Client disconnected")
+            logger.info("[SSE/poll-stream] Client disconnected")
 
     return StreamingResponse(
         event_stream(),
@@ -226,7 +230,7 @@ async def reprocess_untranslated_stream(request: Request):
                     state_check = await get_reprocess_state()
                     if state_check.get("cancelled"):
                         cancelled = True
-                        print(f"[SSE/reprocess] Cancelled at {idx}/{total}")
+                        logger.info("[SSE/reprocess] Cancelled at %s/%s", idx, total)
                         yield await _sse_event("cancelled", {"current": idx, "total": total, "percentage": round((idx / total) * 100) if total > 0 else 0})
                         break
 
@@ -264,7 +268,7 @@ async def reprocess_untranslated_stream(request: Request):
 
                     except Exception as e:
                         errors += 1
-                        print(f"[SSE/reprocess] Error reprocessing story {story.id}: {e}")
+                        logger.error("[SSE/reprocess] Error reprocessing story %s: %s", story.id, e)
 
                 if not cancelled:
                     await reset_reprocess_state()

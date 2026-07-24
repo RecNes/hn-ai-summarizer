@@ -9,7 +9,8 @@
     "settings": "설정",
     "themeToggle": "테마 변경",
     "displaySettings": "디스플레이 설정",
-    "refresh": "페이지 새로고침"
+    "refresh": "페이지 새로고침",
+    "logs": "Activity Logs (ko)"
   },
   "home": {
     "title": "최신 스토리",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 오늘 Hacker News에 새로운 이야기가 없습니다. 다음 스캔에서 만나요!",
       "errors": "⚠️ <b>{count}개의 오류</b>가 발생했습니다."
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

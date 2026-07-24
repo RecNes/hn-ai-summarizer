@@ -1,8 +1,11 @@
 """Health check endpoints for the HN-AI-Summerizer API."""
 
 import json
+import logging
 
 from fastapi import APIRouter, Depends
+
+logger = logging.getLogger(__name__)
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -76,5 +79,5 @@ async def ai_health_status():
 
     except Exception as e:
         # Redis unavailable → assume healthy (no false positives)
-        print(f"[Health] Redis unavailable for ai-status: {e}")
+        logger.warning("[Health] Redis unavailable for ai-status: %s", e)
         return {"healthy": True, "timestamp": None}
