@@ -43,29 +43,17 @@ async def ai_health_status():
     Returns the health status stored in Redis by the worker.
     Falls back to healthy if Redis is not available or key doesn't exist.
     """
-    import os
-    from arq.connections import RedisSettings, ArqRedis
-
-    # Build Redis connection from settings/env
+    from redis.asyncio import Redis
     from app.core.config import settings as app_settings
 
-    redis_url = app_settings.REDIS_CONNECTION_URL
-    if redis_url:
-        redis_settings = RedisSettings.from_dsn(redis_url)
-    else:
-        rh = os.getenv("REDIS_HOST", "localhost")
-        rp = int(os.getenv("REDIS_PORT", "6379"))
-        rd = int(os.getenv("REDIS_DB", "0"))
-        ru = os.getenv("REDIS_USERNAME", "") or None
-        rpwd = os.getenv("REDIS_PASSWORD", "") or None
-        redis_settings = RedisSettings(host=rh, port=rp, database=rd, username=ru, password=rpwd)
+    redis_url = app_settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
 
     try:
-        redis = ArqRedis(redis_settings=redis_settings)
+        redis = Redis.from_url(redis_url, decode_responses=True)
         await redis.ping()
 
         raw = await redis.get("hn_reader:ai:health")
-        await redis.close()
+        await redis.aclose()
 
         if raw:
             data = json.loads(raw)
