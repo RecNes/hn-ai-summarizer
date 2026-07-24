@@ -234,10 +234,11 @@ async function loadPreferences() {
         document.getElementById('highlight_keywords').value = data.highlight_keywords || '';
         document.getElementById('blocklist_keywords').value = data.blocklist_keywords || '';
         
-        // Apply UI language immediately after loading preferences
-        const uiLang = data.ui_language || 'en';
-        if (typeof changeUILanguage === 'function') {
-            await changeUILanguage(uiLang);
+        // base.js initUILanguage zaten i18n'i backend'deki dille başlattı.
+        // Burada sadece DOM'u güncelle (dropdown'lar zaten doğru dilde).
+        // changeUILanguage ÇAĞIRMA — base.js ile yarışa girme.
+        if (typeof applyI18nToDOM === 'function') {
+            setTimeout(applyI18nToDOM, 50);
         }
     } catch (e) {
         console.error('Error loading preferences:', e);
@@ -512,7 +513,7 @@ function reprocessUntranslated() {
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
-    loadPreferences(); // Load language dropdowns — this also applies i18n
+    loadPreferences(); // Load language dropdowns (kendi changeUILanguage'ını çağırır)
 
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) settingsForm.addEventListener('submit', saveSettings);
