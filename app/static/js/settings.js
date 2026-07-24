@@ -1,4 +1,4 @@
- // ──────────────────────────────────────────────
+// ──────────────────────────────────────────────
 // State
 // ──────────────────────────────────────────────
 let availableProviders = [];
@@ -233,6 +233,12 @@ async function loadPreferences() {
         
         document.getElementById('highlight_keywords').value = data.highlight_keywords || '';
         document.getElementById('blocklist_keywords').value = data.blocklist_keywords || '';
+        
+        // Apply UI language immediately after loading preferences
+        const uiLang = data.ui_language || 'en';
+        if (typeof changeUILanguage === 'function') {
+            await changeUILanguage(uiLang);
+        }
     } catch (e) {
         console.error('Error loading preferences:', e);
     }
@@ -506,13 +512,7 @@ function reprocessUntranslated() {
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
-    
-    // Apply i18n translations to static elements on this page
-    if (typeof applyI18nToDOM === 'function') {
-        // Wait a brief moment for i18n to be fully initialized by base.js
-        setTimeout(applyI18nToDOM, 100);
-    }
-    loadPreferences(); // Load language dropdowns
+    loadPreferences(); // Load language dropdowns — this also applies i18n
 
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) settingsForm.addEventListener('submit', saveSettings);
@@ -584,6 +584,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (providerId) {
                 const configField = document.getElementById('ai_provider_config');
                 await loadModelsForProvider(providerId, configField ? configField.value || null : null);
+            }
+        });
+    }
+
+    // UI language dropdown change → apply immediately
+    const uiLangSelect = document.getElementById('ui_language');
+    if (uiLangSelect) {
+        uiLangSelect.addEventListener('change', async function() {
+            const newLang = this.value;
+            if (newLang && typeof changeUILanguage === 'function') {
+                await changeUILanguage(newLang);
             }
         });
     }
