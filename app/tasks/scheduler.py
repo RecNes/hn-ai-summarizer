@@ -4,8 +4,8 @@ Uses aioscheduler.TimedScheduler for reliable async scheduling.
 """
 
 import asyncio
-import os
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta, timezone
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -13,16 +13,11 @@ from sqlalchemy.future import select
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
+from app.models.activity_log import AiActivityLog
 from app.models.setting import Setting
 from app.tasks.schedule_manager import get_schedule_manager
 
-# Debug logs only in development mode
-_DEV = os.getenv("DEVELOPMENT", "false").lower() in ("true", "1", "yes", "on")
-
-
-def _debug(*args, **kwargs):
-    if _DEV:
-        print(*args, **kwargs)
+logger = logging.getLogger(__name__)
 
 
 async def get_settings():
@@ -44,7 +39,7 @@ async def initialize_schedule_from_db():
     schedule_manager = await get_schedule_manager()
     await schedule_manager.update_schedule(cron_schedule)
 
-    print(f"Initialized schedule from database: {cron_schedule}")
+    logger.info("Initialized schedule from database: %s", cron_schedule)
 
 
 def parse_cron_to_time(cron_schedule: str) -> str:
@@ -98,9 +93,30 @@ def format_days_to_cron(days: list, hour: int, minute: int) -> str:
     return f"{minute} {hour} * * {weekday_part}"
 
 
+async def _cleanup_old_logs():
+    """Delete AiActivityLog records older than 30 days."""
+    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    try:
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(AiActivityLog).where(AiActivityLog.created_at < cutoff)
+            )
+            old_logs = result.scalars().all()
+            for log in old_logs:
+                await db.delete(log)
+            await db.commit()
+            if old_logs:
+                logger.info(
+                    "Cleaned up %s old activity log records older than 30 days.",
+                    len(old_logs),
+                )
+    except Exception as e:
+        logger.error("Failed to cleanup old activity logs: %s", e)
+
+
 async def run_scheduler():
     """Run the scheduler with Redis-based schedule management."""
-    print("Initializing schedule from database...")
+    logger.info("Initializing schedule from database...")
     await initialize_schedule_from_db()
 
     # Catch-up: check if today's scheduled time has already passed
@@ -128,8 +144,9 @@ async def run_scheduler():
                 and scheduled_minutes is not None
                 and current_time_minutes >= scheduled_minutes
             ):
-                print(
-                    f"Catch-up: scheduled time {scheduled_time} has passed, triggering immediate fetch..."
+                logger.info(
+                    "Catch-up: scheduled time %s has passed, triggering immediate fetch...",
+                    scheduled_time,
                 )
                 redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
                 redis_settings = RedisSettings.from_dsn(redis_url)
@@ -137,26 +154,31 @@ async def run_scheduler():
                 try:
                     job = await catchup_pool.enqueue_job("fetch_and_process_stories")
                     if job:
-                        print(">>> Catch-up fetch job enqueued successfully")
+                        logger.info(">>> Catch-up fetch job enqueued successfully")
                     else:
-                        print(">>> Catch-up fetch job enqueue returned None")
+                        logger.warning(">>> Catch-up fetch job enqueue returned None")
                 except Exception as e:
-                    print(f">>> Error enqueuing catch-up fetch job: {e}")
+                    logger.error(">>> Error enqueuing catch-up fetch job: %s", e)
                 finally:
                     await catchup_pool.close()
     except Exception as e:
-        print(f"Error during catch-up check: {e}")
+        logger.error("Error during catch-up check: %s", e)
 
     # Monitor schedule changes in background
-    print("Starting schedule change monitoring...")
+    logger.info("Starting schedule change monitoring...")
     monitor_task = asyncio.create_task(_monitor_schedule_changes())
+
+    # Run cleanup once on startup, then periodically
+    await _cleanup_old_logs()
 
     try:
         # Keep the scheduler alive by sleeping forever
         # aioscheduler.TimedScheduler runs its own loop internally
         while True:
-            await asyncio.sleep(60)
-            _debug("Scheduler alive check...")
+            await asyncio.sleep(3600)  # Check every hour
+            # Also occasionally clean up old logs
+            if datetime.now().hour == 3:  # Run at ~3am
+                await _cleanup_old_logs()
     finally:
         monitor_task.cancel()
         try:

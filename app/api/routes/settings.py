@@ -6,8 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+import logging
+
 from app.core.config import settings
 from app.core.database import get_db
+
+logger = logging.getLogger(__name__)
 from app.models.setting import Setting
 from app.schemas.setting import SettingResponse, SettingUpdate
 from app.services.ai_service import AIService
@@ -97,7 +101,7 @@ async def update_settings(
             schedule_manager = await get_schedule_manager()
             await schedule_manager.update_schedule(cron_schedule)
         except Exception as e:
-            print(f"[WARN] Redis schedule sync failed (non-critical): {e}")
+            logger.warning("[WARN] Redis schedule sync failed (non-critical): %s", e)
 
     await db.commit()
     await db.refresh(setting)

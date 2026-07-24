@@ -1,6 +1,7 @@
 """Service to fetch and process Hacker News stories and comments."""
 
 import asyncio
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -8,6 +9,8 @@ import httpx
 
 from app.core.config import settings
 from app.utils.scraper import scrape_content
+
+logger = logging.getLogger(__name__)
 
 
 class FetcherService:
@@ -58,7 +61,7 @@ class FetcherService:
             story_ids = response.json()
             return story_ids[:limit]
         except Exception as e:
-            print(f"Error fetching top stories: {e}")
+            logger.error("Error fetching top stories: %s", e)
             return []
 
     async def fetch_story_details(self, story_id: int) -> Dict[str, Any]:
@@ -70,13 +73,18 @@ class FetcherService:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
-            print(f"Error fetching story {story_id}: HTTP {e.response.status_code} - {e.response.text[:200]}")
+            logger.error(
+                "Error fetching story %s: HTTP %s - %s",
+                story_id, e.response.status_code, e.response.text[:200],
+            )
             return {}
         except httpx.TimeoutException as e:
-            print(f"Error fetching story {story_id}: TIMEOUT - {e}")
+            logger.error("Error fetching story %s: TIMEOUT - %s", story_id, e)
             return {}
         except Exception as e:
-            print(f"Error fetching story {story_id}: {type(e).__name__}: {e}")
+            logger.error(
+                "Error fetching story %s: %s: %s", story_id, type(e).__name__, e,
+            )
             return {}
 
     async def fetch_comments(
@@ -105,10 +113,12 @@ class FetcherService:
                     if comment and "text" in comment and comment.get("text", "").strip():
                         comments.append(comment)
                 except Exception as e:
-                    print(f"Error fetching comment {cid}: {e}")
+                    logger.error("Error fetching comment %s: %s", cid, e)
             return comments
         except Exception as e:
-            print(f"Error fetching comments for story {story_id}: {e}")
+            logger.error(
+                "Error fetching comments for story %s: %s", story_id, e,
+            )
             return []
 
     async def process_story(self, story_id: int) -> Dict[str, Any]:
@@ -123,7 +133,7 @@ class FetcherService:
             try:
                 content = await scrape_content(story["url"])
             except Exception as e:
-                print(f"Error scraping content for {story.get('url')}: {e}")
+                logger.error("Error scraping content for %s: %s", story.get("url"), e)
 
         # Fetch comments using already-fetched kid IDs (no extra API call)
         kid_ids = story.get("kids")
@@ -162,7 +172,7 @@ class FetcherService:
                 if result and result.get("score", 0) >= min_score:
                     stories.append(result)
             except Exception as e:
-                print(f"Error processing story {story_id}: {e}")
+                logger.error("Error processing story %s: %s", story_id, e)
                 # Collect failed stories for later retry
                 self._failed_stories.append({
                     "hacker_news_id": str(story_id),
@@ -171,9 +181,9 @@ class FetcherService:
                 })
 
         if self._failed_stories:
-            print(
-                f"⚠ {len(self._failed_stories)} stories failed during fetch, "
-                f"will be retried after delay."
+            logger.warning(
+                "%s stories failed during fetch, will be retried after delay.",
+                len(self._failed_stories),
             )
 
         return stories
@@ -193,7 +203,7 @@ class FetcherService:
             try:
                 content = await scrape_content(url)
             except Exception as e:
-                print(f"Error scraping content for {url}: {e}")
+                logger.error("Error scraping content for %s: %s", url, e)
 
         # Fetch comments using kid_ids
         kid_ids = story.get("kids")

@@ -1,4 +1,4 @@
-"""Pydantic schemas for AI activity logs."""
+"""Pydantic schemas for AI activity and worker event logs."""
 
 from datetime import datetime
 from typing import Optional
@@ -18,6 +18,14 @@ class AiActivityLogResponse(BaseModel):
     error_message: Optional[str] = None
     duration_ms: Optional[float] = None
     created_at: datetime
+
+    # ── Worker event fields ──────────────────────────────────────
+    event_category: Optional[str] = None
+    worker_event_type: Optional[str] = None
+    worker_status: Optional[str] = None
+    worker_phase: Optional[str] = None
+    error_code: Optional[str] = None
+    error_summary: Optional[str] = None
 
     class Config:
         """Pydantic configuration to work with ORM objects."""

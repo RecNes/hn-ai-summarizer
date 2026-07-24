@@ -1,6 +1,8 @@
 """Worker tasks for processing stories with AI services"""
 
 import asyncio
+import json
+import logging
 import os
 
 from arq.connections import RedisSettings
@@ -9,6 +11,7 @@ from sqlalchemy.future import select
 # app.core.config already loads .env via Settings
 from app.core.config import settings as app_settings
 from app.core.database import AsyncSessionLocal
+from app.models.activity_log import AiActivityLog
 from app.models.preference import UserPreference
 from app.models.setting import Setting
 from app.models.story import Story
@@ -17,12 +20,16 @@ from app.services.fetcher import FetcherService
 from app.services.story_service import StoryService
 from app.shared.languages import TranslationLanguageResolver
 
+logger = logging.getLogger(__name__)
+
 
 # Set job timeout for AI processing (10 minutes)
 job_timeout = 600  # 10 minutes in seconds
 
 # Redis key for tracking model health status
 REDIS_AI_HEALTH_KEY = "hn_reader:ai:health"
+REDIS_WORKER_LOG_CHANNEL = "hn_reader:worker_log"
+REDIS_WORKER_LOG_KEY = "hn_reader:worker_logs:recent"
 
 
 def _format_processing_log(
@@ -68,7 +75,7 @@ async def _update_ai_health(ctx, is_healthy: bool):
                 }),
             )
     except Exception as e:
-        print(f"[AIHealth] Failed to update Redis: {e}")
+        logger.error("[AIHealth] Failed to update Redis: %s", e)
 
 
 async def _get_ui_language(db) -> str:
@@ -118,6 +125,61 @@ async def _notify_ai_reachable(ctx, language_code: str):
         await telegram.send_message(setting.telegram_chat_id, text)
 
 
+async def _log_worker_event(
+    db, event_type: str, story_id, hn_id: str, title: str,
+    status: str, phase: str | None = None,
+    error: str | None = None, error_code: str | None = None,
+    trigger_source: str | None = None,
+) -> dict:
+    """Log a worker event to DB and return the log entry dict."""
+    log = AiActivityLog(
+        story_id=story_id,
+        story_title=(title or "")[:200],
+        event_type=event_type,
+        provider="worker",
+        model="",
+        status=status,
+        error_message=error,
+        duration_ms=None,
+        event_category="worker",
+        worker_event_type=event_type,
+        worker_status=status,
+        worker_phase=phase,
+        error_code=error_code,
+        error_summary=error,
+    )
+    db.add(log)
+    await db.commit()
+    await db.refresh(log)
+    return {
+        "id": log.id,
+        "story_id": log.story_id,
+        "story_title": log.story_title,
+        "event_type": log.event_type,
+        "event_category": "worker",
+        "worker_event_type": log.worker_event_type,
+        "worker_status": log.worker_status,
+        "worker_phase": log.worker_phase,
+        "status": log.status,
+        "error_code": log.error_code,
+        "error_summary": log.error_summary,
+        "error_message": log.error_message,
+        "created_at": log.created_at.isoformat(),
+        "trigger_source": trigger_source,
+    }
+
+
+async def _publish_log_to_redis(ctx, log_data: dict):
+    """Publish worker log to Redis Pub/Sub and keep recent list."""
+    try:
+        payload = json.dumps(log_data, default=str)
+        await ctx["redis"].publish(REDIS_WORKER_LOG_CHANNEL, payload)
+        await ctx["redis"].lpush(REDIS_WORKER_LOG_KEY, payload)
+        await ctx["redis"].ltrim(REDIS_WORKER_LOG_KEY, 0, 19)
+    except Exception as e:
+        logger.warning("[WorkerLog] Failed to publish log to Redis: %s", e)
+
+
 async def process_story(ctx, story_data):
     """Process a story with AI services"""
     hn_id = story_data.get("hacker_news_id", "?")
@@ -138,23 +200,41 @@ async def process_story(ctx, story_data):
             if existing_story:
                 db_id = existing_story.id
                 if not existing_story.is_translated:
-                    print(
-                        f"Story HN#{hn_id} (DB#{db_id}) exists but needs AI processing..."
+                    logger.info(
+                        "Story HN#%s (DB#%s) exists but needs AI processing...",
+                        hn_id, db_id,
                     )
 
                     title_tr = existing_story.title_tr
                     content_tr = existing_story.content_tr
                     comments_summary = existing_story.comments_summary
 
+                    # Log start of reprocess
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", existing_story.id, hn_id, title,
+                        "processing", "title",
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
+
                     if not title_tr or title_tr.startswith("[TR]"):
                         title_tr = await ai_service.translate_title(
                             existing_story.title, target_lang_name
                         )
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", existing_story.id, hn_id, title,
+                            "processing", "content",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
 
                     if not content_tr:
                         content_tr = await ai_service.summarize_content(
                             existing_story.content or "", target_lang_name
                         )
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", existing_story.id, hn_id, title,
+                            "processing", "comments",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
 
                     if not comments_summary:
                         comments_summary = await ai_service.summarize_comments(
@@ -175,8 +255,14 @@ async def process_story(ctx, story_data):
                         ui_lang = await _get_ui_language(db)
                         await _notify_ai_reachable(ctx, ui_lang)
 
-                    # Log the result with DB ID
-                    print(
+                    # Log success
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", existing_story.id, hn_id, title,
+                        "success", None,
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
+
+                    logger.info(
                         _format_processing_log(
                             hn_id, db_id, title[:80], "ai_processed",
                             reason="existing_story",
@@ -185,31 +271,50 @@ async def process_story(ctx, story_data):
                     return "ai_processed"
                 else:
                     skip_reason = "already processed"
-                    print(
+                    logger.info(
                         _format_processing_log(
                             hn_id, db_id, title[:80], "skipped", reason=skip_reason,
                         )
                     )
                     return "skipped"
 
+            # Check if blocked by negative feedback
             is_blocked = await ai_service.check_negative_feedback(
                 story_data.get("content", ""), story_data.get("title", "")
             )
 
             if is_blocked:
-                print(
+                logger.info(
                     _format_processing_log(
                         hn_id, None, title[:80], "skipped", reason="blocked",
                     )
                 )
                 return "skipped"
 
+            # New story processing
+            log_data = await _log_worker_event(
+                db, "story_new", None, hn_id, title, "processing", "title",
+            )
+            await _publish_log_to_redis(ctx, log_data)
+
             title_tr = await ai_service.translate_title(
                 story_data.get("title", ""), target_lang_name
             )
+
+            log_data = await _log_worker_event(
+                db, "story_new", None, hn_id, title, "processing", "content",
+            )
+            await _publish_log_to_redis(ctx, log_data)
+
             content_tr = await ai_service.summarize_content(
                 story_data.get("content", ""), target_lang_name
             )
+
+            log_data = await _log_worker_event(
+                db, "story_new", None, hn_id, title, "processing", "comments",
+            )
+            await _publish_log_to_redis(ctx, log_data)
+
             comments_summary = await ai_service.summarize_comments(
                 story_data.get("comments", []), target_lang_name
             )
@@ -228,7 +333,13 @@ async def process_story(ctx, story_data):
                 ui_lang = await _get_ui_language(db)
                 await _notify_ai_reachable(ctx, ui_lang)
 
-            print(
+            # Log success
+            log_data = await _log_worker_event(
+                db, "story_new", new_db_id, hn_id, title, "success", None,
+            )
+            await _publish_log_to_redis(ctx, log_data)
+
+            logger.info(
                 _format_processing_log(
                     hn_id, new_db_id, title[:80], "processed",
                 )
@@ -236,12 +347,25 @@ async def process_story(ctx, story_data):
             return "processed"
         except Exception as e:
             error_msg = str(e)
-            print(
-                f"Error processing story HN#{hn_id}: {error_msg}"
+            logger.error("Error processing story HN#%s: %s", hn_id, error_msg)
+
+            # Determine error code
+            error_code = "WORKER_ERROR"
+            if ai_service:
+                error_code = ai_service._determine_error_code(error_msg)
+            if "fetch" in error_msg.lower() or "scrape" in error_msg.lower():
+                error_code = "FETCH_ERROR"
+
+            db_id = existing_story.id if existing_story else None
+            log_data = await _log_worker_event(
+                db, "story_new" if not existing_story else "story_reprocess",
+                db_id, hn_id, title, "error", None,
+                error=error_msg, error_code=error_code,
             )
+            await _publish_log_to_redis(ctx, log_data)
 
             # Check if AI is now unhealthy
-            if ai_service.had_connection_failure:
+            if ai_service and ai_service.had_connection_failure:
                 await _update_ai_health(ctx, is_healthy=False)
                 ui_lang = await _get_ui_language(db)
                 await _notify_ai_unreachable(ctx, ui_lang)
@@ -254,7 +378,7 @@ async def process_story(ctx, story_data):
             )
             if is_conn_error and existing_story is None:
                 # Not in DB yet - re-enqueue to retry after delay
-                print(f"  Will retry story HN#{hn_id} after delay...")
+                logger.info("  Will retry story HN#%s after delay...", hn_id)
                 await ctx["redis"].enqueue_job(
                     "process_story", story_data,
                     _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
@@ -263,13 +387,14 @@ async def process_story(ctx, story_data):
             return f"error: {error_msg}"
 
 
-async def fetch_and_process_stories(ctx, send_notification: bool = True):
+async def fetch_and_process_stories(ctx, send_notification: bool = True, trigger_source: str = "auto"):
     """Fetch and process stories from Hacker News
 
     Args:
         ctx: Arq worker context.
         send_notification: If True, sends Telegram notification after processing.
             Set to False when called manually via API trigger.
+        trigger_source: "auto" for scheduler, "manual" for API trigger.
     """
     fetcher = FetcherService()
 
@@ -278,18 +403,27 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True):
         setting = result.scalar_one_or_none()
         min_score = setting.min_score if setting and setting.min_score else 100
 
+    # Log worker triggered event
+    async with AsyncSessionLocal() as db:
+        log_data = await _log_worker_event(
+            db, "worker_triggered", None, "", "fetch_new",
+            "success", None,
+            trigger_source=trigger_source,
+        )
+        await _publish_log_to_redis(ctx, log_data)
+
     stories = await fetcher.fetch_and_process_stories(min_score=min_score)
 
     # Re-enqueue failed stories to retry after delay
     for failed in fetcher.failed_stories:
-        print(f"  Re-enqueuing failed story HN#{failed['hacker_news_id']} for retry...")
+        logger.info("  Re-enqueuing failed story HN#%s for retry...", failed['hacker_news_id'])
         try:
             await ctx["redis"].enqueue_job(
                 "process_story", failed,
                 _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
             )
         except Exception as e:
-            print(f"  Failed to re-enqueue story HN#{failed['hacker_news_id']}: {e}")
+            logger.error("  Failed to re-enqueue story HN#%s: %s", failed['hacker_news_id'], e)
 
     await fetcher.close()
 
@@ -305,7 +439,7 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True):
             else:
                 skipped_count += 1
         except Exception as e:
-            print(f"Error enqueueing story {story.get('hacker_news_id')}: {e}")
+            logger.error("Error enqueueing story %s: %s", story.get('hacker_news_id'), e)
             error_count += 1
 
     # Send Telegram notification if configured
@@ -361,28 +495,40 @@ async def reprocess_untranslated_stories(ctx):
         async with AsyncSessionLocal() as db:
             stories_needing_ai = await StoryService.get_untranslated(db)
 
-            print(f"Found {len(stories_needing_ai)} stories needing AI processing")
+            logger.info("Found %s stories needing AI processing", len(stories_needing_ai))
 
             reprocessed_count = 0
             for story in stories_needing_ai:
                 if story.hacker_news_id is None:
-                    print(f"Skipping story DB id={story.id}: hacker_news_id is None")
+                    logger.info("Skipping story DB id=%s: hacker_news_id is None", story.id)
                     continue
 
                 hn_id = story.hacker_news_id
                 ai_service = AIService(story_id=int(hn_id))
                 try:
                     title_preview = (story.title or "")[:80]
-                    print(
-                        f"Reprocessing story HN#{hn_id} (DB#{story.id}, "
-                        f'"{title_preview}")...'
+                    logger.info(
+                        "Reprocessing story HN#%s (DB#%s, \"%s\")...",
+                        hn_id, story.id, title_preview,
                     )
+
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "processing", "title",
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
 
                     fresh_data = await fetcher.refetch_story_content(
                         int(hn_id), story.url or ""
                     )
                     if not fresh_data:
-                        print(f"Failed to refetch data for story HN#{hn_id}")
+                        logger.error("Failed to refetch data for story HN#%s", hn_id)
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", story.id, hn_id, story.title or "",
+                            "error", None, error="Failed to refetch data",
+                            error_code="FETCH_ERROR",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
                         continue
 
                     await StoryService.update_from_fetch(db, story, fresh_data)
@@ -396,9 +542,21 @@ async def reprocess_untranslated_stories(ctx):
                     title_tr = await ai_service.translate_title(
                         fresh_data["title"], target_lang_name
                     )
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "processing", "content",
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
+
                     content_tr = await ai_service.summarize_content(
                         fresh_data["content"] or "", target_lang_name
                     )
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "processing", "comments",
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
+
                     comments_summary = await ai_service.summarize_comments(
                         fresh_data["comments"], target_lang_name
                     )
@@ -410,10 +568,23 @@ async def reprocess_untranslated_stories(ctx):
                         comments_summary=comments_summary,
                     )
                     reprocessed_count += 1
-                    print(f"Successfully reprocessed story HN#{hn_id} (DB#{story.id})")
+                    logger.info("Successfully reprocessed story HN#%s (DB#%s)", hn_id, story.id)
+
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "success", None,
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
 
                 except Exception as e:
-                    print(f"Error reprocessing story HN#{hn_id}: {e}")
+                    error_msg = str(e)
+                    logger.error("Error reprocessing story HN#%s: %s", hn_id, error_msg)
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "error", None, error=error_msg,
+                        error_code=ai_service._determine_error_code(error_msg),
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
     finally:
@@ -441,10 +612,13 @@ async def debug_untranslated_stories(ctx):
                 "comments_summary": story.comments_summary,
             })
 
-        print(f"DEBUG: Found {len(stories_needing_ai)} stories needing AI processing")
+        logger.info("DEBUG: Found %s stories needing AI processing", len(stories_needing_ai))
         for info in debug_info[:10]:
-            print(f"  - Story {info['hacker_news_id']}: title_tr='{info['title_tr']}',"
-                  f"content_tr_len={info['content_tr_length']}, comments_summary='{info['comments_summary']}'")
+            logger.info(
+                "  - Story %s: title_tr='%s', content_tr_len=%s, comments_summary='%s'",
+                info['hacker_news_id'], info['title_tr'],
+                info['content_tr_length'], info['comments_summary'],
+            )
 
         return f"Found {len(stories_needing_ai)} stories needing AI processing"
 
@@ -458,25 +632,31 @@ async def reprocess_all_stories(ctx):
             result = await db.execute(select(Story).order_by(Story.created_at.desc()))
             all_stories = result.scalars().all()
 
-            print(f"Found {len(all_stories)} total stories, checking each one...")
+            logger.info("Found %s total stories, checking each one...", len(all_stories))
 
             reprocessed_count = 0
             for story in all_stories:
                 if story.hacker_news_id is None:
-                    print(f"Skipping story DB id={story.id}: hacker_news_id is None")
+                    logger.info("Skipping story DB id=%s: hacker_news_id is None", story.id)
                     continue
 
                 hn_id = story.hacker_news_id
                 ai_service = AIService(story_id=int(hn_id))
                 try:
                     if not story.is_translated:
-                        print(f"Reprocessing story HN#{hn_id} (DB#{story.id})...")
+                        logger.info("Reprocessing story HN#%s (DB#%s)...", hn_id, story.id)
+
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", story.id, hn_id, story.title or "",
+                            "processing", "title",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
 
                         fresh_data = await fetcher.refetch_story_content(
                             int(hn_id), story.url or ""
                         )
                         if not fresh_data:
-                            print(f"Failed to refetch data for story HN#{hn_id}")
+                            logger.error("Failed to refetch data for story HN#%s", hn_id)
                             continue
 
                         await StoryService.update_from_fetch(db, story, fresh_data)
@@ -490,9 +670,21 @@ async def reprocess_all_stories(ctx):
                         title_tr = await ai_service.translate_title(
                             fresh_data["title"], target_lang_name
                         )
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", story.id, hn_id, story.title or "",
+                            "processing", "content",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
+
                         content_tr = await ai_service.summarize_content(
                             fresh_data["content"] or "", target_lang_name
                         )
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", story.id, hn_id, story.title or "",
+                            "processing", "comments",
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
+
                         comments_summary = await ai_service.summarize_comments(
                             fresh_data["comments"], target_lang_name
                         )
@@ -504,12 +696,25 @@ async def reprocess_all_stories(ctx):
                             comments_summary=comments_summary,
                         )
                         reprocessed_count += 1
-                        print(f"Successfully reprocessed story HN#{hn_id}")
+                        logger.info("Successfully reprocessed story HN#%s", hn_id)
+
+                        log_data = await _log_worker_event(
+                            db, "story_reprocess", story.id, hn_id, story.title or "",
+                            "success", None,
+                        )
+                        await _publish_log_to_redis(ctx, log_data)
                     else:
-                        print(f"Story HN#{hn_id} is already fully processed")
+                        logger.info("Story HN#%s is already fully processed", hn_id)
 
                 except Exception as e:
-                    print(f"Error reprocessing story HN#{hn_id}: {e}")
+                    error_msg = str(e)
+                    logger.error("Error reprocessing story HN#%s: %s", hn_id, error_msg)
+                    log_data = await _log_worker_event(
+                        db, "story_reprocess", story.id, hn_id, story.title or "",
+                        "error", None, error=error_msg,
+                        error_code=ai_service._determine_error_code(error_msg),
+                    )
+                    await _publish_log_to_redis(ctx, log_data)
 
             return f"Reprocessed {reprocessed_count} stories with fresh content and AI processing"
     finally:

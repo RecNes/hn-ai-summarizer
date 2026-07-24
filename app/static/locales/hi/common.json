@@ -9,7 +9,8 @@
     "settings": "सेटिंग्स",
     "themeToggle": "थीम बदलें",
     "displaySettings": "प्रदर्शन सेटिंग्स",
-    "refresh": "पृष्ठ ताज़ा करें"
+    "refresh": "पृष्ठ ताज़ा करें",
+    "logs": "Activity Logs (hi)"
   },
   "home": {
     "title": "नवीनतम कहानियाँ",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 आज Hacker News पर कोई नई कहानी नहीं है। अगली स्कैन पर मिलते हैं!",
       "errors": "⚠️ <b>{count} त्रुटियाँ</b> हुईं।"
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

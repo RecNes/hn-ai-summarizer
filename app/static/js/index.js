@@ -70,7 +70,6 @@ async function loadStories(page = 0, append = false) {
             
         }
     } catch (error) {
-        console.error('Error loading stories:', error);
         if (!append) {
             document.getElementById('stories-container').innerHTML = `
                 <div class="text-center py-8 text-red-500">
@@ -187,10 +186,7 @@ function setupReadToggleListeners() {
 async function toggleReadStatus(storyId) {
     try {
         const res = await fetch(`/api/stories/${storyId}/read`, { method: 'PATCH' });
-        if (!res.ok) {
-            console.error('Toggle read failed:', res.status);
-            return;
-        }
+        if (!res.ok) return;
         const data = await res.json();
         const article = document.querySelector(`article[data-story-id="${storyId}"]`);
         if (!article) return;
@@ -210,7 +206,7 @@ async function toggleReadStatus(storyId) {
             }
         }
     } catch (e) {
-        console.error('Toggle read error:', e);
+        // Toggle read error
     }
 }
 
@@ -231,7 +227,6 @@ async function addNegativeFeedback(storyId) {
             showToast('success', 'Bu içerik bundan sonra gösterilmeyecek.');
         }
     } catch (error) {
-        console.error('Error adding negative feedback:', error);
         showToast('error', 'Bir hata oluştu. Lütfen tekrar deneyin.');
     }
 }
@@ -268,7 +263,6 @@ async function triggerWorkerHome() {
             if (window.hideWorkerProgress) window.hideWorkerProgress();
         }
     } catch (error) {
-        console.error('Error triggering worker:', error);
         showToast('error', 'Veri çekimi başlatılırken bir hata oluştu.');
         if (window.hideWorkerProgress) window.hideWorkerProgress();
     } finally {
@@ -326,7 +320,7 @@ async function reprocessUntranslatedHome() {
                 statusText.classList.remove('hidden');
             }
         } catch (err) {
-            console.error('SSE progress parse error:', err);
+            // SSE progress parse error
         }
     });
 
@@ -337,7 +331,7 @@ async function reprocessUntranslatedHome() {
                 window.updateStoryCard(story);
             }
         } catch (err) {
-            console.error('SSE story_update parse error:', err);
+            // SSE story_update parse error
         }
     });
 
@@ -370,12 +364,11 @@ async function reprocessUntranslatedHome() {
                 }, 1000);
             }
         } catch (err) {
-            console.error('SSE complete parse error:', err);
+            // SSE complete parse error
         }
     });
 
     sse.addEventListener('error', function() {
-        console.warn('[Reprocess] SSE connection lost');
         sse.close();
         resetButton();
 
@@ -433,7 +426,7 @@ async function reprocessSingleStory(storyId) {
                     }
                 }
             } catch (e) {
-                console.error('Poll error:', e);
+                // Poll error
             }
             if (attempt >= maxAttempts && !done) {
                 done = true;
@@ -447,7 +440,6 @@ async function reprocessSingleStory(storyId) {
         setTimeout(pollOnce, 6000);
 
     } catch (e) {
-        console.error(e);
         showToast('error', 'Yenileme sırasında hata oluştu.');
         if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
     }

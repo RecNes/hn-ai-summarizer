@@ -9,7 +9,8 @@
     "settings": "Налаштування",
     "themeToggle": "Змінити тему",
     "displaySettings": "Налаштування відображення",
-    "refresh": "Оновити сторінку"
+    "refresh": "Оновити сторінку",
+    "logs": "Activity Logs (uk)"
   },
   "home": {
     "title": "Останні історії",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 Сьогодні на Hacker News немає нових історій. До наступного сканування!",
       "errors": "⚠️ Сталося <b>{count} помилок</b>."
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

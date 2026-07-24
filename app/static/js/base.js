@@ -5,10 +5,10 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/static/js/service-worker.js')
             .then((registration) => {
-                console.log('Service Worker registered with scope:', registration.scope);
+                // Service Worker registered
             })
             .catch((error) => {
-                console.log('Service Worker registration failed:', error);
+                // Service Worker registration failed
             });
     });
 }
@@ -191,7 +191,6 @@ window.showToast = function(type, message, duration) {
 window.showWorkerProgress = function() {
     const progressBar = document.getElementById('worker-progress-bar');
     if (progressBar) {
-        console.log('Showing progress bar');
         progressBar.classList.add('visible');
         progressBar.style.width = '0%';
         progressBar.offsetHeight;
@@ -201,7 +200,6 @@ window.showWorkerProgress = function() {
 window.updateWorkerProgress = function(percent) {
     const progressBar = document.getElementById('worker-progress-bar');
     if (progressBar) {
-        console.log('Updating progress to:', percent + '%');
         progressBar.style.width = percent + '%';
         progressBar.offsetHeight;
     }
@@ -210,7 +208,6 @@ window.updateWorkerProgress = function(percent) {
 window.hideWorkerProgress = function() {
     const progressBar = document.getElementById('worker-progress-bar');
     if (progressBar) {
-        console.log('Hiding progress bar');
         progressBar.style.width = '100%';
         progressBar.offsetHeight;
         setTimeout(() => {
@@ -270,13 +267,12 @@ window.createSSEConnection = function(url, handlers, options) {
                     const data = JSON.parse(e.data);
                     handler(data);
                 } catch (err) {
-                    console.error(`[SSE/${eventName}] Parse error:`, err);
+                    // SSE parse error
                 }
             });
         }
 
         es.addEventListener('error', function() {
-            console.warn(`[SSE] Connection lost for ${url}, reconnecting in ${reconnectDelay}ms...`);
             es.close();
             // Remove from active list
             const idx = activeSSEConnections.indexOf(es);
@@ -346,7 +342,6 @@ async function initUILanguage() {
             await initI18n(uiLang);
         }
     } catch (e) {
-        console.warn('Could not load UI language preference:', e);
         if (typeof initI18n === 'function') {
             await initI18n('en');
         }
@@ -405,220 +400,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    // Log Panel event listeners
-    const logPanelBtn = document.getElementById('log-panel-btn');
-    if (logPanelBtn) {
-        logPanelBtn.addEventListener('click', toggleLogPanel);
-    }
-
-    const logPanelCloseBtn = document.getElementById('log-panel-close-btn');
-    if (logPanelCloseBtn) {
-        logPanelCloseBtn.addEventListener('click', toggleLogPanel);
-    }
-
-    const logPanelOverlay = document.getElementById('log-panel-overlay');
-    if (logPanelOverlay) {
-        logPanelOverlay.addEventListener('click', toggleLogPanel);
-    }
-
-    // Cancel reprocess button
-    const cancelReprocessBtn = document.getElementById('cancel-reprocess-home');
-    if (cancelReprocessBtn) {
-        cancelReprocessBtn.addEventListener('click', function() {
-            if (typeof window.cancelReprocess === 'function') {
-                window.cancelReprocess();
-            }
-        });
-    }
-
-    // Check if there's an ongoing reprocess job (survives page refresh)
-    checkReprocessState();
-
-    // Poll reprocess state every 15s so UI doesn't freeze if SSE drops
-    window._reprocessStateInterval = setInterval(checkReprocessState, 15000);
-
     // AI health polling - check every 15s if AI model is reachable
     checkAIHealth();
     window._aiHealthInterval = setInterval(checkAIHealth, 15000);
 });
-
-/**
- * Check if a reprocess-untranslated job is currently running on the server.
- * If so, restore the UI state (button, progress bar, label).
- */
-async function checkReprocessState() {
-    try {
-        const res = await fetch('/api/stories/reprocess-untranslated/status');
-        if (!res.ok) return;
-        const state = await res.json();
-
-        // If cancelled flag is set but stream didn't reset yet — clear it now
-        if (state.cancelled) {
-            console.log('[Reprocess] Cancellation detected, resetting UI');
-            _resetReprocessUI();
-            return;
-        }
-
-        if (!state.running) return;
-
-        // Restore button state
-        const btn = document.getElementById('reprocess-home');
-        const btnText = document.getElementById('reprocess-home-text');
-        const spinner = document.getElementById('reprocess-home-spinner');
-        const cancelBtn = document.getElementById('cancel-reprocess-home');
-        if (btn) btn.disabled = true;
-        if (btnText) btnText.textContent = 'İşleniyor...';
-        if (spinner) spinner.classList.remove('hidden');
-        if (cancelBtn) cancelBtn.classList.remove('hidden');
-
-        // Restore progress bar
-        if (window.showWorkerProgress) window.showWorkerProgress();
-        if (window.updateWorkerProgress) window.updateWorkerProgress(state.percentage || 0);
-        if (window.showWorkerLabel) {
-            const current = state.current || 0;
-            const total = state.total || 0;
-            const pct = state.percentage || 0;
-            window.showWorkerLabel(`${current} / ${total} - %${pct}`);
-        }
-    } catch (e) {
-        // Ignore — server may not have the endpoint yet
-        console.warn('[checkReprocessState] Failed:', e);
-    }
-}
-
-/**
- * Reset all reprocess UI elements to idle state.
- */
-function _resetReprocessUI() {
-    const btn = document.getElementById('reprocess-home');
-    const btnText = document.getElementById('reprocess-home-text');
-    const spinner = document.getElementById('reprocess-home-spinner');
-    const cancelBtn = document.getElementById('cancel-reprocess-home');
-    const statusText = document.getElementById('worker-status-home');
-
-    if (btn) btn.disabled = false;
-    if (btnText) btnText.textContent = 'Çevrilmemişleri İşle';
-    if (spinner) spinner.classList.add('hidden');
-    if (cancelBtn) cancelBtn.classList.add('hidden');
-    if (statusText) statusText.classList.add('hidden');
-
-    if (window.hideWorkerProgress) window.hideWorkerProgress();
-    if (window.hideWorkerLabel) window.hideWorkerLabel();
-}
-
-/**
- * Cancel the currently running reprocess job.
- * Sets cancelled=true in Redis. The SSE stream will detect it and exit.
- */
-window.cancelReprocess = async function() {
-    try {
-        const res = await fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' });
-        if (!res.ok) {
-            showToast('error', 'İptal isteği gönderilemedi.');
-            return;
-        }
-        showToast('info', 'İşlem iptal ediliyor...');
-
-        // Immediately reset frontend UI
-        _resetReprocessUI();
-    } catch (e) {
-        console.error('[cancelReprocess] Error:', e);
-        showToast('error', 'İptal sırasında hata oluştu.');
-    }
-};
-
-// ──────────────────────────────────────────────
-// Log Panel
-// ──────────────────────────────────────────────
-
-/** Log panel slide-up toggle (açılınca 10sn'de bir otomatik yenile) */
-window.toggleLogPanel = function() {
-    const panel = document.getElementById('log-panel');
-    const overlay = document.getElementById('log-panel-overlay');
-    const isOpen = panel && panel.style.display !== 'none' && !panel.classList.contains('translate-y-full');
-
-    if (isOpen) {
-        panel.classList.add('translate-y-full');
-        panel.style.display = 'none';
-        overlay.classList.add('hidden');
-        // Auto-refresh interval'ı temizle
-        if (window._logPanelInterval) {
-            clearInterval(window._logPanelInterval);
-            window._logPanelInterval = null;
-        }
-    } else {
-        panel.style.display = 'block';
-        overlay.classList.remove('hidden');
-        // Force reflow for transition
-        void panel.offsetHeight;
-        panel.classList.remove('translate-y-full');
-        loadActivityLogs();
-        // Her 10sn'de bir otomatik yenile
-        if (window._logPanelInterval) clearInterval(window._logPanelInterval);
-        window._logPanelInterval = setInterval(loadActivityLogs, 10000);
-    }
-};
-
-/** Render a single log entry as HTML */
-function renderLogEntry(log) {
-    const isError = log.status === 'error';
-    const durationStr = log.duration_ms != null ? `${(log.duration_ms / 1000).toFixed(1)}s` : '-';
-    const date = new Date(log.created_at).toLocaleString('tr-TR', {
-        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-    });
-    const titlePreview = log.story_title
-        ? (log.story_title.length > 60 ? log.story_title.slice(0, 60) + '...' : log.story_title)
-        : '';
-
-    return `
-        <div class="p-3 rounded-lg border ${isError ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}">
-            <div class="flex justify-between items-start">
-                <div class="min-w-0 flex-1">
-                    <span class="text-xs font-mono text-gray-400">#${log.story_id || '-'}</span>
-                    <span class="ml-2 text-sm font-semibold ${isError ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${log.event_type}</span>
-                </div>
-                <span class="text-xs text-gray-400 flex-shrink-0 ml-2">${date}</span>
-            </div>
-            ${titlePreview ? `<div class="mt-1 text-xs text-gray-600 dark:text-gray-300 truncate" title="${titlePreview.replace(/"/g, '"')}">📄 ${titlePreview}</div>` : ''}
-            <div class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                ${log.provider} / ${log.model} · ${durationStr}
-                ${isError ? `<span class="ml-2 text-red-500" title="${(log.error_message || '').replace(/"/g, '"')}">⚠ hata</span>` : ' ✓'}
-            </div>
-            ${isError && log.error_message ? `<div class="mt-1 text-xs text-red-500 break-words" title="${log.error_message.replace(/"/g, '"')}">${log.error_message}</div>` : ''}
-        </div>
-    `;
-}
-
-/** Fetch and render AI activity logs */
-async function loadActivityLogs() {
-    const content = document.getElementById('log-panel-content');
-    if (!content) return;
-    content.innerHTML = '<div class="text-center text-gray-500 py-8">Yükleniyor...</div>';
-
-    try {
-        const res = await fetch('/api/activity/?limit=50');
-        if (!res.ok) {
-            content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenemedi.</div>';
-            return;
-        }
-        const logs = await res.json();
-
-        if (!logs || logs.length === 0) {
-            content.innerHTML = '<div class="text-center text-gray-500 py-8">Henüz AI aktivite logu bulunmuyor.</div>';
-            return;
-        }
-
-        let html = '<div class="space-y-3">';
-        for (const log of logs) {
-            html += renderLogEntry(log);
-        }
-        html += '</div>';
-        content.innerHTML = html;
-    } catch (e) {
-        console.error('AI Activity log error:', e);
-        content.innerHTML = '<div class="text-center text-red-500 py-8">Loglar yüklenirken hata oluştu.</div>';
-    }
-}
 
 // ──────────────────────────────────────────────
 // AI Health Monitoring - checks if AI model is reachable
@@ -647,15 +432,3 @@ function updateAIHealthBanner(status) {
         banner.classList.add('hidden');
     }
 }
-
-// ──────────────────────────────────────────────
-// Esc ile log paneli kapat
-// ──────────────────────────────────────────────
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const panel = document.getElementById('log-panel');
-        if (panel && panel.style.display !== 'none' && !panel.classList.contains('translate-y-full')) {
-            window.toggleLogPanel();
-        }
-    }
-});

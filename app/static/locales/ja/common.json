@@ -9,7 +9,8 @@
     "settings": "Ã¨Â¨Â­Ã¥Â®Â",
     "themeToggle": "Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂÃ¥ÂÂÃ¦ÂÂ¿",
     "displaySettings": "Ã¨Â¡Â¨Ã§Â¤ÂºÃ¨Â¨Â­Ã¥Â®Â",
-    "refresh": "Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂÃ¦ÂÂ´Ã¦ÂÂ°"
+    "refresh": "Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂÃ¦ÂÂ´Ã¦ÂÂ°",
+    "logs": "Activity Logs (ja)"
   },
   "home": {
     "title": "Ã¦ÂÂÃ¦ÂÂ°Ã£ÂÂ®Ã£ÂÂ¹Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂªÃ£ÂÂ¼",
@@ -160,5 +161,29 @@
       "no_stories": "🫡 今日Hacker Newsに新しいストーリーはありません。次のスキャンでお会いしましょう！",
       "errors": "⚠️ <b>{count}件のエラー</b>が発生しました。"
     }
+  },
+  "logs": {
+    "pageTitle": "Worker Logs",
+    "description": "Worker processing logs. Latest logs appear at the bottom.",
+    "loading": "Loading logs...",
+    "loadError": "Failed to load logs.",
+    "empty": "No logs yet.",
+    "end": "No more older logs.",
+    "newArticle": "New article",
+    "reprocessing": "Reprocessing",
+    "processing": "processing",
+    "success": "success",
+    "error": "error",
+    "phaseTitle": "title",
+    "phaseContent": "content",
+    "phaseComments": "comments",
+    "workerTriggered": "Worker triggered",
+    "autoTrigger": "auto",
+    "manualTrigger": "manual",
+    "fetchNew": "to fetch new stories",
+    "reprocessMissing": "to reprocess missing",
+    "errorAI": "AI service error",
+    "errorBackend": "Backend error",
+    "errorWorker": "Worker error"
   }
 }

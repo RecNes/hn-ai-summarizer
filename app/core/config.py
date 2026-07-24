@@ -51,6 +51,9 @@ class Settings(BaseSettings):
 
     DEVELOPMENT: bool = Field(False)
 
+    # Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    LOG_LEVEL: str = Field("INFO")
+
     # Delay in seconds between HN API requests (throttle)
     HN_REQUEST_DELAY: float = Field(0.5)
 

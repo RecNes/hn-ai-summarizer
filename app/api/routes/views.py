@@ -28,3 +28,9 @@ async def index(request: Request):
 async def settings_page(request: Request):
     """Settings page"""
     return await _render("settings.html", request)
+
+
+@router.get("/logs", response_class=HTMLResponse)
+async def logs_page(request: Request):
+    """Activity logs page"""
+    return await _render("logs.html", request)

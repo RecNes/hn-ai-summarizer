@@ -11,6 +11,7 @@ They are read exclusively from .env file.
 
 import asyncio
 import json
+import logging
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -23,6 +24,8 @@ from app.models.activity_log import AiActivityLog
 from app.models.setting import Setting
 from app.services.provider_registry import get_provider
 from app.services.rate_limiter import GLOBAL_RATE_LIMIT
+
+logger = logging.getLogger(__name__)
 
 
 class AIService:
@@ -165,13 +168,15 @@ class AIService:
             if content:
                 return content.strip()
             finish = response.choices[0].finish_reason
-            print(f"Warning: {base_url} ({model}) returned empty content (finish_reason={finish})")
+            logger.warning(
+                "%s (%s) returned empty content (finish_reason=%s)",
+                base_url, model, finish,
+            )
             return ""
         except Exception as e:
-            import traceback
             error_msg = str(e)
-            print(f"Error calling {base_url} ({model}): {error_msg}")
-            traceback.print_exc()
+            logger.error("Error calling %s (%s): %s", base_url, model, error_msg)
+            logger.debug("Traceback", exc_info=True)
 
             # ── 429 Rate Limit ──────────────────────────────────────
             # OpenAI SDK raises openai.RateLimitError for HTTP 429.
@@ -192,9 +197,10 @@ class AIService:
                     wait_sec = 60.0  # safe fallback
 
                 GLOBAL_RATE_LIMIT.set_limited(wait_sec)
-                print(
-                    f"[RateLimit] 429 detected for {base_url} ({model}). "
-                    f"Throttling all subsequent calls for {wait_sec:.0f}s."
+                logger.warning(
+                    "[RateLimit] 429 detected for %s (%s). "
+                    "Throttling all subsequent calls for %.0fs.",
+                    base_url, model, wait_sec,
                 )
 
             raise  # Re-raise so _call_ai can handle retry logic
@@ -221,7 +227,7 @@ class AIService:
             )
             return text_block.text.strip() if text_block else ""
         except Exception as e:
-            print(f"Error calling Anthropic ({model}): {e}")
+            logger.error("Error calling Anthropic (%s): %s", model, e)
             raise
 
     async def _call_ollama(
@@ -234,10 +240,10 @@ class AIService:
                     f"{base_url}/api/tags", timeout=30.0
                 )
                 if ping_response.status_code != 200:
-                    print(f"Ollama API not responding at {base_url}")
+                    logger.warning("Ollama API not responding at %s", base_url)
                     return ""
             except Exception as ping_error:
-                print(f"Cannot connect to Ollama at {base_url}: {ping_error}")
+                logger.error("Cannot connect to Ollama at %s: %s", base_url, ping_error)
                 return ""
 
             response = await self.ollama_client.post(
@@ -250,10 +256,12 @@ class AIService:
                 result = response.json()
                 return result.get("response", "").strip()
             else:
-                print(f"Ollama API error: {response.status_code} - {response.text}")
+                logger.error(
+                    "Ollama API error: %s - %s", response.status_code, response.text
+                )
                 return ""
         except Exception as e:
-            print(f"Error calling Ollama at '{base_url}': {e}")
+            logger.error("Error calling Ollama at '%s': %s", base_url, e)
             raise
 
     async def _log_activity(
@@ -271,13 +279,14 @@ class AIService:
             status=status,
             error_message=error_message,
             duration_ms=duration_ms,
+            event_category="ai_call",
         )
         try:
             async with AsyncSessionLocal() as db:
                 db.add(log)
                 await db.commit()
         except Exception as e:
-            print(f"[ActivityLog] Failed to write log: {e}")
+            logger.error("[ActivityLog] Failed to write log: %s", e)
 
     async def _call_ai(self, system_prompt: str, user_prompt: str, event_type: str = "ai_call") -> str:
         """Route the AI call to the currently configured provider.
@@ -345,10 +354,10 @@ class AIService:
                     # Wait until the window expires, then retry.
                     wait = GLOBAL_RATE_LIMIT.remaining_seconds
                     if wait > 0:
-                        print(
-                            f"[AIService] {event_type} rate-limited "
-                            f"(attempt {attempt}/{self.MAX_CONNECTION_RETRIES}). "
-                            f"Waiting {wait:.0f}s..."
+                        logger.info(
+                            "[AIService] %s rate-limited "
+                            "(attempt %s/%s). Waiting %.0fs...",
+                            event_type, attempt, self.MAX_CONNECTION_RETRIES, wait,
                         )
                         self._rate_limited = True
                         await asyncio.sleep(wait)
@@ -357,9 +366,10 @@ class AIService:
 
                 elif is_connection_error and attempt < self.MAX_CONNECTION_RETRIES + 1:
                     wait = settings.AI_RETRY_INTERVAL
-                    print(
-                        f"[AIService] {event_type} connection error (attempt {attempt}/{self.MAX_CONNECTION_RETRIES}): "
-                        f"{error_msg}. Waiting {wait}s before retry..."
+                    logger.info(
+                        "[AIService] %s connection error (attempt %s/%s): "
+                        "%s. Waiting %ss before retry...",
+                        event_type, attempt, self.MAX_CONNECTION_RETRIES, error_msg, wait,
                     )
                     self._connection_failure_count += 1
                     await asyncio.sleep(wait)
@@ -368,12 +378,12 @@ class AIService:
                 # Non-recoverable error or out of retries
                 if is_connection_error and attempt >= self.MAX_CONNECTION_RETRIES + 1:
                     self._connection_failure_count += 1
-                    print(
-                        f"[AIService] {event_type} FAILED after {self.MAX_CONNECTION_RETRIES} retries: "
-                        f"{error_msg}"
+                    logger.error(
+                        "[AIService] %s FAILED after %s retries: %s",
+                        event_type, self.MAX_CONNECTION_RETRIES, error_msg,
                     )
                 else:
-                    print(f"[AIService] {event_type} ERROR: {error_msg}")
+                    logger.error("[AIService] %s ERROR: %s", event_type, error_msg)
 
                 result = ""
                 break
@@ -402,6 +412,23 @@ class AIService:
         )
 
         return result
+
+    def _determine_error_code(self, error_msg: str) -> str:
+        """Determine a machine-readable error code from an error message."""
+        if not error_msg:
+            return "BACKEND_ERROR"
+        msg_lower = error_msg.lower()
+        conn_keywords = [
+            "connection error", "connecterror", "temporary failure",
+            "name resolution", "api_connection_error", "timeout",
+            "429", "rate_limit", "rate limit",
+        ]
+        if any(kw in msg_lower for kw in conn_keywords):
+            return "AI_SERVICE_ERROR"
+        fetch_keywords = ["fetch", "scrape", "http", "httpx"]
+        if any(kw in msg_lower for kw in fetch_keywords):
+            return "FETCH_ERROR"
+        return "AI_SERVICE_ERROR"
 
     @property
     def had_connection_failure(self) -> bool:
@@ -505,25 +532,33 @@ class AIService:
             if result:
                 # Truncate if excessively long
                 if len(result) > len(title) * 3:
-                    print(f"Warning: translate_title too long. Title={title!r}, Result={result!r}")
+                    logger.warning(
+                        "translate_title too long. Title=%r, Result=%r", title, result,
+                    )
                     trimmed = result[:len(title) * 3 - 3] + "..."
                     return trimmed
 
                 # Detect garbage translation
                 if self._is_garbage_translation(title, result):
-                    print(f"Warning: translate_title detected bad translation. Title={title!r}, Result={result!r}")
+                    logger.warning(
+                        "translate_title detected bad translation. Title=%r, Result=%r",
+                        title, result,
+                    )
                     return title
 
                 return result
 
             # Empty response - log and retry once
             if attempt == 0:
-                print(f"Warning: translate_title returned empty (attempt {attempt + 1}). Title={title!r}")
-                print(f"  Retrying once...")
+                logger.warning(
+                    "translate_title returned empty (attempt %s). Title=%r",
+                    attempt + 1, title,
+                )
+                logger.info("  Retrying once...")
                 await asyncio.sleep(1)
 
         # All retries exhausted, return original
-        print(f"Warning: translate_title returned empty after retry. Title={title!r}")
+        logger.warning("translate_title returned empty after retry. Title=%r", title)
         return title
 
     async def summarize_content(self, content: str, target_language: str = "Turkish") -> str:
@@ -549,7 +584,7 @@ class AIService:
             event_type="summarize_content",
         )
         if not result:
-            print(f"Warning: summarize_content returned empty. Retrying once...")
+            logger.warning("summarize_content returned empty. Retrying once...")
             await asyncio.sleep(1)
             result = await self._call_ai(
                 system_prompt=(
@@ -565,7 +600,10 @@ class AIService:
 
         result_stripped = result.strip()
         if len(result_stripped) < 20:
-            print(f"Warning: summarize_content returned suspiciously short result. Content={content[:50]!r}, Result={result_stripped!r}")
+            logger.warning(
+                "summarize_content returned suspiciously short result. Content=%r, Result=%r",
+                content[:50], result_stripped,
+            )
             return f"Summary could not be generated in {target_language}."
 
         cleaned_lines = []
@@ -600,7 +638,7 @@ class AIService:
             event_type="summarize_comments",
         )
         if not result:
-            print(f"Warning: summarize_comments returned empty. Retrying once...")
+            logger.warning("summarize_comments returned empty. Retrying once...")
             await asyncio.sleep(1)
             result = await self._call_ai(
                 system_prompt=(
@@ -677,7 +715,7 @@ class AIService:
             models = client.models.list()
             return sorted([m.id for m in models])
         except Exception as e:
-            print(f"Error listing models from {base_url}: {e}")
+            logger.error("Error listing models from %s: %s", base_url, e)
             return []
 
     async def _list_anthropic_models(self, api_key: str) -> List[str]:
@@ -689,7 +727,7 @@ class AIService:
             models_list = client.models.list()
             return sorted([m.id for m in models_list.data])
         except Exception as e:
-            print(f"Error listing Anthropic models: {e}")
+            logger.error("Error listing Anthropic models: %s", e)
         # Fallback to known models
         return [
             "claude-3-opus-20240229",
@@ -710,5 +748,5 @@ class AIService:
                 return sorted([m["name"] for m in data.get("models", [])])
             return []
         except Exception as e:
-            print(f"Error listing Ollama models: {e}")
+            logger.error("Error listing Ollama models: %s", e)
             return []
