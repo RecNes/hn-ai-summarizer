@@ -346,6 +346,11 @@ async function initUILanguage() {
             await initI18n('en');
         }
     }
+    // Tüm sayfaların i18n hazır olduğunda DOM'u güncellemesi için
+    // merkezi event fırlat. applyI18nToDOM zaten initI18n içinde çağrıldı.
+    document.dispatchEvent(new CustomEvent('languageChanged', {
+        detail: { language: i18next ? i18next.language : 'en' }
+    }));
 }
 
 // ──────────────────────────────────────────────
