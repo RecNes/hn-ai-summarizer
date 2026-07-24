@@ -506,6 +506,12 @@ function reprocessUntranslated() {
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
+    
+    // Apply i18n translations to static elements on this page
+    if (typeof applyI18nToDOM === 'function') {
+        // Wait a brief moment for i18n to be fully initialized by base.js
+        setTimeout(applyI18nToDOM, 100);
+    }
     loadPreferences(); // Load language dropdowns
 
     const settingsForm = document.getElementById('settings-form');
