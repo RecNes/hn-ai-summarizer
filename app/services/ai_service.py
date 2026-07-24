@@ -12,7 +12,7 @@ They are read exclusively from .env file.
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 from sqlalchemy.future import select
@@ -22,6 +22,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.activity_log import AiActivityLog
 from app.models.setting import Setting
 from app.services.provider_registry import get_provider
+from app.services.rate_limiter import GLOBAL_RATE_LIMIT
 
 
 class AIService:
@@ -34,6 +35,7 @@ class AIService:
         self.ollama_client = httpx.AsyncClient(timeout=600.0)
         self._story_id = int(story_id) if story_id is not None and not isinstance(story_id, int) else story_id
         self._connection_failure_count = 0
+        self._rate_limited = False
 
     async def _get_active_config(self) -> Dict[str, Any]:
         """Get the currently active AI provider configuration.
@@ -130,9 +132,17 @@ class AIService:
     async def _call_openai_compat(
         self, system_prompt: str, user_prompt: str, model: str, base_url: str, api_key: str
     ) -> str:
-        """Call any OpenAI-compatible API (OpenAI, DeepSeek, OpenRouter, LM Studio)."""
+        """Call any OpenAI-compatible API (OpenAI, DeepSeek, OpenRouter, LM Studio).
+
+        Raises:
+            openai.RateLimitError: 429 – caller should honour GLOBAL_RATE_LIMIT.
+            Other exceptions are re-raised for unified handling in _call_ai.
+        """
         try:
             from openai import AsyncOpenAI
+
+            # ── Wait for any active global rate-limit before sending ──
+            await GLOBAL_RATE_LIMIT.wait_if_limited()
 
             client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=300.0)
             response = await client.chat.completions.create(
@@ -155,6 +165,31 @@ class AIService:
             error_msg = str(e)
             print(f"Error calling {base_url} ({model}): {error_msg}")
             traceback.print_exc()
+
+            # ── 429 Rate Limit ──────────────────────────────────────
+            # OpenAI SDK raises openai.RateLimitError for HTTP 429.
+            # We parse the error body to extract the reset timestamp.
+            if "rate_limit" in type(e).__name__.lower() or "429" in error_msg:
+                self._rate_limited = True
+                try:
+                    # openai.RateLimitError has .response / .body from the API
+                    body = getattr(e, "body", None) or getattr(e, "response", None)
+                    if isinstance(body, dict):
+                        err_body = body.get("error", body)
+                    elif body and hasattr(body, "json"):
+                        err_body = body.json().get("error", body.json())
+                    else:
+                        err_body = {}
+                    wait_sec = GLOBAL_RATE_LIMIT.parse_reset_seconds(err_body)
+                except Exception:
+                    wait_sec = 60.0  # safe fallback
+
+                GLOBAL_RATE_LIMIT.set_limited(wait_sec)
+                print(
+                    f"[RateLimit] 429 detected for {base_url} ({model}). "
+                    f"Throttling all subsequent calls for {wait_sec:.0f}s."
+                )
+
             raise  # Re-raise so _call_ai can handle retry logic
 
     async def _call_anthropic(
@@ -292,7 +327,28 @@ class AIService:
                                     "name resolution", "api_connection_error"]
                 )
 
-                if is_connection_error and attempt < self.MAX_CONNECTION_RETRIES + 1:
+                is_rate_limit = (
+                    "rate_limit" in type(e).__name__.lower()
+                    or "429" in error_msg
+                    or "rate limit" in error_msg.lower()
+                )
+
+                if is_rate_limit and attempt < self.MAX_CONNECTION_RETRIES + 1:
+                    # Global rate-limit state already set by _call_openai_compat.
+                    # Wait until the window expires, then retry.
+                    wait = GLOBAL_RATE_LIMIT.remaining_seconds
+                    if wait > 0:
+                        print(
+                            f"[AIService] {event_type} rate-limited "
+                            f"(attempt {attempt}/{self.MAX_CONNECTION_RETRIES}). "
+                            f"Waiting {wait:.0f}s..."
+                        )
+                        self._rate_limited = True
+                        await asyncio.sleep(wait)
+                        continue
+                    # If wait is 0, treat as regular error (shouldn't happen)
+
+                elif is_connection_error and attempt < self.MAX_CONNECTION_RETRIES + 1:
                     wait = settings.AI_RETRY_INTERVAL
                     print(
                         f"[AIService] {event_type} connection error (attempt {attempt}/{self.MAX_CONNECTION_RETRIES}): "
@@ -302,7 +358,7 @@ class AIService:
                     await asyncio.sleep(wait)
                     continue
 
-                # Non-connection error or out of retries
+                # Non-recoverable error or out of retries
                 if is_connection_error and attempt >= self.MAX_CONNECTION_RETRIES + 1:
                     self._connection_failure_count += 1
                     print(
@@ -344,6 +400,11 @@ class AIService:
     def had_connection_failure(self) -> bool:
         """Whether the last call experienced a connection error."""
         return self._connection_failure_count > 0
+
+    @property
+    def had_rate_limit(self) -> bool:
+        """Whether the last call hit a rate limit."""
+        return self._rate_limited
 
     @staticmethod
     def _is_valid_translation(text: Optional[str], field_type: str) -> bool:
