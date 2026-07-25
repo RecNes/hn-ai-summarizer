@@ -350,6 +350,31 @@ async function triggerWorker() {
     }
 }
 
+/**
+ * Sayfa yüklendiğinde stuck state var mı kontrol et, varsa temizle.
+ * Ayrıca mevcut durumu worker-status div'inde göster.
+ */
+async function checkAndCleanStuckReprocess() {
+    const statusText = document.getElementById('worker-status');
+    try {
+        const res = await fetch('/api/stories/reprocess-untranslated/status');
+        const state = await res.json();
+        if (state.running) {
+            // Stuck tespit edildi – cancel çağır (backend auto-reset yapacaktır ama garantile)
+            await fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' });
+            if (statusText) {
+                statusText.classList.remove('hidden');
+                statusText.innerHTML = `<div class="text-yellow-600 text-sm">⚠️ Önceki işlem kilitli kalmıştı, temizlendi. Tekrar deneyebilirsiniz.</div>`;
+                setTimeout(() => {
+                    statusText.classList.add('hidden');
+                }, 5000);
+            }
+        }
+    } catch (e) {
+        // Sessiz geç – hata durumunda kullanıcıyı rahatsız etme
+    }
+}
+
 function reprocessUntranslated() {
     const button = document.getElementById('reprocess-untranslated');
     const btnText = document.getElementById('reprocess-text');
@@ -375,6 +400,13 @@ function reprocessUntranslated() {
 
     async function connectSSE() {
         try {
+            // Önce stuck state kontrolü – eğer backend auto-recovery yapamamışsa burada temizle
+            const statusRes = await fetch('/api/stories/reprocess-untranslated/status');
+            const statusData = await statusRes.json();
+            if (statusData.running) {
+                await fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' });
+            }
+
             const response = await fetch('/api/stories/reprocess-untranslated/stream', {
                 signal: abortController.signal
             });
@@ -382,7 +414,7 @@ function reprocessUntranslated() {
             if (!response.ok) {
                 if (response.status === 409) {
                     const errData = await response.json();
-                    statusText.innerHTML = `⚠️ <b>Zaten çalışıyor:</b> ${errData.detail || ''} <button onclick="location.reload()" class="text-blue-500 underline ml-2">Sayfayı yenile</button>`;
+                    statusText.innerHTML = `⚠️ <b>Zaten çalışıyor:</b> ${errData.detail || ''} <button onclick="checkAndCleanStuckReprocess().then(() => location.reload())" class="text-blue-500 underline ml-2">Kilit temizle ve yenile</button>`;
                 } else {
                     const errData = await response.json();
                     statusText.innerHTML = `❌ Hata: ${errData.detail || 'Bilinmeyen hata'}`;

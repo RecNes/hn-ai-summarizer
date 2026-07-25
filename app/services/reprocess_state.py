@@ -2,6 +2,7 @@
 
 import json
 import logging
+import time
 from typing import Optional
 
 from redis.asyncio import Redis
@@ -12,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 REDIS_REPROCESS_STATUS_KEY = "hn_reader:reprocess:status"
 
+# Bir stream bağlantısı bu süre (saniye) boyunca heartbeat göndermezse
+# stuck kabul edilir ve 409 yerine yeni stream'e izin verilir.
+REPROCESS_HEARTBEAT_TIMEOUT = 60
+
 
 async def _get_redis() -> Redis:
     """Create a redis asyncio connection."""
@@ -20,17 +25,71 @@ async def _get_redis() -> Redis:
 
 
 async def get_reprocess_state() -> dict:
-    """Get the current reprocess state from Redis."""
+    """Get the current reprocess state from Redis.
+
+    Stuck state auto-recovery: Eğer running=True ama son heartbeat
+    REPROCESS_HEARTBEAT_TIMEOUT saniyeden daha eskiyse state otomatik
+    resetlenir ve yeni stream bağlantısına izin verilir.
+    """
     r = None
     try:
         r = await _get_redis()
         data = await r.get(REDIS_REPROCESS_STATUS_KEY)
         if data:
-            return json.loads(data)
-        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
+            state = json.loads(data)
+            # ── Stuck state auto-recovery ──────────────────────
+            if state.get("running"):
+                last_hb = state.get("last_heartbeat")
+                if last_hb and (time.time() - last_hb) > REPROCESS_HEARTBEAT_TIMEOUT:
+                    logger.warning(
+                        "[ReprocessState] Stuck state detected (last heartbeat %.0fs ago). Auto-resetting.",
+                        time.time() - last_hb,
+                    )
+                    state = {
+                        "running": False,
+                        "current": 0,
+                        "total": 0,
+                        "percentage": 0,
+                        "story_id": None,
+                        "cancelled": False,
+                        "last_heartbeat": None,
+                    }
+                    await r.set(REDIS_REPROCESS_STATUS_KEY, json.dumps(state))
+                elif not last_hb:
+                    # last_heartbeat yoksa da stuck kabul et ve resetle
+                    logger.warning("[ReprocessState] State has running=True but no heartbeat. Auto-resetting.")
+                    state = {
+                        "running": False,
+                        "current": 0,
+                        "total": 0,
+                        "percentage": 0,
+                        "story_id": None,
+                        "cancelled": False,
+                        "last_heartbeat": None,
+                    }
+                    await r.set(REDIS_REPROCESS_STATUS_KEY, json.dumps(state))
+            # ──────────────────────────────────────────────────
+            return state
+        return {
+            "running": False,
+            "current": 0,
+            "total": 0,
+            "percentage": 0,
+            "story_id": None,
+            "cancelled": False,
+            "last_heartbeat": None,
+        }
     except Exception as e:
         logger.error("[ReprocessState] Redis read error: %s", e)
-        return {"running": False, "current": 0, "total": 0, "percentage": 0, "story_id": None, "cancelled": False}
+        return {
+            "running": False,
+            "current": 0,
+            "total": 0,
+            "percentage": 0,
+            "story_id": None,
+            "cancelled": False,
+            "last_heartbeat": None,
+        }
     finally:
         if r:
             await r.close()
@@ -67,6 +126,10 @@ async def set_reprocess_state(
             payload["story_id"] = story_id
         if cancelled is not None:
             payload["cancelled"] = cancelled
+
+    # running=True olan her yazma işleminde heartbeat zaman damgasını güncelle
+    if payload.get("running"):
+        payload["last_heartbeat"] = time.time()
 
     r = None
     try:

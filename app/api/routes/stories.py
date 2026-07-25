@@ -215,7 +215,13 @@ async def reprocess_untranslated_stream(request: Request):
                 target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
 
                 total = len(stories)
+
+                # ── Stuck state guard ──────────────────────────────
+                # Eğer Redis'te hala running=true varsa ama buraya yeni
+                # bir stream bağlantısı gelmişse, önce state'i sıfırla.
                 await set_reprocess_state(running=True, current=0, total=total, percentage=0, cancelled=False)
+                # ────────────────────────────────────────────────────
+
                 yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0, "running": True})
 
                 processed = 0
@@ -224,6 +230,8 @@ async def reprocess_untranslated_stream(request: Request):
 
                 for idx, story in enumerate(stories, 1):
                     if await request.is_disconnected():
+                        logger.info("[SSE/reprocess] Client disconnected at %s/%s, resetting state", idx, total)
+                        await reset_reprocess_state()
                         break
 
                     # Check if user requested cancellation
