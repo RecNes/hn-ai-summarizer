@@ -199,9 +199,9 @@ class ScheduleManager:
             for day_num in scheduled_days:
                 day_name = WEEKDAY_NAMES[day_num]
 
-                async def job_wrapper(day=day_name):
+                async def job_wrapper(day=day_name, time_str=scheduled_time):
                     await _enqueue_fetch_job(day)
-                    _reschedule_job(day)
+                    await _reschedule_job(day, time_str)
 
                 now = datetime.now()
                 target = _next_weekday_time(now, day_num, scheduled_time)
@@ -317,25 +317,33 @@ async def _enqueue_fetch_job(day_name: str):
         logger.error(f">>> Error enqueuing worker job for {day_name}: {e}")
 
 
-def _reschedule_job(day_name: str):
-    """Reschedule the job for the next week on the same day."""
+async def _reschedule_job(day_name: str, scheduled_time: str):
+    """Reschedule the job for the next week on the same day at the correct time.
+
+    aioscheduler TimedScheduler tasks run only once, so we must re-schedule
+    after each execution for the following week.
+    """
     scheduler = _get_scheduler()
     if scheduler is None:
+        logger.warning("No global scheduler available, cannot reschedule %s", day_name)
         return
 
     day_num = WEEKDAY_NAMES.index(day_name)
 
     now = datetime.now()
-    target = _next_weekday_time(now, day_num, "09:00")
+    target = _next_weekday_time(now, day_num, scheduled_time)
+    # target is always >= now; if it's in the past (shouldn't happen) push one week
+    if target <= now:
+        target += timedelta(days=7)
 
-    async def job_wrapper(day=day_name):
+    async def _weekly_job(day=day_name, time_str=scheduled_time):
         await _enqueue_fetch_job(day)
-        _reschedule_job(day)
+        await _reschedule_job(day, time_str)
 
-    task_obj = scheduler.schedule(job_wrapper(), target)
+    task_obj = scheduler.schedule(_weekly_job(), target)
     task_refs = _get_scheduler_tasks()
     task_refs.append(task_obj)
-    logger.info(f"Rescheduled {day_name} for {target}")
+    logger.info("Rescheduled %s for %s (next: %s)", day_name, scheduled_time, target)
 
 
 # ── Scheduler lifecycle ──────────────────
