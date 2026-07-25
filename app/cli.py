@@ -7,7 +7,6 @@ import uvicorn
 from arq import run_worker as run_worker_main
 
 from app.core.config import settings
-from app.core.logging_config import get_logging_config
 from app.tasks.scheduler import run_scheduler as scheduler_main
 from app.tasks.worker import WorkerSettings
 from app.tasks.schedule_manager import get_schedule_manager
@@ -21,7 +20,6 @@ def run_server():
         host=host,
         port=8000,
         reload=settings.DEVELOPMENT,
-        log_config=get_logging_config(),
     )
 
 
