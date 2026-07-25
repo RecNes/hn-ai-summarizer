@@ -85,6 +85,10 @@ async function initI18n(lang, callback) {
     if (callback) callback();
 }
 
+// Özel event adı — initUILanguage dışında hiçbir yer dispatch etmemeli.
+// changeUILanguage zaten applyI18nToDOM ile DOM'u günceller, ekstra event'e gerek yoktur.
+const LANGUAGE_INIT_EVENT = 'languageChanged';
+
 /**
  * Change UI language without page reload.
  * @param {string} lang - Language code
@@ -119,9 +123,10 @@ async function changeUILanguage(lang) {
                 return;
             }
             applyI18nToDOM();
-            document.dispatchEvent(new CustomEvent('languageChanged', {
-                detail: { language: lang }
-            }));
+            // languageChanged event'i dispatch ETME — bu event sadece initUILanguage
+            // tarafından sayfa ilk yüklendiğinde dispatch edilir. Aksi halde
+            // settings.js'deki listener loadPreferences() çağırarak dropdown'u
+            // veritabanındaki eski değere döndürür → kullanıcının seçimi ezilir.
             resolve();
         });
     });
