@@ -14,6 +14,40 @@ let i18nInitialized = false;
  * @param {string} lang - Language code (e.g. 'tr', 'en', 'de')
  * @param {function} callback - Called after initialization
  */
+/**
+ * Fetch a locale file and return { lang, data }.
+ */
+async function _fetchLocale(lang, path) {
+    const url = path.replace('{{lng}}', lang);
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return { lang, data };
+    } catch (err) {
+        console.warn(`Could not load locale for ${lang}:`, err);
+        return null;
+    }
+}
+
+/**
+ * Fetch the target locale + fallback (English) in parallel.
+ * Returns a resources object suitable for i18next.init({ resources }).
+ */
+async function _buildResources(lang, path) {
+    const results = await Promise.all([
+        _fetchLocale(lang, path),
+        lang !== 'en' ? _fetchLocale('en', path) : null,
+    ]);
+
+    const resources = {};
+    for (const r of results) {
+        if (r && r.data) {
+            resources[r.lang] = { translation: r.data };
+        }
+    }
+    return resources;
+}
+
 async function initI18n(lang, callback) {
     if (typeof i18next === 'undefined') {
         console.warn('i18next not loaded, skipping i18n init');
@@ -21,63 +55,34 @@ async function initI18n(lang, callback) {
         return;
     }
 
+    lang = lang || 'en';
     const loadPath = `/static/locales/{{lng}}/common.json`;
 
-    // Wait for locale to load BEFORE applying to DOM
-    await _loadLocale(lang || 'en', loadPath);
+    // Fetch all needed locale files BEFORE init, pass as resources.
+    // i18next.init() with resources immediately has the data,
+    // no race condition with addResourceBundle.
+    const resources = await _buildResources(lang, loadPath);
 
-    i18next.init({
-        lng: lang || 'en',
-        fallbackLng: 'en',
-        debug: false,
-        returnObjects: false,
-    }, function(err) {
-        if (err) {
-            console.error('i18next init error:', err);
-            if (callback) callback();
-            return;
-        }
-        i18nInitialized = true;
-        applyI18nToDOM();
-        if (callback) callback();
+    await new Promise((resolve) => {
+        i18next.init({
+            lng: lang,
+            fallbackLng: 'en',
+            debug: false,
+            returnObjects: false,
+            resources: resources,
+        }, function(err) {
+            if (err) {
+                console.error('i18next init error:', err);
+                resolve();
+                return;
+            }
+            i18nInitialized = true;
+            applyI18nToDOM();
+            resolve();
+        });
     });
-}
 
-/**
- * Load a locale file from the server.
- * Returns a Promise that resolves when the locale file is loaded and added.
- */
-function _loadLocale(lang, path) {
-    return new Promise((resolve) => {
-        const url = path.replace('{{lng}}', lang);
-
-        // Fetch the target locale
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (i18next.addResourceBundle) {
-                    i18next.addResourceBundle(lang, 'translation', data, true, true);
-                }
-                resolve(); // resolve regardless
-            })
-            .catch(err => {
-                console.warn(`Could not load locale for ${lang}:`, err);
-                resolve(); // resolve even on error (fallback to key names)
-            });
-
-        // Also always load fallback (English)
-        const fallbackUrl = path.replace('{{lng}}', 'en');
-        if (fallbackUrl !== url) {
-            fetch(fallbackUrl)
-                .then(res => res.json())
-                .then(data => {
-                    if (i18next.addResourceBundle) {
-                        i18next.addResourceBundle('en', 'translation', data, true, true);
-                    }
-                })
-                .catch(() => {});
-        }
-    });
+    if (callback) callback();
 }
 
 /**
