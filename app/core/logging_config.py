@@ -6,25 +6,29 @@ Tüm modüller buradaki logger'ları kullanır.
 
 import logging.config
 import sys
+from typing import Dict, Any
 
 from app.core.config import settings
 
 
-def setup_logging() -> None:
-    """Python logging yapılandırmasını kur.
-
-    LOG_LEVEL değerine göre seviye belirlenir.
-    Tüm log'lar stdout'a basılır (Docker dostu).
-    """
+def _build_config() -> Dict[str, Any]:
+    """Logging dictConfig sözlüğünü oluşturup döndürür."""
     log_level = settings.LOG_LEVEL.upper()
     if log_level not in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
         log_level = "INFO"
 
-    config = {
+    return {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
             "default": {
+                "format": (
+                    "[%(asctime)s] %(levelname)-7s %(name)s | "
+                    "%(message)s"
+                ),
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "access": {
                 "format": (
                     "[%(asctime)s] %(levelname)-7s %(name)s | "
                     "%(message)s"
@@ -46,6 +50,12 @@ def setup_logging() -> None:
                 "formatter": "default",
                 "level": log_level,
             },
+            "console_access": {
+                "class": "logging.StreamHandler",
+                "stream": sys.stdout,
+                "formatter": "access",
+                "level": "INFO",
+            },
             "console_detailed": {
                 "class": "logging.StreamHandler",
                 "stream": sys.stdout,
@@ -62,6 +72,17 @@ def setup_logging() -> None:
             "app": {
                 "level": log_level,
                 "handlers": ["console"],
+                "propagate": False,
+            },
+            # Uvicorn access logs — timestamp'li formatter kullan
+            "uvicorn.access": {
+                "level": "INFO",
+                "handlers": ["console_access"],
+                "propagate": False,
+            },
+            "uvicorn.error": {
+                "level": log_level,
+                "handlers": ["console_access"],
                 "propagate": False,
             },
             # Third-party loggers - keep at WARNING to reduce noise
@@ -113,4 +134,17 @@ def setup_logging() -> None:
         },
     }
 
+
+def setup_logging() -> None:
+    """Python logging yapılandırmasını kur.
+
+    LOG_LEVEL değerine göre seviye belirlenir.
+    Tüm log'lar stdout'a basılır (Docker dostu).
+    """
+    config = _build_config()
     logging.config.dictConfig(config)
+
+
+def get_logging_config() -> Dict[str, Any]:
+    """Logging config dict'ini döndürür (uvicorn.run(log_config=...) için)."""
+    return _build_config()

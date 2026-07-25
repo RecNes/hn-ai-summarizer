@@ -14,7 +14,8 @@ app = FastAPI(
     version=app_settings.PROJECT_VERSION,
 )
 
-# Initialize logging
+# Initialize logging — module-level hemen çalışır.
+# uvicorn.access logger'ı da burada timestamp'li formatter ile yapılandırılır.
 setup_logging()
 
 # Add CORS middleware
