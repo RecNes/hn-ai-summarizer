@@ -5,16 +5,6 @@
 let i18nInitialized = false;
 
 /**
- * Initialize i18next with the given language.
- * Falls back to 'en' if the requested language is not available.
- *
- * NOW ASYNC: waits for the locale file to load before initializing i18next,
- * so that applyI18nToDOM() runs with actual translations, not placeholder keys.
- *
- * @param {string} lang - Language code (e.g. 'tr', 'en', 'de')
- * @param {function} callback - Called after initialization
- */
-/**
  * Fetch a locale file and return { lang, data }.
  */
 async function _fetchLocale(lang, path) {
@@ -48,6 +38,17 @@ async function _buildResources(lang, path) {
     return resources;
 }
 
+/**
+ * Initialize i18next with the given language.
+ * Falls back to 'en' if the requested language is not available.
+ *
+ * Locale files are fetched in parallel BEFORE i18next.init(),
+ * then passed as resources so i18next has data immediately.
+ * No race condition, no extra changeLanguage call.
+ *
+ * @param {string} lang - Language code (e.g. 'tr', 'en', 'de')
+ * @param {function} callback - Called after initialization
+ */
 async function initI18n(lang, callback) {
     if (typeof i18next === 'undefined') {
         console.warn('i18next not loaded, skipping i18n init');
@@ -58,9 +59,8 @@ async function initI18n(lang, callback) {
     lang = lang || 'en';
     const loadPath = `/static/locales/{{lng}}/common.json`;
 
-    // Fetch all needed locale files BEFORE init, pass as resources.
-    // i18next.init() with resources immediately has the data,
-    // no race condition with addResourceBundle.
+    // Fetch all locale files in parallel BEFORE init.
+    // i18next.init({ resources }) sees data immediately — no race condition.
     const resources = await _buildResources(lang, loadPath);
 
     await new Promise((resolve) => {
@@ -84,10 +84,6 @@ async function initI18n(lang, callback) {
 
     if (callback) callback();
 }
-
-// Özel event adı — initUILanguage dışında hiçbir yer dispatch etmemeli.
-// changeUILanguage zaten applyI18nToDOM ile DOM'u günceller, ekstra event'e gerek yoktur.
-const LANGUAGE_INIT_EVENT = 'languageChanged';
 
 /**
  * Change UI language without page reload.

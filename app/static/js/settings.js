@@ -64,7 +64,7 @@ function toggleModelPanel() {
 // ──────────────────────────────────────────────
 // Load settings from server
 // ──────────────────────────────────────────────
-async function loadSettings() {
+async function loadAISettings() {
     try {
         const res = await fetch('/api/settings/');
         const data = await res.json();
@@ -95,14 +95,104 @@ async function loadSettings() {
         const enabledCheckbox = document.getElementById('telegram_enabled');
         if (enabledCheckbox) enabledCheckbox.checked = data.telegram_enabled || false;
 
-        if (data.ai_provider) {
-            await loadModelsForProvider(data.ai_provider, data.ai_provider_config);
-            if (data.ai_model) {
-                setSelectedModel(data.ai_model);
-            }
+        // Model listesini async olarak arkaplanda yükle — sayfa render'ını bloke etme.
+        // Önce kayıtlı model varsa dropdown'da göster (henüz listesiz), sonra liste gelince güncelle.
+        const savedModel = data.ai_model || null;
+        const savedProvider = data.ai_provider || null;
+
+        if (savedProvider) {
+            // dropdown hemen disabled+loader olsun, kayıtlı model görünsün
+            showModelLoading(savedModel);
+            // await'siz çağır — arka planda tamamlansın
+            loadModelsForProviderAsync(savedProvider, data.ai_provider_config, savedModel);
         }
     } catch (e) {
         console.error('Error loading settings:', e);
+    }
+}
+
+/**
+ * Model dropdown'u loading durumuna geçir.
+ * Eğer savedModel varsa onu metin olarak göster (yanında spinner ile).
+ */
+function showModelLoading(savedModel) {
+    const display = document.getElementById('model-display');
+    const searchInput = document.getElementById('model-search');
+    const refreshBtn = document.getElementById('refresh-models');
+    const status = document.getElementById('model-status');
+    const displayText = document.getElementById('model-display-text');
+
+    if (display) display.disabled = true;
+    if (searchInput) searchInput.disabled = true;
+    if (refreshBtn) refreshBtn.disabled = true;
+    if (status) {
+        status.textContent = 'Modeller yükleniyor...';
+        status.className = 'text-sm text-gray-500 mt-1';
+    }
+    if (displayText) {
+        displayText.textContent = savedModel || 'Modeller yükleniyor...';
+        displayText.className = savedModel ? 'text-gray-900' : 'text-gray-400';
+    }
+    closeModelPanel();
+}
+
+/**
+ * loadModelsForProvider'ın async versiyonu — sayfayı bloke etmez.
+ * Yükleme bitince önceden seçilmiş modeli geri yükler.
+ */
+async function loadModelsForProviderAsync(providerId, configStr, savedModel) {
+    try {
+        const params = new URLSearchParams({ provider: providerId });
+        if (configStr) params.append('config', configStr);
+
+        const res = await fetch(`/api/settings/available-models?${params}`);
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Failed to fetch models');
+        }
+
+        const data = await res.json();
+        currentModels = data.models || [];
+
+        // Listeyi güncelle (search input bozulmaz, buildModelList sadece options container'ı yeniler)
+        buildModelList('');
+
+        // Kayıtlı modeli geri yükle
+        if (savedModel && currentModels.includes(savedModel)) {
+            setSelectedModel(savedModel);
+        } else if (currentModels.length > 0) {
+            // Kayıtlı model listede yoksa ilk modeli seçme, kullanıcı seçsin
+            const displayText = document.getElementById('model-display-text');
+            if (displayText) {
+                displayText.textContent = '-- Model Seçin --';
+                displayText.className = 'text-gray-900';
+            }
+        }
+
+        // Input'ları aktif et
+        const display = document.getElementById('model-display');
+        const searchInput = document.getElementById('model-search');
+        const refreshBtn = document.getElementById('refresh-models');
+        const status = document.getElementById('model-status');
+
+        if (display) display.disabled = false;
+        if (searchInput) searchInput.disabled = false;
+        if (refreshBtn) refreshBtn.disabled = false;
+        if (status) {
+            status.textContent = `${currentModels.length} model bulundu`;
+            status.className = 'text-sm text-gray-500 mt-1';
+        }
+    } catch (e) {
+        console.error('Error loading models:', e);
+        const container = document.getElementById('model-options');
+        if (container) {
+            container.innerHTML = '<div class="p-2 text-red-500 text-sm">Modeller yüklenemedi: ' + (e.message || '') + '</div>';
+        }
+        const status = document.getElementById('model-status');
+        if (status) {
+            status.textContent = 'Hata: ' + (e.message || 'Bilinmeyen hata');
+            status.className = 'text-sm text-red-500 mt-1';
+        }
     }
 }
 
@@ -540,7 +630,8 @@ function reprocessUntranslated() {
 // DOMContentLoaded (settings page)
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    loadSettings();
+    // base.js'de de loadSettings() var — isim çakışmasını önlemek için loadAISettings kullanılıyor.
+    loadAISettings();
     // loadPreferences base.js'in initUILanguage'i bitmesini bekler.
     // languageChanged event'i base.js tarafından dispatch edilir.
 });

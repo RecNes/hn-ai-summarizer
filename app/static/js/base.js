@@ -80,8 +80,8 @@ function listenSystemTheme() {
 // Accessibility settings (localStorage)
 // ──────────────────────────────────────────────
 
-// Load saved settings from localStorage
-function loadSettings() {
+// Load saved display settings from localStorage
+function loadDisplaySettings() {
     const fontFamily = localStorage.getItem('fontFamily') || 'atkinson';
     const fontSize = localStorage.getItem('fontSize') || 'medium';
     const contrast = localStorage.getItem('contrast') || 'light';
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         themeSelect.addEventListener('change', handleThemeSelectChange);
     }
 
-    loadSettings();
+    loadDisplaySettings();
 
     // Settings modal events
     const settingsButton = document.getElementById('settings-button');
