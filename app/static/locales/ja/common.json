@@ -1,158 +1,158 @@
 {
   "app": {
-    "title": "HN AIè¦ç´ãã¼ã«",
-    "description": "AIæ­è¼ã®Hacker Newsè¦ç´ãã¼ã«",
-    "footer": "HN AIè¦ç´ãã¼ã« - AIæ­è¼ã®Hacker Newsè¦ç´ãã¼ã«"
+    "title": "HN AI要約ツール",
+    "description": "AI搭載のHacker News要約ツール",
+    "footer": "HN AI要約ツール - AI搭載のHacker News要約ツール"
   },
   "nav": {
-    "home": "ãã¼ã ",
-    "settings": "è¨­å®",
-    "themeToggle": "ãã¼ãåæ¿",
-    "displaySettings": "è¡¨ç¤ºè¨­å®",
-    "refresh": "ãã¼ã¸ãæ´æ°",
+    "home": "ホーム",
+    "settings": "設定",
+    "themeToggle": "テーマ切替",
+    "displaySettings": "表示設定",
+    "refresh": "ページを更新",
     "logs": "Activity Logs (ja)"
   },
   "home": {
-    "title": "ææ°ã®ã¹ãã¼ãªã¼",
-    "noStories": "ã¾ã ã¹ãã¼ãªã¼ã¯ããã¾ããã",
-    "loading": "ã¹ãã¼ãªã¼ãèª­ã¿è¾¼ã¿ä¸­...",
-    "error": "ã¹ãã¼ãªã¼ã®èª­ã¿è¾¼ã¿ã«å¤±æ",
-    "score": "ã¹ã³ã¢",
-    "author": "èè",
-    "comments": "ã³ã¡ã³ã",
-    "readMore": "ç¶ããèª­ã",
-    "summaryNotAvailable": "è¦ç´ã¯å©ç¨ã§ãã¾ãã",
-    "commentSummaryNotAvailable": "ã³ã¡ã³ãè¦ç´ã¯å©ç¨ã§ãã¾ãã",
-    "contentNotAvailable": "ã³ã³ãã³ãè¦ç´ã¯å©ç¨ã§ãã¾ãã",
-    "originalTitle": "ãªãªã¸ãã«ã¿ã¤ãã«",
+    "title": "最新のストーリー",
+    "noStories": "まだストーリーはありません。",
+    "loading": "ストーリーを読み込み中...",
+    "error": "ストーリーの読み込みに失敗",
+    "score": "スコア",
+    "author": "著者",
+    "comments": "コメント",
+    "readMore": "続きを読む",
+    "summaryNotAvailable": "要約は利用できません",
+    "commentSummaryNotAvailable": "コメント要約は利用できません",
+    "contentNotAvailable": "コンテンツ要約は利用できません",
+    "originalTitle": "オリジナルタイトル",
     "todaysBest": "今日のベスト",
     "loadingMore": "さらにストーリーを読み込み中...",
     "allLoaded": "すべてのストーリーを読み込みました",
     "offline": "オフラインモード - キャッシュコンテンツを表示中"
   },
   "settings": {
-    "title": "è¨­å®",
+    "title": "設定",
     "language": {
-      "title": "è¨èªè¨­å®",
-      "uiLabel": "ã¤ã³ã¿ã¼ãã§ã¼ã¹è¨èª",
-      "translationLabel": "ã³ã³ãã³ãç¿»è¨³è¨èª",
-      "uiDescription": "ã¤ã³ã¿ã¼ãã§ã¼ã¹ãã¡ãã¥ã¼ããã¿ã³ã®è¨èª",
-      "translationDescription": "Hacker Newsã®ã³ã³ãã³ããç¿»è¨³ããè¨èª",
-      "independentNote": "ãããã®2ã¤ã®è¨­å®ã¯å®å¨ã«ç¬ç«ãã¦ãã¾ã"
+      "title": "言語設定",
+      "uiLabel": "インターフェース言語",
+      "translationLabel": "コンテンツ翻訳言語",
+      "uiDescription": "インターフェース、メニュー、ボタンの言語",
+      "translationDescription": "Hacker Newsのコンテンツを翻訳する言語",
+      "independentNote": "これらの2つの設定は完全に独立しています"
     },
     "ai": {
-      "title": "AIãã­ãã¤ãã¼",
-      "description": "APIã­ã¼ã¯.envãã¡ã¤ã«ã§è¨­å®ãã¾ããè¨­å®æ¸ã¿ã®ã­ã¼ãæã¤ãã­ãã¤ãã¼ã®ã¿ãè¡¨ç¤ºããã¾ãã",
-      "providerLabel": "AIãã­ãã¤ãã¼",
-      "providerPlaceholder": "-- ãã­ãã¤ãã¼ãé¸æ --",
-      "configLabel": "ãã­ãã¤ãã¼ã¢ãã¬ã¹ï¼ãªãã·ã§ã³ï¼",
+      "title": "AIプロバイダー",
+      "description": "APIキーは.envファイルで設定します。設定済みのキーを持つプロバイダーのみが表示されます。",
+      "providerLabel": "AIプロバイダー",
+      "providerPlaceholder": "-- プロバイダーを選択 --",
+      "configLabel": "プロバイダーアドレス（オプション）",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "LM StudioãOllamaãªã©ã®ã­ã¼ã«ã«ãã­ãã¤ãã¼ã®ã¢ãã¬ã¹ãå¥å",
-      "keyConfigured": "â .envã§APIã­ã¼è¨­å®æ¸ã¿",
-      "keyLocal": "â¹ ã­ã¼ã«ã«ãã­ãã¤ãã¼ï¼APIã­ã¼ä¸è¦ï¼",
-      "modelLabel": "AIã¢ãã«",
-      "modelPlaceholder": "-- ã¢ãã«ãé¸æ --",
-      "modelSelectFirst": "-- æåã«ãã­ãã¤ãã¼ãé¸æ --",
-      "modelLoading": "ã¢ãã«ãèª­ã¿è¾¼ã¿ä¸­...",
-      "modelRefresh": "ã¢ãã«ãæ´æ°",
-      "modelSearch": "ã¢ãã«ãæ¤ç´¢...",
-      "modelNotFound": "ä¸è´ããã¢ãã«ãè¦ã¤ããã¾ãã",
-      "modelCount": "{count}åã®ã¢ãã«ãè¦ã¤ããã¾ãã",
-      "modelError": "ã¢ãã«ã®èª­ã¿è¾¼ã¿ã«å¤±æ"
+      "configHelp": "LM StudioやOllamaなどのローカルプロバイダーのアドレスを入力",
+      "keyConfigured": "✔ .envでAPIキー設定済み",
+      "keyLocal": "ℹ ローカルプロバイダー（APIキー不要）",
+      "modelLabel": "AIモデル",
+      "modelPlaceholder": "-- モデルを選択 --",
+      "modelSelectFirst": "-- 最初にプロバイダーを選択 --",
+      "modelLoading": "モデルを読み込み中...",
+      "modelRefresh": "モデルを更新",
+      "modelSearch": "モデルを検索...",
+      "modelNotFound": "一致するモデルが見つかりません",
+      "modelCount": "{count}個のモデルが見つかりました",
+      "modelError": "モデルの読み込みに失敗"
     },
     "data": {
-      "title": "ãã¼ã¿å¦ç",
-      "description": "æåã§Hacker Newsã®ãã¼ã¿ãåå¾ãã¦å¦çãã¾ãã",
-      "fetchButton": "ãã¼ã¿åå¾ãéå§",
-      "reprocessButton": "æªç¿»è¨³ãåå¦ç",
-      "statusText": "å¦çä¸­...ãå¾ã¡ãã ããã"
+      "title": "データ処理",
+      "description": "手動でHacker Newsのデータを取得して処理します。",
+      "fetchButton": "データ取得を開始",
+      "reprocessButton": "未翻訳を再処理",
+      "statusText": "処理中...お待ちください。"
     },
     "fetch": {
-      "title": "åå¾è¨­å®",
-      "hour": "æ",
-      "minute": "å",
-      "days": "ææ¥",
-      "monday": "ææ",
-      "tuesday": "ç«æ",
-      "wednesday": "æ°´æ",
-      "thursday": "æ¨æ",
-      "friday": "éæ",
-      "saturday": "åæ",
-      "sunday": "æ¥æ",
-      "daysHelp": "å®è¡ããææ¥ãé¸æ",
-      "minScore": "æä½ã¹ã³ã¢",
-      "minScoreHelp": "ãã®ã¹ã³ã¢ä»¥ä¸ã®ã¹ãã¼ãªã¼ã®ã¿å¦çããã¾ã",
-      "retentionDays": "ãã¼ã¿ä¿ææéï¼æ¥ï¼",
-      "retentionDaysHelp": "ããå¤ããã¼ã¿ã¯èªåçã«åé¤ããã¾ã"
+      "title": "取得設定",
+      "hour": "時",
+      "minute": "分",
+      "days": "曜日",
+      "monday": "月曜",
+      "tuesday": "火曜",
+      "wednesday": "水曜",
+      "thursday": "木曜",
+      "friday": "金曜",
+      "saturday": "土曜",
+      "sunday": "日曜",
+      "daysHelp": "実行する曜日を選択",
+      "minScore": "最低スコア",
+      "minScoreHelp": "このスコア以上のストーリーのみ処理されます",
+      "retentionDays": "データ保持期間（日）",
+      "retentionDaysHelp": "より古いデータは自動的に削除されます"
     },
     "preferences": {
-      "title": "ã¦ã¼ã¶ã¼è¨­å®",
-      "highlightKeywords": "ãã¤ã©ã¤ãã­ã¼ã¯ã¼ã",
-      "highlightPlaceholder": "AI, æ©æ¢°å­¦ç¿, ãã¼ã¿ãµã¤ã¨ã³ã¹",
-      "highlightHelp": "ã«ã³ãåºåãã§å¥å",
-      "blocklistKeywords": "ãã­ãã¯ã­ã¼ã¯ã¼ã",
-      "blocklistPlaceholder": "æ¿æ²», è­°é¡, è¨è«",
-      "blocklistHelp": "ãããã®ã­ã¼ã¯ã¼ããå«ãã³ã³ãã³ãã¯èãè¡¨ç¤ºããã¾ã"
+      "title": "ユーザー設定",
+      "highlightKeywords": "ハイライトキーワード",
+      "highlightPlaceholder": "AI, 機械学習, データサイエンス",
+      "highlightHelp": "カンマ区切りで入力",
+      "blocklistKeywords": "ブロックキーワード",
+      "blocklistPlaceholder": "政治, 議題, 論争",
+      "blocklistHelp": "これらのキーワードを含むコンテンツは薄く表示されます"
     },
     "telegram": {
-      "title": "Telegram??",
-      "description": "Telegram??????? TELEGRAM_BOT_TOKEN= ??? .env ?????????????????????????????????????????????????????????",
-      "chatIdLabel": "Telegram????ID",
+      "title": "Telegram通知",
+      "description": "Telegramボットのトークンを.envファイルに TELEGRAM_BOT_TOKEN= として追加してください。トークンはフロントエンドに送信されず、サーバーのみが読み取ります。",
+      "chatIdLabel": "TelegramチャットID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "?????????????https://api.telegram.org/bot<TOKEN>/getUpdates ???????????ID??????????",
-      "enabledLabel": "Telegram????????",
-      "enabledHelp": "?????????????????????????Telegram??????????"
+      "chatIdHelp": "ボットにメッセージを送信し、https://api.telegram.org/bot<TOKEN>/getUpdates にアクセスしてチャットIDを確認してください。",
+      "enabledLabel": "Telegram通知を有効化",
+      "enabledHelp": "有効化すると、新しく処理されたストーリーごとにTelegram通知を受け取ります。"
     },
-    "save": "è¨­å®ãä¿å­",
-    "saving": "ä¿å­ä¸­...",
-    "saveSuccess": "è¨­å®ãä¿å­ãã¾ããï¼",
-    "saveError": "è¨­å®ã®ä¿å­ä¸­ã«ã¨ã©ã¼ãçºçãã¾ããã"
+    "save": "設定を保存",
+    "saving": "保存中...",
+    "saveSuccess": "設定を保存しました！",
+    "saveError": "設定の保存中にエラーが発生しました。"
   },
   "display": {
-    "title": "è¡¨ç¤ºè¨­å®",
-    "fontFamily": "ãã©ã³ã",
-    "fontSize": "ãã©ã³ããµã¤ãº",
-    "contrast": "ã³ã³ãã©ã¹ã",
+    "title": "表示設定",
+    "fontFamily": "フォント",
+    "fontSize": "フォントサイズ",
+    "contrast": "コントラスト",
     "fonts": {
       "atkinson": "Atkinson Hyperlegible",
       "merriweather": "Merriweather"
     },
     "sizes": {
-      "small": "å°",
-      "medium": "ä¸­",
-      "large": "å¤§",
-      "xlarge": "ç¹å¤§"
+      "small": "小",
+      "medium": "中",
+      "large": "大",
+      "xlarge": "特大"
     },
     "contrasts": {
-      "light": "ã©ã¤ã",
-      "dark": "ãã¼ã¯",
-      "sepia": "ã»ãã¢",
-      "high": "ãã¤ã³ã³ãã©ã¹ã"
+      "light": "ライト",
+      "dark": "ダーク",
+      "sepia": "セピア",
+      "high": "ハイコントラスト"
     },
-    "reset": "ããã©ã«ãã«æ»ã",
-    "save": "ä¿å­"
+    "reset": "デフォルトに戻す",
+    "save": "保存"
   },
   "theme": {
-    "light": "ã©ã¤ãã¢ã¼ã",
-    "dark": "ãã¼ã¯ã¢ã¼ã",
-    "system": "èªåï¼ã·ã¹ãã ï¼"
+    "light": "ライトモード",
+    "dark": "ダークモード",
+    "system": "自動（システム）"
   },
   "worker": {
-    "started": "ãã¼ã¿åå¾ãéå§ãã¾ããï¼å¦çã«æ°åãããå ´åãããã¾ãã",
-    "reprocessStarted": "åå¦çãéå§ãã¾ããï¼ã³ã³ãã³ãã¨ã³ã¡ã³ããæ´æ°ä¸­ã§ãã",
-    "error": "ã¯ã¼ã«ã¼ãéå§ã§ãã¾ããã§ããã",
-    "reprocessError": "åå¦çãéå§ã§ãã¾ããã§ããã",
+    "started": "データ取得を開始しました！処理に数分かかる場合があります。",
+    "reprocessStarted": "再処理を開始しました！コンテンツとコメントを更新中です。",
+    "error": "ワーカーを開始できませんでした。",
+    "reprocessError": "再処理を開始できませんでした。",
     "starting": "データ取得を開始しています..."
   },
   "common": {
-    "loading": "èª­ã¿è¾¼ã¿ä¸­...",
-    "error": "ã¨ã©ã¼",
-    "success": "æå",
-    "cancel": "ã­ã£ã³ã»ã«",
-    "save": "ä¿å­",
-    "delete": "åé¤",
-    "close": "éãã",
-    "back": "æ»ã"
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "save": "保存",
+    "delete": "削除",
+    "close": "閉じる",
+    "back": "戻る"
   },
   "telegram": {
     "notification": {

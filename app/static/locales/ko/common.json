@@ -48,7 +48,7 @@
       "configLabel": "제공자 주소 (선택사항)",
       "configPlaceholder": "http://localhost:11434",
       "configHelp": "LM Studio 또는 Ollama와 같은 로컬 제공자의 주소를 입력하세요",
-      "keyConfigured": "✓ .env에 API 키 구성됨",
+      "keyConfigured": "✔ .env에 API 키 구성됨",
       "keyLocal": "ℹ 로컬 제공자 (API 키 불필요)",
       "modelLabel": "AI 모델",
       "modelPlaceholder": "-- 모델 선택 --",
@@ -95,13 +95,13 @@
       "blocklistHelp": "이 키워드가 포함된 콘텐츠가 흐리게 표시됩니다"
     },
     "telegram": {
-      "title": "Telegram ??",
-      "description": ".env ??? TELEGRAM_BOT_TOKEN=?? Telegram ? ??? ?????. ? ??? ?????? ?? ???? ???, ????? ????.",
-      "chatIdLabel": "Telegram ?? ID",
+      "title": "Telegram 알림",
+      "description": ".env 파일에 TELEGRAM_BOT_TOKEN= 형식으로 Telegram 봇 토큰을 추가하세요. 토큰은 프론트엔드로 전송되지 않고 서버에서만 읽습니다.",
+      "chatIdLabel": "Telegram 채팅 ID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "?? ???? ?? ? https://api.telegram.org/bot<TOKEN>/getUpdates? ???? ?? ID? ????.",
-      "enabledLabel": "Telegram ?? ???",
-      "enabledHelp": "????? ?? ??? ??? ???? Telegram ??? ?? ???."
+      "chatIdHelp": "봇에 메시지를 보낸 후 https://api.telegram.org/bot<TOKEN>/getUpdates 에 접속하여 채팅 ID를 확인하세요.",
+      "enabledLabel": "Telegram 알림 활성화",
+      "enabledHelp": "활성화하면 새로 처리된 스토리마다 Telegram 알림을 받게 됩니다."
     },
     "save": "설정 저장",
     "saving": "저장 중...",

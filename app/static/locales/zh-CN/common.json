@@ -48,7 +48,7 @@
       "configLabel": "提供商地址（可选）",
       "configPlaceholder": "http://localhost:11434",
       "configHelp": "输入本地提供商（如LM Studio或Ollama）的地址",
-      "keyConfigured": "✓ 已在.env中配置API密钥",
+      "keyConfigured": "✔ 已在.env中配置API密钥",
       "keyLocal": "ℹ 本地提供商（无需API密钥）",
       "modelLabel": "AI模型",
       "modelPlaceholder": "-- 选择模型 --",
@@ -95,13 +95,13 @@
       "blocklistHelp": "包含这些关键词的内容将变暗显示"
     },
     "telegram": {
-      "title": "Telegram ??",
-      "description": "??? Telegram ???????? .env ???,??? TELEGRAM_BOT_TOKEN=???????????????,????????",
-      "chatIdLabel": "Telegram ?? ID",
+      "title": "Telegram通知",
+      "description": "请在.env文件中添加您的Telegram机器人令牌，格式为 TELEGRAM_BOT_TOKEN=。该令牌不会发送到前端，只会由服务器读取。",
+      "chatIdLabel": "Telegram聊天ID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "????????????,???? https://api.telegram.org/bot<TOKEN>/getUpdates ?????? ID?",
-      "enabledLabel": "?? Telegram ??",
-      "enabledHelp": "???,???????????? Telegram ???"
+      "chatIdHelp": "向您的机器人发送消息，然后访问 https://api.telegram.org/bot<TOKEN>/getUpdates 来查找您的聊天ID。",
+      "enabledLabel": "启用Telegram通知",
+      "enabledHelp": "启用后，每批新处理的故事都会发送Telegram通知。"
     },
     "save": "保存设置",
     "saving": "保存中...",

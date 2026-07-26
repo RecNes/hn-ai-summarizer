@@ -48,7 +48,7 @@
       "configLabel": "提供商地址（可選）",
       "configPlaceholder": "http://localhost:11434",
       "configHelp": "輸入本地提供商（如LM Studio或Ollama）的地址",
-      "keyConfigured": "✓ 已在.env中設定API金鑰",
+      "keyConfigured": "✔ 已在.env中設定API金鑰",
       "keyLocal": "ℹ 本地提供商（無需API金鑰）",
       "modelLabel": "AI模型",
       "modelPlaceholder": "-- 選擇模型 --",
@@ -95,13 +95,13 @@
       "blocklistHelp": "包含這些關鍵字的內容將變暗顯示"
     },
     "telegram": {
-      "title": "Telegram ??",
-      "description": "??? Telegram ???????? .env ???,??? TELEGRAM_BOT_TOKEN=???????????????,????????",
-      "chatIdLabel": "Telegram ?? ID",
+      "title": "Telegram通知",
+      "description": "請在.env檔案中新增您的Telegram機器人令牌，格式為 TELEGRAM_BOT_TOKEN=。該令牌不會傳送到前端，只會由伺服器讀取。",
+      "chatIdLabel": "Telegram聊天ID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "????????????,???? https://api.telegram.org/bot<TOKEN>/getUpdates ?????? ID?",
-      "enabledLabel": "?? Telegram ??",
-      "enabledHelp": "???,???????????? Telegram ???"
+      "chatIdHelp": "向您的機器人傳送訊息，然後訪問 https://api.telegram.org/bot<TOKEN>/getUpdates 以查找您的聊天ID。",
+      "enabledLabel": "啟用Telegram通知",
+      "enabledHelp": "啟用後，每批新處理的故事都會收到Telegram通知。"
     },
     "save": "儲存設定",
     "saving": "儲存中...",
@@ -142,7 +142,7 @@
     "reprocessStarted": "重新處理已開始！內容和評論正在重新整理。",
     "error": "無法啟動工作程式。",
     "reprocessError": "無法啟動重新處理。",
-    "starting": "正在開始獲取數據..."
+    "starting": "正在開始取得資料..."
   },
   "common": {
     "loading": "載入中...",

@@ -9,22 +9,22 @@
     "settings": "Ajustes",
     "themeToggle": "Cambiar tema",
     "displaySettings": "Ajustes de pantalla",
-    "refresh": "Actualizar pÃ¡gina",
+    "refresh": "Actualizar página",
     "logs": "Activity Logs (es)"
   },
   "home": {
-    "title": "Ãltimas historias",
-    "noStories": "No hay historias disponibles aÃºn.",
+    "title": "Últimas historias",
+    "noStories": "No hay historias disponibles aún.",
     "loading": "Cargando historias...",
     "error": "Error al cargar historias",
-    "score": "PuntuaciÃ³n",
+    "score": "Puntuación",
     "author": "Autor",
     "comments": "Comentarios",
-    "readMore": "Leer mÃ¡s",
+    "readMore": "Leer más",
     "summaryNotAvailable": "Resumen no disponible",
     "commentSummaryNotAvailable": "Resumen de comentarios no disponible",
     "contentNotAvailable": "Resumen de contenido no disponible",
-    "originalTitle": "TÃ­tulo original",
+    "originalTitle": "Título original",
     "todaysBest": "Lo mejor de hoy",
     "loadingMore": "Cargando más historias...",
     "allLoaded": "Todas las historias cargadas",
@@ -35,9 +35,9 @@
     "language": {
       "title": "Ajustes de idioma",
       "uiLabel": "Idioma de la interfaz",
-      "translationLabel": "Idioma de traducciÃ³n de contenido",
-      "uiDescription": "Idioma para la interfaz, menÃºs y botones",
-      "translationDescription": "Idioma al que se traducirÃ¡ el contenido de Hacker News",
+      "translationLabel": "Idioma de traducción de contenido",
+      "uiDescription": "Idioma para la interfaz, menús y botones",
+      "translationDescription": "Idioma al que se traducirá el contenido de Hacker News",
       "independentNote": "Estos dos ajustes son completamente independientes"
     },
     "ai": {
@@ -45,54 +45,54 @@
       "description": "Las claves API se configuran mediante el archivo .env. Solo se muestran los proveedores con claves configuradas.",
       "providerLabel": "Proveedor de IA",
       "providerPlaceholder": "-- Seleccionar proveedor --",
-      "configLabel": "DirecciÃ³n del proveedor (opcional)",
+      "configLabel": "Dirección del proveedor (opcional)",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "Ingrese la direcciÃ³n para proveedores locales como LM Studio u Ollama",
-      "keyConfigured": "â Clave API configurada en .env",
-      "keyLocal": "â¹ Proveedor local (no se necesita clave API)",
+      "configHelp": "Ingrese la dirección para proveedores locales como LM Studio u Ollama",
+      "keyConfigured": "✔ Clave API configurada en .env",
+      "keyLocal": "ℹ Proveedor local (no se necesita clave API)",
       "modelLabel": "Modelo de IA",
       "modelPlaceholder": "-- Seleccionar modelo --",
       "modelSelectFirst": "-- Seleccione un proveedor primero --",
       "modelLoading": "Cargando modelos...",
       "modelRefresh": "Actualizar modelos",
       "modelSearch": "Buscar modelos...",
-      "modelNotFound": "No se encontrÃ³ ningÃºn modelo",
+      "modelNotFound": "No se encontró ningún modelo",
       "modelCount": "{count} modelos encontrados",
       "modelError": "Error al cargar modelos"
     },
     "data": {
       "title": "Procesamiento de datos",
       "description": "Obtener y procesar datos de Hacker News manualmente.",
-      "fetchButton": "Iniciar obtenciÃ³n de datos",
+      "fetchButton": "Iniciar obtención de datos",
       "reprocessButton": "Reprocesar no traducidos",
       "statusText": "Procesando... Por favor espere."
     },
     "fetch": {
-      "title": "Ajustes de obtenciÃ³n",
+      "title": "Ajustes de obtención",
       "hour": "Hora",
       "minute": "Minuto",
-      "days": "DÃ­as",
+      "days": "Días",
       "monday": "Lunes",
       "tuesday": "Martes",
-      "wednesday": "MiÃ©rcoles",
+      "wednesday": "Miércoles",
       "thursday": "Jueves",
       "friday": "Viernes",
-      "saturday": "SÃ¡bado",
+      "saturday": "Sábado",
       "sunday": "Domingo",
-      "daysHelp": "Seleccione los dÃ­as de ejecuciÃ³n",
-      "minScore": "PuntuaciÃ³n mÃ­nima",
-      "minScoreHelp": "Solo se procesarÃ¡n historias con puntuaciÃ³n superior",
-      "retentionDays": "RetenciÃ³n de datos (dÃ­as)",
-      "retentionDaysHelp": "Los datos mÃ¡s antiguos se eliminarÃ¡n automÃ¡ticamente"
+      "daysHelp": "Seleccione los días de ejecución",
+      "minScore": "Puntuación mínima",
+      "minScoreHelp": "Solo se procesarán historias con puntuación superior",
+      "retentionDays": "Retención de datos (días)",
+      "retentionDaysHelp": "Los datos más antiguos se eliminarán automáticamente"
     },
     "preferences": {
       "title": "Preferencias de usuario",
       "highlightKeywords": "Palabras clave destacadas",
-      "highlightPlaceholder": "IA, aprendizaje automÃ¡tico, ciencia de datos",
+      "highlightPlaceholder": "IA, aprendizaje automático, ciencia de datos",
       "highlightHelp": "Ingrese separadas por comas",
       "blocklistKeywords": "Palabras clave bloqueadas",
-      "blocklistPlaceholder": "polÃ­tica, agenda, debate",
-      "blocklistHelp": "El contenido con estas palabras clave se atenuarÃ¡"
+      "blocklistPlaceholder": "política, agenda, debate",
+      "blocklistHelp": "El contenido con estas palabras clave se atenuará"
     },
     "telegram": {
       "title": "Notificaciones de Telegram",
@@ -105,20 +105,20 @@
     },
     "save": "Guardar ajustes",
     "saving": "Guardando...",
-    "saveSuccess": "Â¡Ajustes guardados correctamente!",
-    "saveError": "OcurriÃ³ un error al guardar los ajustes."
+    "saveSuccess": "¡Ajustes guardados correctamente!",
+    "saveError": "Ocurrió un error al guardar los ajustes."
   },
   "display": {
     "title": "Ajustes de pantalla",
-    "fontFamily": "TipografÃ­a",
-    "fontSize": "TamaÃ±o de fuente",
+    "fontFamily": "Tipografía",
+    "fontSize": "Tamaño de fuente",
     "contrast": "Contraste",
     "fonts": {
       "atkinson": "Atkinson Hyperlegible",
       "merriweather": "Merriweather"
     },
     "sizes": {
-      "small": "PequeÃ±o",
+      "small": "Pequeño",
       "medium": "Mediano",
       "large": "Grande",
       "xlarge": "Muy grande"
@@ -138,8 +138,8 @@
     "system": "Auto (sistema)"
   },
   "worker": {
-    "started": "Â¡ObtenciÃ³n iniciada! El procesamiento puede tomar unos minutos.",
-    "reprocessStarted": "Â¡Reprocesamiento iniciado! El contenido y los comentarios se estÃ¡n actualizando.",
+    "started": "¡Obtención iniciada! El procesamiento puede tomar unos minutos.",
+    "reprocessStarted": "¡Reprocesamiento iniciado! El contenido y los comentarios se están actualizando.",
     "error": "No se pudo iniciar el worker.",
     "reprocessError": "No se pudo iniciar el reprocesamiento.",
     "starting": "Iniciando la obtención de datos..."
@@ -147,7 +147,7 @@
   "common": {
     "loading": "Cargando...",
     "error": "Error",
-    "success": "Ãxito",
+    "success": "Éxito",
     "cancel": "Cancelar",
     "save": "Guardar",
     "delete": "Eliminar",
