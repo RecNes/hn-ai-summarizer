@@ -1,205 +1,362 @@
-"""Scheduler tasks for periodic jobs
+"""Scheduler — timezone-aware, simple asyncio.sleep() based.
 
-Uses aioscheduler.TimedScheduler for reliable async scheduling.
+Reads schedule cron from Redis (fallback: DB), waits until the
+next scheduled time, then enqueues a worker job via Arq.
+
+Redis keys:
+  hn_reader:schedule:config   → JSON {"cron_schedule": "..."}
+  hn_reader:schedule:version  → integer string
 """
 
+from __future__ import annotations
+
 import asyncio
+import json
 import logging
-from datetime import UTC, datetime, timedelta
+import zoneinfo
+from datetime import datetime, timedelta, timezone as dt_timezone
 
 from arq import create_pool
 from arq.connections import RedisSettings
 from sqlalchemy.future import select
 
-from app.core.config import settings
+from app.core.config import settings as app_settings
 from app.core.database import AsyncSessionLocal
 from app.models.activity_log import AiActivityLog
 from app.models.setting import Setting
-from app.tasks.schedule_manager import get_schedule_manager
 
 logger = logging.getLogger(__name__)
 
+# ── Redis keys ──────────────────────────
+SCHEDULE_KEY = "hn_reader:schedule:config"
+VERSION_KEY = "hn_reader:schedule:version"
 
-async def get_settings():
-    """Get application settings from database"""
+# ── Cron parser helpers ─────────────────
+
+
+def _parse_cron_time(cron: str) -> tuple[int, int] | None:
+    """Parse hour & minute from a 5-field cron string.  Returns (hour, minute) or None."""
+    parts = cron.strip().split()
+    if len(parts) != 5:
+        return None
+    try:
+        return int(parts[1]), int(parts[0])  # hour, minute
+    except ValueError:
+        return None
+
+
+def _parse_cron_days(cron: str) -> list[int]:
+    """Return list of cron weekdays (0=Sunday..6=Saturday) from the 5th field."""
+    parts = cron.strip().split()
+    if len(parts) != 5:
+        return []
+    field = parts[4]
+    if field == "*":
+        return []
+    days: list[int] = []
+    for chunk in field.split(","):
+        chunk = chunk.strip()
+        if "-" in chunk:
+            try:
+                a, b = map(int, chunk.split("-", 1))
+                days.extend(range(a, b + 1))
+            except ValueError:
+                pass
+        else:
+            try:
+                days.append(int(chunk))
+            except ValueError:
+                pass
+    return days
+
+
+# ── Timezone helper ─────────────────────
+
+
+def _get_tz() -> zoneinfo.ZoneInfo:
+    """Return the configured timezone, falling back to UTC."""
+    name = (app_settings.TIMEZONE or "").strip()
+    if name:
+        try:
+            return zoneinfo.ZoneInfo(name)
+        except (zoneinfo.ZoneInfoNotFoundError, KeyError):
+            logger.warning(
+                "[SCHEDULER] Unknown timezone '%s', falling back to UTC", name
+            )
+    return zoneinfo.ZoneInfo("UTC")
+
+
+# ── Next-run calculation ────────────────
+
+
+def _calculate_next_run(
+    cron: str, tz: zoneinfo.ZoneInfo, now: datetime | None = None
+) -> datetime:
+    """Return the *next* aware datetime (in the given tz) a job should fire.
+
+    - If today matches and the time hasn't passed yet → return today's datetime.
+    - If today matches but the time has passed → advance to next matching day.
+    - If no days configured → run *every day* at the given time.
+    """
+    parsed = _parse_cron_time(cron)
+    if parsed is None:
+        # Invalid cron → default to tomorrow 09:00
+        if now is None:
+            now = datetime.now(tz)
+        return now.replace(hour=9, minute=0, second=0, microsecond=0) + timedelta(
+            days=1
+        )
+
+    target_hour, target_minute = parsed
+    days = _parse_cron_days(cron)  # empty list = every day
+
+    if now is None:
+        now = datetime.now(tz)
+
+    # Start from today at target time
+    candidate = now.replace(
+        hour=target_hour, minute=target_minute, second=0, microsecond=0
+    )
+
+    # If time hasn't passed yet AND (no day filter OR today is selected)
+    if days:
+        # cron weekday: 0=Sunday → Python weekday: 0=Monday
+        today_cron = (now.weekday() + 1) % 7
+        if today_cron in days and candidate > now:
+            return candidate
+    else:
+        if candidate > now:
+            return candidate
+
+    # Either time has passed today or today isn't a selected day.
+    # Walk forward day by day until we find a match.
+    for _ in range(8):  # safety net — max 7 days
+        candidate += timedelta(days=1)
+        if days:
+            cand_cron = (candidate.weekday() + 1) % 7
+            if cand_cron in days:
+                return candidate
+        else:
+            return candidate
+
+    # Should never reach here
+    return candidate
+
+
+# ── Redis helpers ───────────────────────
+
+
+async def _get_redis_pool():
+    """Create a short-lived Redis connection pool."""
+    url = app_settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
+    return await create_pool(RedisSettings.from_dsn(url))
+
+
+async def _get_schedule_from_redis() -> dict | None:
+    """Read schedule config from Redis."""
+    pool = await _get_redis_pool()
+    try:
+        data = await pool.get(SCHEDULE_KEY)  # type: ignore[union-attr]
+        if data:
+            return json.loads(data)
+        return None
+    except Exception as e:
+        logger.warning("[SCHEDULER] Redis read error: %s", e)
+        return None
+    finally:
+        await pool.aclose()
+
+
+async def _get_schedule_version() -> str:
+    """Return current schedule version from Redis."""
+    pool = await _get_redis_pool()
+    try:
+        v = await pool.get(VERSION_KEY)  # type: ignore[union-attr]
+        return v or "0"
+    except Exception:
+        return "0"
+    finally:
+        await pool.aclose()
+
+
+async def _write_schedule_to_redis(cron: str):
+    """Write schedule config + bump version in Redis."""
+    pool = await _get_redis_pool()
+    try:
+        await pool.set(  # type: ignore[union-attr]
+            SCHEDULE_KEY, json.dumps({"cron_schedule": cron})
+        )
+        v = await pool.get(VERSION_KEY)  # type: ignore[union-attr]
+        new_v = str(int(v) + 1 if v else 1)
+        await pool.set(VERSION_KEY, new_v)  # type: ignore[union-attr]
+        logger.debug("[SCHEDULER] Redis schedule written (version=%s)", new_v)
+    finally:
+        await pool.aclose()
+
+
+# ── DB helpers ──────────────────────────
+
+
+async def _get_schedule_from_db() -> str:
+    """Read cron_schedule from the settings table."""
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(Setting).limit(1))
         setting = result.scalar_one_or_none()
         await db.commit()
-        return setting
+        return setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
 
 
-async def initialize_schedule_from_db():
-    """Initialize schedule from database settings and store in Redis (only if Redis is empty)."""
-    schedule_manager = await get_schedule_manager()
-    
-    # Check if Redis already has a schedule
-    existing = await schedule_manager.get_schedule_config()
-    if existing and existing.get("cron_schedule"):
-        logger.info(">>> [Scheduler] Redis already has schedule: %s, skipping DB init", existing["cron_schedule"])
-        return
-    
-    setting = await get_settings()
-    cron_schedule = (
-        setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
-    )
-
-    await schedule_manager.update_schedule(cron_schedule)
-    logger.info(">>> [Scheduler] Initialized schedule from database: %s", cron_schedule)
+# ── Worker enqueue ──────────────────────
 
 
-def parse_cron_to_time(cron_schedule: str) -> str:
-    """Parse cron schedule to time string for scheduling"""
-    parts = cron_schedule.split()
-    if len(parts) != 5:
-        return "09:00"
-
-    minute, hour, _, _, _ = parts
-
+async def _enqueue_worker_job() -> bool:
+    """Enqueue a fetch_and_process_stories job. Returns True on success."""
+    pool = await _get_redis_pool()
     try:
-        hour_int = int(hour) if hour.isdigit() else 9
-        minute_int = int(minute) if minute.isdigit() else 0
-        return f"{hour_int:02d}:{minute_int:02d}"
-    except ValueError:
-        return "09:00"
+        job = await pool.enqueue_job("fetch_and_process_stories")  # type: ignore[union-attr]
+        if job:
+            logger.info(
+                "[SCHEDULER] ✅ Worker job enqueued — job_id=%s", job.job_id
+            )
+            return True
+        else:
+            logger.warning("[SCHEDULER] ❌ Enqueue returned None (queue full?)")
+            return False
+    except Exception as e:
+        logger.error("[SCHEDULER] ❌ Failed to enqueue job: %s", e)
+        return False
+    finally:
+        await pool.aclose()
 
 
-def parse_cron_to_days(cron_schedule: str) -> list:
-    """Parse cron schedule to get list of weekdays (cron: 0=Sunday)"""
-    parts = cron_schedule.split()
-    if len(parts) != 5:
-        return [1, 2, 3, 4, 5]
-
-    _, _, _, _, weekday_part = parts
-
-    if weekday_part == "*":
-        return []
-    elif "," in weekday_part:
-        try:
-            return [int(day) for day in weekday_part.split(",") if day.isdigit()]
-        except ValueError:
-            return []
-    elif "-" in weekday_part:
-        try:
-            start, end = map(int, weekday_part.split("-"))
-            return list(range(start, end + 1))
-        except ValueError:
-            return []
-    elif weekday_part.isdigit():
-        return [int(weekday_part)]
-    else:
-        return []
-
-
-def format_days_to_cron(days: list, hour: int, minute: int) -> str:
-    """Format days, hour, minute to cron schedule"""
-    if not days:
-        return ""
-    weekday_part = ",".join(map(str, sorted(days)))
-    return f"{minute} {hour} * * {weekday_part}"
+# ── Cleanup ─────────────────────────────
 
 
 async def _cleanup_old_logs():
     """Delete AiActivityLog records older than 30 days."""
-    cutoff = datetime.now(UTC) - timedelta(days=30)
+    cutoff = datetime.now(dt_timezone.utc) - timedelta(days=30)
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
                 select(AiActivityLog).where(AiActivityLog.created_at < cutoff)
             )
-            old_logs = result.scalars().all()
-            for log in old_logs:
+            old = result.scalars().all()
+            for log in old:
                 await db.delete(log)
             await db.commit()
-            if old_logs:
-                logger.info(
-                    "Cleaned up %s old activity log records older than 30 days.",
-                    len(old_logs),
-                )
+            if old:
+                logger.info("[SCHEDULER] Cleaned up %d old activity logs", len(old))
     except Exception as e:
-        logger.error("Failed to cleanup old activity logs: %s", e)
+        logger.error("[SCHEDULER] Cleanup error: %s", e)
+
+
+# ── Main scheduler loop ─────────────────
 
 
 async def run_scheduler():
-    """Run the scheduler with Redis-based schedule management."""
-    logger.info(">>> [Scheduler] run_scheduler started")
+    """Main entry point — runs forever, sleeping until the next job time."""
+    tz = _get_tz()
+    tz_name = str(tz)
+    logger.info("[SCHEDULER] ▶ STARTED — timezone=%s", tz_name)
 
-    # Initialize: write DB schedule to Redis (first time only)
-    await initialize_schedule_from_db()
-    logger.info(">>> [Scheduler] Initialization complete")
+    # ── Load initial schedule ────────────
+    # Prefer Redis; fall back to DB → write to Redis
+    redis_config = await _get_schedule_from_redis()
+    if redis_config and redis_config.get("cron_schedule"):
+        cron = redis_config["cron_schedule"]
+        logger.info("[SCHEDULER] Loaded schedule from Redis: %s", cron)
+    else:
+        cron = await _get_schedule_from_db()
+        logger.info("[SCHEDULER] Loaded schedule from DB: %s", cron)
+        await _write_schedule_to_redis(cron)
 
-    # Catch-up: check if today's scheduled time has already passed (using LOCAL time)
-    try:
-        schedule_manager = await get_schedule_manager()
-        config = await schedule_manager.get_schedule_config()
-        if config and config.get("cron_schedule"):
-            cron_schedule = config["cron_schedule"]
-            scheduled_time = parse_cron_to_time(cron_schedule)
-            scheduled_days = parse_cron_to_days(cron_schedule)
+    current_version = await _get_schedule_version()
 
-            # Use LOCAL time for catch-up (scheduler uses local time)
-            from datetime import timezone
-            tz_local = timezone(timedelta(hours=3))
-            now_local = datetime.now(tz_local)
-            today_cron_weekday = (now_local.weekday() + 1) % 7
-            current_time_minutes = now_local.hour * 60 + now_local.minute
+    # ── Initial next-run calculation ─────
+    next_run = _calculate_next_run(cron, tz)
+    _log_next_run(next_run, cron)
 
-            try:
-                parts = scheduled_time.split(":")
-                scheduled_minutes = int(parts[0]) * 60 + int(parts[1])
-            except (ValueError, IndexError):
-                scheduled_minutes = None
-
-            days_match = not scheduled_days or today_cron_weekday in scheduled_days
-            if (
-                days_match
-                and scheduled_minutes is not None
-                and current_time_minutes >= scheduled_minutes
-            ):
-                logger.info(
-                    "Catch-up: scheduled time %s has passed, triggering immediate fetch...",
-                    scheduled_time,
-                )
-                redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
-                redis_settings = RedisSettings.from_dsn(redis_url)
-                catchup_pool = await create_pool(redis_settings)
-                try:
-                    job = await catchup_pool.enqueue_job("fetch_and_process_stories")
-                    if job:
-                        logger.info(">>> Catch-up fetch job enqueued successfully")
-                    else:
-                        logger.warning(">>> Catch-up fetch job enqueue returned None")
-                except Exception as e:
-                    logger.error(">>> Error enqueuing catch-up fetch job: %s", e)
-                finally:
-                    await catchup_pool.close()
-    except Exception as e:
-        logger.error("Error during catch-up check: %s", e)
-
-    # Monitor schedule changes in background
-    logger.info("Starting schedule change monitoring...")
-    monitor_task = asyncio.create_task(_monitor_schedule_changes())
-
-    # Run cleanup once on startup, then periodically
+    # ── Clean up old logs ────────────────
     await _cleanup_old_logs()
 
-    try:
-        # Keep the scheduler alive by sleeping forever
-        # aioscheduler.TimedScheduler runs its own loop internally
-        while True:
-            await asyncio.sleep(3600)  # Check every hour
-            # Also occasionally clean up old logs
-            if datetime.now(UTC).hour == 3:  # Run at ~3am
-                await _cleanup_old_logs()
-    finally:
-        monitor_task.cancel()
+    # ── Main loop ────────────────────────
+    while True:
         try:
-            await monitor_task
+            now = datetime.now(tz)
+            sleep_seconds = max(0, (next_run - now).total_seconds())
+
+            if sleep_seconds > 0:
+                # Sleep in 30-second chunks so we can check for schedule updates
+                while sleep_seconds > 30:
+                    await asyncio.sleep(30)
+                    sleep_seconds -= 30
+
+                    # Check for schedule version change
+                    ver = await _get_schedule_version()
+                    if ver != current_version:
+                        logger.info(
+                            "[SCHEDULER] Version changed: %s → %s, reloading",
+                            current_version,
+                            ver,
+                        )
+                        cfg = await _get_schedule_from_redis()
+                        if cfg and cfg.get("cron_schedule"):
+                            cron = cfg["cron_schedule"]
+                        else:
+                            cron = await _get_schedule_from_db()
+                        current_version = ver
+                        new_next = _calculate_next_run(cron, tz, now=now)
+                        if new_next != next_run:
+                            logger.info(
+                                "[SCHEDULER] Schedule updated! New cron='%s'", cron
+                            )
+                            next_run = new_next
+                            _log_next_run(next_run, cron)
+                            # Break out of inner loop to restart the outer sleep
+                            break
+
+                # If next_run was updated, skip the remaining sleep & recalc
+                now = datetime.now(tz)
+                sleep_seconds = max(0, (next_run - now).total_seconds())
+                if sleep_seconds > 0:
+                    await asyncio.sleep(sleep_seconds)
+
+            # ── Time to run! ───────────────
+            now_str = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
+            logger.info(
+                "[SCHEDULER] ⏰ TRIGGERED at %s %s (cron='%s')",
+                now_str,
+                tz_name,
+                cron,
+            )
+            success = await _enqueue_worker_job()
+
+            # ── Schedule next run ───────────
+            now = datetime.now(tz)
+            next_run = _calculate_next_run(cron, tz, now=now)
+            _log_next_run(next_run, cron)
+
+            # Periodic cleanup
+            if now.hour == 3 and now.minute < 5:
+                await _cleanup_old_logs()
+
         except asyncio.CancelledError:
-            pass
+            logger.info("[SCHEDULER] Cancelled, shutting down")
+            break
+        except Exception as e:
+            logger.error("[SCHEDULER] Unexpected error in main loop: %s", e, exc_info=True)
+            await asyncio.sleep(30)
 
 
-async def _monitor_schedule_changes():
-    """Monitor schedule changes in the background."""
-    schedule_manager = await get_schedule_manager()
-    await schedule_manager.monitor_schedule_changes()
+def _log_next_run(next_run: datetime, cron: str):
+    """Log the next scheduled run time."""
+    delta = next_run - datetime.now(next_run.tzinfo)
+    hours, rem = divmod(int(delta.total_seconds()), 3600)
+    minutes = rem // 60
+    logger.info(
+        "[SCHEDULER] 📅 Next run: %s (in %dh %dm) | cron='%s'",
+        next_run.strftime("%Y-%m-%d %H:%M:%S %Z"),
+        hours,
+        minutes,
+        cron,
+    )

@@ -49,7 +49,10 @@ class SettingResponse(SettingBase):
 
     id: int
     available_providers: list[dict[str, Any]] = []
+    available_languages: list[dict[str, Any]] = []
     telegram_available: bool = False
+    timezone: str = "UTC"
+    timezone_configured: bool = False
 
     class Config:
         """Pydantic configuration to work with ORM objects."""

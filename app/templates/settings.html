@@ -100,6 +100,12 @@
             </div>
         </div>
         
+        <!-- Timezone Warning -->
+        <div id="timezone-warning" class="hidden bg-yellow-50 border border-yellow-200 text-yellow-800 p-3 rounded-lg mb-4">
+            <span class="font-bold">⚠️</span>
+            <span>TIMEZONE not configured. Set <code class="bg-yellow-100 px-1 rounded">TIMEZONE</code> in your <code class="bg-yellow-100 px-1 rounded">.env</code> file. Example: <code class="bg-yellow-100 px-1 rounded">TIMEZONE=Europe/Istanbul</code>. Scheduler will use UTC as fallback.</span>
+        </div>
+        
         <!-- Fetching Settings -->
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.fetch.title">Fetch Settings</h3>

@@ -7,7 +7,7 @@ import uvicorn
 from arq import run_worker as run_worker_main
 
 from app.core.config import settings
-from app.tasks.schedule_manager import get_schedule_manager
+from app.tasks.schedule_manager import update_schedule
 from app.tasks.scheduler import run_scheduler as scheduler_main
 from app.tasks.worker import WorkerSettings
 
@@ -72,7 +72,6 @@ def run_scheduler():
     """Run the scheduler"""
     print("Starting scheduler...")
     asyncio.run(scheduler_main())
-    print("Scheduler started.")
 
 
 def test_schedule_sync():
@@ -81,36 +80,25 @@ def test_schedule_sync():
     async def _test():
         print("Testing schedule synchronization...")
 
-        # Get schedule manager
-        schedule_manager = await get_schedule_manager()
-
-        # Test 1: Set a schedule
-        test_cron = "0 10 * * 1,2,3"  # 10:00 on Mon, Tue, Wed
+        test_cron = "0 10 * * 1,2,3"
         print(f"Setting schedule to: {test_cron}")
-        success = await schedule_manager.update_schedule(test_cron)
+        success = await update_schedule(test_cron)
 
         if success:
             print("✓ Schedule updated in Redis")
 
-            # Test 2: Get the schedule back
-            config = await schedule_manager.get_schedule_config()
+            import json
+            from app.tasks.schedule_manager import _get_redis_pool
+            pool = await _get_redis_pool()
+            raw = await pool.get("hn_reader:schedule:config")
+            config = json.loads(raw) if raw else None
+            await pool.aclose()
+
             if config and config.get("cron_schedule") == test_cron:
                 print("✓ Schedule correctly stored in Redis")
                 print(f"  Stored config: {config}")
             else:
                 print("✗ Schedule not found or incorrect in Redis")
-
-            # Test 3: Apply schedule locally
-            from app.tasks.schedule_manager import _scheduler_tasks # type: ignore
-
-            applied = await schedule_manager.apply_schedule_from_redis()
-            if applied:
-                print("✓ Schedule applied to TimedScheduler")
-                print(f"  Current scheduled tasks: {len(_scheduler_tasks)}")
-                for task_ref in _scheduler_tasks:
-                    print(f"    - {task_ref}")
-            else:
-                print("✗ Failed to apply schedule locally")
         else:
             print("✗ Failed to update schedule in Redis")
 

@@ -88,6 +88,16 @@ async function loadAISettings() {
             dayCheckboxes.forEach(cb => { cb.checked = days.includes(cb.value); });
         }
 
+        // Timezone warning
+        const tzWarning = document.getElementById('timezone-warning');
+        if (tzWarning) {
+            if (data.timezone_configured) {
+                tzWarning.classList.add('hidden');
+            } else {
+                tzWarning.classList.remove('hidden');
+            }
+        }
+
         // Telegram settings
         const chatIdField = document.getElementById('telegram_chat_id');
         if (chatIdField) chatIdField.value = data.telegram_chat_id || '';

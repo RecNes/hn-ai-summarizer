@@ -15,11 +15,19 @@ from app.schemas.setting import SettingResponse, SettingUpdate
 from app.services.ai_service import AIService
 from app.services.provider_registry import get_available_providers, get_provider
 from app.shared.languages import get_languages
-from app.tasks.schedule_manager import get_schedule_manager
+from app.tasks.schedule_manager import update_schedule as redis_update_schedule
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _format_days_to_cron(days_list: list[int], hour: int, minute: int) -> str:
+    """Format days, hour, minute to cron schedule string."""
+    if not days_list:
+        return ""
+    weekday_part = ",".join(map(str, sorted(days_list)))
+    return f"{minute} {hour} * * {weekday_part}"
 
 
 @router.get("/", response_model=SettingResponse)
@@ -45,6 +53,10 @@ async def get_settings(db: AsyncSession = Depends(get_db)):
 
     # Telegram availability (computed from .env, never stored in DB)
     setting_dict["telegram_available"] = bool(settings.TELEGRAM_BOT_TOKEN)
+
+    # Timezone info (computed from .env, never stored in DB)
+    setting_dict["timezone"] = settings.TIMEZONE or "UTC"
+    setting_dict["timezone_configured"] = bool(settings.TIMEZONE and settings.TIMEZONE.strip())
 
     return setting_dict
 
@@ -75,8 +87,6 @@ async def update_settings(
         or setting_update.scheduled_minute is not None
         or setting_update.scheduled_days is not None
     ):
-        from app.tasks.scheduler import format_days_to_cron
-
         hour = (
             setting_update.scheduled_hour
             if setting_update.scheduled_hour is not None
@@ -94,12 +104,11 @@ async def update_settings(
         )
 
         days = [int(d.strip()) for d in days_str.split(",") if d.strip().isdigit()]
-        cron_schedule = format_days_to_cron(days, hour, minute)
+        cron_schedule = _format_days_to_cron(days, hour, minute)
         setting.cron_schedule = cron_schedule
 
         try:
-            schedule_manager = await get_schedule_manager()
-            await schedule_manager.update_schedule(cron_schedule)
+            await redis_update_schedule(cron_schedule)
         except Exception as e:
             logger.warning("[WARN] Redis schedule sync failed (non-critical): %s", e)
 
@@ -110,7 +119,10 @@ async def update_settings(
     setting_dict = {c.name: getattr(setting, c.name) for c in setting.__table__.columns}
     setting_dict["id"] = setting.id
     setting_dict["available_providers"] = get_available_providers()
+    setting_dict["available_languages"] = get_languages()
     setting_dict["telegram_available"] = bool(settings.TELEGRAM_BOT_TOKEN)
+    setting_dict["timezone"] = settings.TIMEZONE or "UTC"
+    setting_dict["timezone_configured"] = bool(settings.TIMEZONE and settings.TIMEZONE.strip())
 
     return setting_dict
 
@@ -132,9 +144,7 @@ async def get_available_models(
     # Check if provider has API key configured (for remote providers)
     env_key = provider_def.get("env_key")
     if env_key:
-        from app.core.config import settings as app_settings
-
-        env_value = getattr(app_settings, env_key, None)
+        env_value = getattr(settings, env_key, None)
         if not env_value or not str(env_value).strip():
             raise HTTPException(
                 status_code=400,
@@ -163,7 +173,7 @@ async def trigger_worker():
         # Enqueue the fetch and process job (send_notification=False for manual trigger)
         job = await redis_pool.enqueue_job("fetch_and_process_stories", send_notification=False)
 
-        await redis_pool.close()  # Close the pool
+        await redis_pool.close()
 
         if job:
             return {
@@ -195,7 +205,7 @@ async def reprocess_untranslated():
         # Enqueue the reprocess job
         job = await redis_pool.enqueue_job("reprocess_untranslated_stories")
 
-        await redis_pool.close()  # Close the pool
+        await redis_pool.close()
 
         if job:
             return {
@@ -228,7 +238,7 @@ async def debug_untranslated():
         # Enqueue the debug job
         job = await redis_pool.enqueue_job("debug_untranslated_stories")
 
-        await redis_pool.close()  # Close the pool
+        await redis_pool.close()
 
         if job:
             return {
@@ -244,7 +254,6 @@ async def debug_untranslated():
         raise HTTPException(status_code=500, detail=f"Debug başlatılamadı: {e!s}")
 
 
-# Add this new endpoint
 @router.post("/reprocess-all")
 async def reprocess_all():
     """Trigger reprocessing of ALL stories"""
@@ -257,7 +266,7 @@ async def reprocess_all():
         # Enqueue the reprocess job
         job = await redis_pool.enqueue_job("reprocess_all_stories")
 
-        await redis_pool.close()  # Close the pool
+        await redis_pool.close()
 
         if job:
             return {

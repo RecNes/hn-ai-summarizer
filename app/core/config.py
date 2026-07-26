@@ -59,6 +59,10 @@ class Settings(BaseSettings):
     # Interval in seconds to wait before retrying failed fetch/process
     AI_RETRY_INTERVAL: int = Field(300)
 
+    # Timezone for scheduler (IANA tz name, e.g. "Europe/Istanbul", "America/New_York")
+    # Empty string = UTC fallback. Set via .env: TIMEZONE=Europe/Istanbul
+    TIMEZONE: str = Field("")
+
     @computed_field
     @property
     def ASYNC_DATABASE_URL(self) -> str:
