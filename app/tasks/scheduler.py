@@ -5,7 +5,7 @@ Uses aioscheduler.TimedScheduler for reliable async scheduling.
 
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -30,16 +30,22 @@ async def get_settings():
 
 
 async def initialize_schedule_from_db():
-    """Initialize schedule from database settings and store in Redis"""
+    """Initialize schedule from database settings and store in Redis (only if Redis is empty)."""
+    schedule_manager = await get_schedule_manager()
+    
+    # Check if Redis already has a schedule
+    existing = await schedule_manager.get_schedule_config()
+    if existing and existing.get("cron_schedule"):
+        logger.info(">>> [Scheduler] Redis already has schedule: %s, skipping DB init", existing["cron_schedule"])
+        return
+    
     setting = await get_settings()
     cron_schedule = (
         setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
     )
 
-    schedule_manager = await get_schedule_manager()
     await schedule_manager.update_schedule(cron_schedule)
-
-    logger.info("Initialized schedule from database: %s", cron_schedule)
+    logger.info(">>> [Scheduler] Initialized schedule from database: %s", cron_schedule)
 
 
 def parse_cron_to_time(cron_schedule: str) -> str:
@@ -95,7 +101,7 @@ def format_days_to_cron(days: list, hour: int, minute: int) -> str:
 
 async def _cleanup_old_logs():
     """Delete AiActivityLog records older than 30 days."""
-    cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+    cutoff = datetime.now(UTC) - timedelta(days=30)
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -116,10 +122,13 @@ async def _cleanup_old_logs():
 
 async def run_scheduler():
     """Run the scheduler with Redis-based schedule management."""
-    logger.info("Initializing schedule from database...")
-    await initialize_schedule_from_db()
+    logger.info(">>> [Scheduler] run_scheduler started")
 
-    # Catch-up: check if today's scheduled time has already passed
+    # Initialize: write DB schedule to Redis (first time only)
+    await initialize_schedule_from_db()
+    logger.info(">>> [Scheduler] Initialization complete")
+
+    # Catch-up: check if today's scheduled time has already passed (using LOCAL time)
     try:
         schedule_manager = await get_schedule_manager()
         config = await schedule_manager.get_schedule_config()
@@ -128,9 +137,12 @@ async def run_scheduler():
             scheduled_time = parse_cron_to_time(cron_schedule)
             scheduled_days = parse_cron_to_days(cron_schedule)
 
-            now = datetime.now()
-            today_cron_weekday = (now.weekday() + 1) % 7
-            current_time_minutes = now.hour * 60 + now.minute
+            # Use LOCAL time for catch-up (scheduler uses local time)
+            from datetime import timezone
+            tz_local = timezone(timedelta(hours=3))
+            now_local = datetime.now(tz_local)
+            today_cron_weekday = (now_local.weekday() + 1) % 7
+            current_time_minutes = now_local.hour * 60 + now_local.minute
 
             try:
                 parts = scheduled_time.split(":")
@@ -177,7 +189,7 @@ async def run_scheduler():
         while True:
             await asyncio.sleep(3600)  # Check every hour
             # Also occasionally clean up old logs
-            if datetime.now().hour == 3:  # Run at ~3am
+            if datetime.now(UTC).hour == 3:  # Run at ~3am
                 await _cleanup_old_logs()
     finally:
         monitor_task.cancel()
