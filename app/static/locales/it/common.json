@@ -108,7 +108,8 @@
     "save": "Salva impostazioni",
     "saving": "Salvataggio...",
     "saveSuccess": "Impostazioni salvate con successo!",
-    "saveError": "Si è verificato un errore durante il salvataggio."
+    "saveError": "Si è verificato un errore durante il salvataggio.",
+    "timezoneWarning": "TIMEZONE non configurato. Imposta TIMEZONE nel file .env. Esempio: TIMEZONE=Europe/Istanbul. Lo scheduler utilizzerà UTC come fallback."
   },
   "display": {
     "title": "Impostazioni schermo",

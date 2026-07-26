@@ -108,7 +108,8 @@
     "save": "保存设置",
     "saving": "保存中...",
     "saveSuccess": "设置已成功保存！",
-    "saveError": "保存设置时发生错误。"
+    "saveError": "保存设置时发生错误。",
+    "timezoneWarning": "TIMEZONE 未配置。请在 .env 文件中设置 TIMEZONE。示例：TIMEZONE=Europe/Istanbul。调度器将使用 UTC 作为后备。"
   },
   "display": {
     "title": "显示设置",

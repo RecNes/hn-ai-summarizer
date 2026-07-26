@@ -108,7 +108,8 @@
     "save": "Einstellungen speichern",
     "saving": "Speichern...",
     "saveSuccess": "Einstellungen erfolgreich gespeichert!",
-    "saveError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten."
+    "saveError": "Beim Speichern der Einstellungen ist ein Fehler aufgetreten.",
+    "timezoneWarning": "TIMEZONE nicht konfiguriert. Setzen Sie TIMEZONE in Ihrer .env-Datei. Beispiel: TIMEZONE=Europe/Istanbul. Der Scheduler verwendet UTC als Fallback."
   },
   "display": {
     "title": "Anzeigeeinstellungen",

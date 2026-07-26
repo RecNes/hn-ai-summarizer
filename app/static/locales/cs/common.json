@@ -99,7 +99,8 @@
     "save": "Uložit nastavení",
     "saving": "Ukládání...",
     "saveSuccess": "Nastavení úspěšně uloženo!",
-    "saveError": "Při ukládání nastavení došlo k chybě."
+    "saveError": "Při ukládání nastavení došlo k chybě.",
+    "timezoneWarning": "TIMEZONE není nakonfigurováno. Nastavte TIMEZONE v souboru .env. Příklad: TIMEZONE=Europe/Istanbul. Plánovač použije UTC jako zálohu."
   },
   "display": {
     "title": "Nastavení zobrazení",

@@ -108,7 +108,8 @@
     "save": "Guardar ajustes",
     "saving": "Guardando...",
     "saveSuccess": "¡Ajustes guardados correctamente!",
-    "saveError": "Ocurrió un error al guardar los ajustes."
+    "saveError": "Ocurrió un error al guardar los ajustes.",
+    "timezoneWarning": "TIMEZONE no configurado. Establezca TIMEZONE en su archivo .env. Ejemplo: TIMEZONE=Europe/Istanbul. El planificador usará UTC como respaldo."
   },
   "display": {
     "title": "Ajustes de pantalla",

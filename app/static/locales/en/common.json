@@ -159,7 +159,8 @@
     "save": "Save Settings",
     "saving": "Saving...",
     "saveSuccess": "Settings saved successfully!",
-    "saveError": "An error occurred while saving settings."
+    "saveError": "An error occurred while saving settings.",
+    "timezoneWarning": "TIMEZONE not configured. Set TIMEZONE in your .env file. Example: TIMEZONE=Europe/Istanbul. Scheduler will use UTC as fallback."
   },
   "display": {
     "title": "Display Settings",

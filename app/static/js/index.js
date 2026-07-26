@@ -428,7 +428,6 @@ async function reprocessSingleStory(storyId) {
                         && updated.title_tr !== ''
                         && updated.content_tr !== ''
                         && updated.comments_summary !== ''
-                        && !updated.title_tr.startsWith('[TR]')
                         && updated.content_tr !== __('home.contentNotAvailable')
                         && updated.comments_summary !== __('home.commentSummaryNotAvailable')) {
                         done = true;

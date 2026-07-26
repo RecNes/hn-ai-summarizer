@@ -108,7 +108,8 @@
     "save": "Enregistrer les paramètres",
     "saving": "Enregistrement...",
     "saveSuccess": "Paramètres enregistrés avec succès !",
-    "saveError": "Une erreur est survenue lors de l'enregistrement."
+    "saveError": "Une erreur est survenue lors de l'enregistrement.",
+    "timezoneWarning": "TIMEZONE non configuré. Définissez TIMEZONE dans votre fichier .env. Exemple : TIMEZONE=Europe/Istanbul. Le planificateur utilisera UTC comme solution de repli."
   },
   "display": {
     "title": "Paramètres d'affichage",

@@ -108,7 +108,8 @@
     "save": "설정 저장",
     "saving": "저장 중...",
     "saveSuccess": "설정이 성공적으로 저장되었습니다!",
-    "saveError": "설정 저장 중 오류가 발생했습니다."
+    "saveError": "설정 저장 중 오류가 발생했습니다.",
+    "timezoneWarning": "TIMEZONE이 구성되지 않았습니다. .env 파일에 TIMEZONE을 설정하세요. 예: TIMEZONE=Europe/Istanbul. 스케줄러는 UTC를 대체로 사용합니다."
   },
   "display": {
     "title": "디스플레이 설정",

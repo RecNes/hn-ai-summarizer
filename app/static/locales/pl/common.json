@@ -108,7 +108,8 @@
     "save": "Zapisz ustawienia",
     "saving": "Zapisywanie...",
     "saveSuccess": "Ustawienia zapisane pomyślnie!",
-    "saveError": "Wystąpił błąd podczas zapisywania ustawień."
+    "saveError": "Wystąpił błąd podczas zapisywania ustawień.",
+    "timezoneWarning": "TIMEZONE nie jest skonfigurowane. Ustaw TIMEZONE w pliku .env. Przykład: TIMEZONE=Europe/Istanbul. Harmonogram użyje UTC jako kopii zapasowej."
   },
   "display": {
     "title": "Ustawienia wyświetlania",

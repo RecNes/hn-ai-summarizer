@@ -108,7 +108,8 @@
     "save": "儲存設定",
     "saving": "儲存中...",
     "saveSuccess": "設定已成功儲存！",
-    "saveError": "儲存設定時發生錯誤。"
+    "saveError": "儲存設定時發生錯誤。",
+    "timezoneWarning": "TIMEZONE 未設定。請在 .env 檔案中設定 TIMEZONE。範例：TIMEZONE=Europe/Istanbul。排程器將使用 UTC 作為後備。"
   },
   "display": {
     "title": "顯示設定",

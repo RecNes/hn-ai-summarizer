@@ -159,7 +159,8 @@
     "save": "Ayarları Kaydet",
     "saving": "Kaydediliyor...",
     "saveSuccess": "Ayarlar başarıyla kaydedildi!",
-    "saveError": "Ayarlar kaydedilirken bir hata oluştu."
+    "saveError": "Ayarlar kaydedilirken bir hata oluştu.",
+    "timezoneWarning": "TIMEZONE ayarlanmamış. .env dosyanıza TIMEZONE ekleyin. Örnek: TIMEZONE=Europe/Istanbul. Zamanlayıcı UTCyi yedek olarak kullanacak."
   },
   "display": {
     "title": "Görüntüleme Ayarları",

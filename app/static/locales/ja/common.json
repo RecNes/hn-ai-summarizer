@@ -108,7 +108,8 @@
     "save": "設定を保存",
     "saving": "保存中...",
     "saveSuccess": "設定を保存しました！",
-    "saveError": "設定の保存中にエラーが発生しました。"
+    "saveError": "設定の保存中にエラーが発生しました。",
+    "timezoneWarning": "TIMEZONEが設定されていません。.envファイルにTIMEZONEを設定してください。例: TIMEZONE=Europe/Istanbul。スケジューラーはフォールバックとしてUTCを使用します。"
   },
   "display": {
     "title": "表示設定",

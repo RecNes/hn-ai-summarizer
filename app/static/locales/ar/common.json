@@ -108,7 +108,8 @@
     "save": "حفظ الإعدادات",
     "saving": "جاري الحفظ...",
     "saveSuccess": "تم حفظ الإعدادات بنجاح!",
-    "saveError": "حدث خطأ أثناء حفظ الإعدادات."
+    "saveError": "حدث خطأ أثناء حفظ الإعدادات.",
+    "timezoneWarning": "لم يتم تكوين TIMEZONE. أضف TIMEZONE في ملف .env الخاص بك. مثال: TIMEZONE=Europe/Istanbul. سيستخدم المجدول UTC كبديل."
   },
   "display": {
     "title": "إعدادات العرض",

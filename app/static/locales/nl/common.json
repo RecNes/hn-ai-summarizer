@@ -108,7 +108,8 @@
     "save": "Instellingen opslaan",
     "saving": "Opslaan...",
     "saveSuccess": "Instellingen succesvol opgeslagen!",
-    "saveError": "Er is een fout opgetreden bij het opslaan."
+    "saveError": "Er is een fout opgetreden bij het opslaan.",
+    "timezoneWarning": "TIMEZONE niet geconfigureerd. Stel TIMEZONE in uw .env-bestand in. Voorbeeld: TIMEZONE=Europe/Istanbul. De planner gebruikt UTC als terugval."
   },
   "display": {
     "title": "Weergave-instellingen",

@@ -108,7 +108,8 @@
     "save": "Salvar configurações",
     "saving": "Salvando...",
     "saveSuccess": "Configurações salvas com sucesso!",
-    "saveError": "Ocorreu um erro ao salvar as configurações."
+    "saveError": "Ocorreu um erro ao salvar as configurações.",
+    "timezoneWarning": "TIMEZONE não configurado. Defina TIMEZONE no seu arquivo .env. Exemplo: TIMEZONE=Europe/Istanbul. O agendador usará UTC como fallback."
   },
   "display": {
     "title": "Configurações de exibição",
