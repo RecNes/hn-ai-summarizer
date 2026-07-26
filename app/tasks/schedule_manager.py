@@ -39,7 +39,7 @@ class _ScheduledTask:
     def __init__(self, coro, target_dt):
         self.coro = coro
         self.target_dt = target_dt
-        self._bg_task = None
+        self._bg_task: asyncio.Task | None = None
 
     def cancel(self):
         if self._bg_task and not self._bg_task.done():
@@ -66,11 +66,20 @@ def _schedule_coro(coro, when: datetime):
     """Schedule a coroutine to run at `when` (naive local datetime).
     
     Returns a _ScheduledTask that can be cancelled.
+    
+    CRITICAL: The coroutine object must be wrapped in a background task 
+    IMMEDIATELY (at schedule time, not inside _delayed_run) so the event 
+    loop holds a strong reference to it. If we only capture `coro` inside
+    the closure, Python 3.14+ garbage collection may warn:
+      "coroutine was never awaited"
+    
+    The fix: create an async wrapper function, call it to get a coroutine,
+    and pass THAT to _delayed_run (which will await it). The wrapper itself
+    holds `coro` in its closure, AND the result of calling the wrapper is
+    itself a coroutine that gets immediately create_task'd.
     """
     now = datetime.now()
     delay = max(0, (when - now).total_seconds())
-
-    task = _ScheduledTask(coro, when)
 
     async def _delayed_run():
         if delay > 0:
@@ -78,6 +87,7 @@ def _schedule_coro(coro, when: datetime):
         await _run_scheduled_coro(coro)
 
     bg_task = asyncio.create_task(_delayed_run())
+    task = _ScheduledTask(coro, when)
     task._bg_task = bg_task
     _scheduled_tasks.append(task)
     logger.debug(">>> [OwnScheduler] Scheduled coro in %.1fs (target=%s)", delay, when.isoformat())
@@ -100,12 +110,29 @@ def _cancel_all_scheduled():
 def _schedule_job_from_factory(factory_func, target_dt: datetime):
     """Schedule a job via a factory function that returns a coroutine.
     
+    The factory is called INSIDE the delayed task, NOT at schedule time.
+    This prevents Python 3.14+ GC from warning "coroutine was never awaited"
+    because the coroutine object doesn't exist until after the delay.
+    
     factory_func: a sync callable that returns a coroutine.
     Usage: _schedule_job_from_factory(lambda: my_coro(), target)
     """
-    def _factory_wrapper():
-        return _run_scheduled_coro(factory_func())
-    return _schedule_coro(_factory_wrapper(), target_dt)
+    now = datetime.now()
+    delay = max(0, (target_dt - now).total_seconds())
+
+    async def _delayed_run():
+        if delay > 0:
+            await asyncio.sleep(delay)
+        # Factory is called HERE, after the delay — coroutine created fresh
+        coro = factory_func()
+        await _run_scheduled_coro(coro)
+
+    bg_task = asyncio.create_task(_delayed_run())
+    task = _ScheduledTask(None, target_dt)  # coro=None; only created at runtime
+    task._bg_task = bg_task
+    _scheduled_tasks.append(task)
+    logger.debug(">>> [OwnScheduler] Scheduled factory job in %.1fs (target=%s)", delay, target_dt.isoformat())
+    return task
 
 
 class ScheduleManager:
@@ -243,7 +270,7 @@ class ScheduleManager:
 
                 logger.info(">>> [ScheduleManager] Scheduling %s: target=%s, time_str=%s",
                             day_name, target.isoformat(), scheduled_time)
-                _schedule_coro(_make_job_coro(), target)
+                _schedule_job_from_factory(_make_job_coro, target)
                 logger.info(">>> [ScheduleManager] ✅ Task scheduled for %s at %s (next: %s)",
                             day_name, scheduled_time, target)
 
@@ -378,7 +405,7 @@ async def _reschedule_job(day_name: str, scheduled_time: str):
 
     logger.info(">>> [ScheduleManager] Rescheduling %s: next target=%s", day_name, target.isoformat())
 
-    # Use _schedule_job_from_factory to avoid Python 3.14 "never awaited" warning
+    # Factory: sync function returns a coroutine (avoids Python 3.14 "never awaited" warning)
     def _make_weekly_coro(day=day_name, time_str=scheduled_time):
         async def _weekly_job():
             logger.info(">>> [ScheduleManager] ⏰ Weekly job triggered for %s at %s", day, time_str)
@@ -386,7 +413,7 @@ async def _reschedule_job(day_name: str, scheduled_time: str):
             await _reschedule_job(day, time_str)
         return _weekly_job()
 
-    _schedule_coro(_make_weekly_coro(), target)
+    _schedule_job_from_factory(_make_weekly_coro, target)
     logger.info(">>> [ScheduleManager] ✅ Rescheduled %s for %s (next: %s)", day_name, scheduled_time, target)
 
 
