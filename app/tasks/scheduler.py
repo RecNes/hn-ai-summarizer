@@ -14,7 +14,8 @@ import asyncio
 import json
 import logging
 import zoneinfo
-from datetime import datetime, timedelta, timezone as dt_timezone
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -78,6 +79,7 @@ def _get_tz() -> zoneinfo.ZoneInfo:
     name = (app_settings.TIMEZONE or "").strip()
     if name:
         try:
+            logger.info("[SCHEDULER] Using '%s' timezone.", name)
             return zoneinfo.ZoneInfo(name)
         except (zoneinfo.ZoneInfoNotFoundError, KeyError):
             logger.warning(
@@ -103,9 +105,10 @@ def _calculate_next_run(
         # Invalid cron → default to tomorrow 09:00
         if now is None:
             now = datetime.now(tz)
-        return now.replace(hour=9, minute=0, second=0, microsecond=0) + timedelta(
-            days=1
-        )
+
+        next_run = now.replace(hour=9, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        logger.info(f"[SCHEDULER] Next run: {next_run} (pn)")
+        return next_run
 
     target_hour, target_minute = parsed
     days = _parse_cron_days(cron)  # empty list = every day
@@ -123,9 +126,11 @@ def _calculate_next_run(
         # cron weekday: 0=Sunday → Python weekday: 0=Monday
         today_cron = (now.weekday() + 1) % 7
         if today_cron in days and candidate > now:
+            logger.info(f"[SCHEDULER] Next run: {candidate} (d)")
             return candidate
     else:
         if candidate > now:
+            logger.info(f"[SCHEDULER] Next run: {candidate} (w/d)")
             return candidate
 
     # Either time has passed today or today isn't a selected day.
@@ -135,11 +140,14 @@ def _calculate_next_run(
         if days:
             cand_cron = (candidate.weekday() + 1) % 7
             if cand_cron in days:
+                logger.info(f"[SCHEDULER] Next run: {candidate} (dr)")
                 return candidate
         else:
+            logger.info(f"[SCHEDULER] Next run: {candidate} (d w/r)")
             return candidate
 
     # Should never reach here
+    logger.info(f"[SCHEDULER] Next run: {candidate} (raw)")
     return candidate
 
 
@@ -158,6 +166,7 @@ async def _get_schedule_from_redis() -> dict | None:
     try:
         data = await pool.get(SCHEDULE_KEY)  # type: ignore[union-attr]
         if data:
+            logger.info(f"[SCHEDULER] Redis Data: {data}")
             return json.loads(data)
         return None
     except Exception as e:
@@ -172,8 +181,10 @@ async def _get_schedule_version() -> str:
     pool = await _get_redis_pool()
     try:
         v = await pool.get(VERSION_KEY)  # type: ignore[union-attr]
+        logger.info(f"[SCHEDULER] Version: {v or '0'}")
         return v or "0"
-    except Exception:
+    except Exception as e:
+        logger.info(f"[SCHEDULER] Version exception: {e}")
         return "0"
     finally:
         await pool.aclose()
@@ -203,7 +214,9 @@ async def _get_schedule_from_db() -> str:
         result = await db.execute(select(Setting).limit(1))
         setting = result.scalar_one_or_none()
         await db.commit()
-        return setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
+        result = setting.cron_schedule if setting and setting.cron_schedule else "0 9 * * *"
+        logger.info(f"[SCHEDULER] Cron schedule: {result}")
+        return result
 
 
 # ── Worker enqueue ──────────────────────
@@ -242,6 +255,7 @@ async def _cleanup_old_logs():
             )
             old = result.scalars().all()
             for log in old:
+                logger.info(f"[SCHEDULER] Deleting log: {log}")
                 await db.delete(log)
             await db.commit()
             if old:

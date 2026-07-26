@@ -64,6 +64,11 @@ def setup_logging() -> None:
                 "handlers": ["console"],
                 "propagate": False,
             },
+            "app.tasks": {
+                "level": log_level,
+                "handlers": ["console"],
+                "propagate": False,
+            },
             # Third-party loggers - keep at WARNING to reduce noise
             "httpx": {
                 "level": "WARNING",

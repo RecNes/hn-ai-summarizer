@@ -70,6 +70,8 @@ def run_worker():
 
 def run_scheduler():
     """Run the scheduler"""
+    from app.core.logging_config import setup_logging
+    setup_logging()
     print("Starting scheduler...")
     asyncio.run(scheduler_main())
 

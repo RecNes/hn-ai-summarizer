@@ -8,8 +8,13 @@ import os
 from arq.connections import RedisSettings
 from sqlalchemy.future import select
 
+from app.core.logging_config import setup_logging
+
 # app.core.config already loads .env via Settings
 from app.core.config import settings as app_settings
+
+# Ensure logging is configured when worker is started standalone (e.g. arq app.tasks.worker.WorkerSettings)
+setup_logging()
 from app.core.database import AsyncSessionLocal
 from app.models.activity_log import AiActivityLog
 from app.models.preference import UserPreference
