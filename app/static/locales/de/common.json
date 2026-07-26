@@ -1,8 +1,8 @@
 {
   "app": {
     "title": "HN AI Zusammenfasser",
-    "description": "KI-gestÃÂ¼tzter Hacker News Zusammenfasser",
-    "footer": "HN AI Zusammenfasser - KI-gestÃÂ¼tzter Hacker News Zusammenfasser"
+    "description": "KI-gestÃ¼tzter Hacker News Zusammenfasser",
+    "footer": "HN AI Zusammenfasser - KI-gestÃ¼tzter Hacker News Zusammenfasser"
   },
   "nav": {
     "home": "Startseite",
@@ -14,16 +14,16 @@
   },
   "home": {
     "title": "Neueste Geschichten",
-    "noStories": "Noch keine Geschichten verfÃÂ¼gbar.",
+    "noStories": "Noch keine Geschichten verfÃ¼gbar.",
     "loading": "Geschichten werden geladen...",
     "error": "Geschichten konnten nicht geladen werden",
     "score": "Punktzahl",
     "author": "Autor",
     "comments": "Kommentare",
     "readMore": "Weiterlesen",
-    "summaryNotAvailable": "Zusammenfassung nicht verfÃÂ¼gbar",
-    "commentSummaryNotAvailable": "Kommentarzusammenfassung nicht verfÃÂ¼gbar",
-    "contentNotAvailable": "Inhaltszusammenfassung nicht verfÃÂ¼gbar",
+    "summaryNotAvailable": "Zusammenfassung nicht verfÃ¼gbar",
+    "commentSummaryNotAvailable": "Kommentarzusammenfassung nicht verfÃ¼gbar",
+    "contentNotAvailable": "Inhaltszusammenfassung nicht verfÃ¼gbar",
     "originalTitle": "Originaltitel",
     "todaysBest": "Die heutige Besten",
     "loadingMore": "Weitere Geschichten werden geladen...",
@@ -35,24 +35,24 @@
     "language": {
       "title": "Spracheinstellungen",
       "uiLabel": "Anwendungssprache",
-      "translationLabel": "InhaltsÃÂ¼bersetzungssprache",
-      "uiDescription": "Sprache fÃÂ¼r die BenutzeroberflÃÂ¤che, MenÃÂ¼s und SchaltflÃÂ¤chen",
-      "translationDescription": "Sprache, in die Hacker News-Inhalte ÃÂ¼bersetzt werden",
-      "independentNote": "Diese beiden Einstellungen sind vÃÂ¶llig unabhÃÂ¤ngig voneinander"
+      "translationLabel": "InhaltsÃ¼bersetzungssprache",
+      "uiDescription": "Sprache fÃ¼r die BenutzeroberflÃ¤che, MenÃ¼s und SchaltflÃ¤chen",
+      "translationDescription": "Sprache, in die Hacker News-Inhalte Ã¼bersetzt werden",
+      "independentNote": "Diese beiden Einstellungen sind vÃ¶llig unabhÃ¤ngig voneinander"
     },
     "ai": {
       "title": "KI-Anbieter",
-      "description": "API-SchlÃÂ¼ssel werden ÃÂ¼ber die .env-Datei konfiguriert. Es werden nur Anbieter mit konfigurierten SchlÃÂ¼sseln aufgelistet.",
+      "description": "API-SchlÃ¼ssel werden Ã¼ber die .env-Datei konfiguriert. Es werden nur Anbieter mit konfigurierten SchlÃ¼sseln aufgelistet.",
       "providerLabel": "KI-Anbieter",
-      "providerPlaceholder": "-- Anbieter auswÃÂ¤hlen --",
+      "providerPlaceholder": "-- Anbieter auswÃ¤hlen --",
       "configLabel": "Anbieteradresse (optional)",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "Adresse fÃÂ¼r lokale Anbieter wie LM Studio oder Ollama eingeben",
-      "keyConfigured": "Ã¢ÂÂ API-SchlÃÂ¼ssel in .env konfiguriert",
-      "keyLocal": "Ã¢ÂÂ¹ Lokaler Anbieter (kein API-SchlÃÂ¼ssel erforderlich)",
+      "configHelp": "Adresse fÃ¼r lokale Anbieter wie LM Studio oder Ollama eingeben",
+      "keyConfigured": "â API-SchlÃ¼ssel in .env konfiguriert",
+      "keyLocal": "â¹ Lokaler Anbieter (kein API-SchlÃ¼ssel erforderlich)",
       "modelLabel": "KI-Modell",
-      "modelPlaceholder": "-- Modell auswÃÂ¤hlen --",
-      "modelSelectFirst": "-- Zuerst einen Anbieter auswÃÂ¤hlen --",
+      "modelPlaceholder": "-- Modell auswÃ¤hlen --",
+      "modelSelectFirst": "-- Zuerst einen Anbieter auswÃ¤hlen --",
       "modelLoading": "Modelle werden geladen...",
       "modelRefresh": "Modelle aktualisieren",
       "modelSearch": "Modelle suchen...",
@@ -64,8 +64,8 @@
       "title": "Datenverarbeitung",
       "description": "Hacker News-Daten manuell abrufen und verarbeiten.",
       "fetchButton": "Datenabruf starten",
-      "reprocessButton": "UnÃÂ¼bersetzte erneut verarbeiten",
-      "statusText": "Verarbeitung lÃÂ¤uft... Bitte warten."
+      "reprocessButton": "UnÃ¼bersetzte erneut verarbeiten",
+      "statusText": "Verarbeitung lÃ¤uft... Bitte warten."
     },
     "fetch": {
       "title": "Abrufeinstellungen",
@@ -79,29 +79,29 @@
       "friday": "Freitag",
       "saturday": "Samstag",
       "sunday": "Sonntag",
-      "daysHelp": "WÃÂ¤hlen Sie die AusfÃÂ¼hrungstage aus",
+      "daysHelp": "WÃ¤hlen Sie die AusfÃ¼hrungstage aus",
       "minScore": "Mindestpunktzahl",
-      "minScoreHelp": "Nur Geschichten mit einer Punktzahl darÃÂ¼ber werden verarbeitet",
+      "minScoreHelp": "Nur Geschichten mit einer Punktzahl darÃ¼ber werden verarbeitet",
       "retentionDays": "Datenaufbewahrung (Tage)",
-      "retentionDaysHelp": "ÃÂltere Daten werden automatisch gelÃÂ¶scht"
+      "retentionDaysHelp": "Ãltere Daten werden automatisch gelÃ¶scht"
     },
     "preferences": {
       "title": "Benutzereinstellungen",
-      "highlightKeywords": "Hervorzuhebende SchlÃÂ¼sselwÃÂ¶rter",
+      "highlightKeywords": "Hervorzuhebende SchlÃ¼sselwÃ¶rter",
       "highlightPlaceholder": "KI, maschinelles Lernen, Datenwissenschaft",
       "highlightHelp": "Kommagetrennt eingeben",
-      "blocklistKeywords": "Blockierte SchlÃÂ¼sselwÃÂ¶rter",
+      "blocklistKeywords": "Blockierte SchlÃ¼sselwÃ¶rter",
       "blocklistPlaceholder": "Politik, Tagesordnung, Debatte",
-      "blocklistHelp": "Inhalte mit diesen SchlÃÂ¼sselwÃÂ¶rtern werden abgedunkelt"
+      "blocklistHelp": "Inhalte mit diesen SchlÃ¼sselwÃ¶rtern werden abgedunkelt"
     },
     "telegram": {
       "title": "Telegram-Benachrichtigungen",
-      "description": "FÃ¼gen Sie Ihren Telegram-Bot-Token in die .env-Datei als TELEGRAM_BOT_TOKEN= ein. Der Bot-Token wird niemals an das Frontend gesendet, sondern nur vom Server gelesen.",
+      "description": "Fügen Sie Ihren Telegram-Bot-Token in die .env-Datei als TELEGRAM_BOT_TOKEN= ein. Der Bot-Token wird niemals an das Frontend gesendet, sondern nur vom Server gelesen.",
       "chatIdLabel": "Telegram Chat-ID",
       "chatIdPlaceholder": "1234567890",
       "chatIdHelp": "Senden Sie eine Nachricht an Ihren Bot und rufen Sie https://api.telegram.org/bot<TOKEN>/getUpdates auf, um Ihre Chat-ID zu finden.",
       "enabledLabel": "Telegram-Benachrichtigungen aktivieren",
-      "enabledHelp": "Wenn aktiviert, erhalten Sie eine Telegram-Benachrichtigung fÃ¼r jede Charge neu verarbeiteter Geschichten."
+      "enabledHelp": "Wenn aktiviert, erhalten Sie eine Telegram-Benachrichtigung für jede Charge neu verarbeiteter Geschichten."
     },
     "save": "Einstellungen speichern",
     "saving": "Speichern...",
@@ -111,7 +111,7 @@
   "display": {
     "title": "Anzeigeeinstellungen",
     "fontFamily": "Schriftart",
-    "fontSize": "SchriftgrÃÂ¶ÃÂe",
+    "fontSize": "SchriftgrÃ¶Ãe",
     "contrast": "Kontrast",
     "fonts": {
       "atkinson": "Atkinson Hyperlegible",
@@ -120,8 +120,8 @@
     "sizes": {
       "small": "Klein",
       "medium": "Mittel",
-      "large": "GroÃÂ",
-      "xlarge": "Sehr groÃÂ"
+      "large": "GroÃ",
+      "xlarge": "Sehr groÃ"
     },
     "contrasts": {
       "light": "Hell",
@@ -129,7 +129,7 @@
       "sepia": "Sepia",
       "high": "Hoher Kontrast"
     },
-    "reset": "Auf Standard zurÃÂ¼cksetzen",
+    "reset": "Auf Standard zurÃ¼cksetzen",
     "save": "Speichern"
   },
   "theme": {
@@ -150,9 +150,9 @@
     "success": "Erfolg",
     "cancel": "Abbrechen",
     "save": "Speichern",
-    "delete": "LÃÂ¶schen",
-    "close": "SchlieÃÂen",
-    "back": "ZurÃÂ¼ck"
+    "delete": "LÃ¶schen",
+    "close": "SchlieÃen",
+    "back": "ZurÃ¼ck"
   },
   "telegram": {
     "notification": {

@@ -5,51 +5,51 @@
     "footer": "HN AI Resumidor - Resumidor do Hacker News com IA"
   },
   "nav": {
-    "home": "InÃ­cio",
-    "settings": "ConfiguraÃ§Ãµes",
+    "home": "Início",
+    "settings": "Configurações",
     "themeToggle": "Alterar tema",
-    "displaySettings": "ConfiguraÃ§Ãµes de exibiÃ§Ã£o",
-    "refresh": "Atualizar pÃ¡gina",
+    "displaySettings": "Configurações de exibição",
+    "refresh": "Atualizar página",
     "logs": "Activity Logs (pt)"
   },
   "home": {
-    "title": "Ãltimas histÃ³rias",
-    "noStories": "Nenhuma histÃ³ria disponÃ­vel ainda.",
-    "loading": "Carregando histÃ³rias...",
-    "error": "Falha ao carregar histÃ³rias",
-    "score": "PontuaÃ§Ã£o",
+    "title": "Últimas histórias",
+    "noStories": "Nenhuma história disponível ainda.",
+    "loading": "Carregando histórias...",
+    "error": "Falha ao carregar histórias",
+    "score": "Pontuação",
     "author": "Autor",
-    "comments": "ComentÃ¡rios",
+    "comments": "Comentários",
     "readMore": "Ler mais",
-    "summaryNotAvailable": "Resumo nÃ£o disponÃ­vel",
-    "commentSummaryNotAvailable": "Resumo de comentÃ¡rios nÃ£o disponÃ­vel",
-    "contentNotAvailable": "Resumo de conteÃºdo nÃ£o disponÃ­vel",
-    "originalTitle": "TÃ­tulo original",
+    "summaryNotAvailable": "Resumo não disponível",
+    "commentSummaryNotAvailable": "Resumo de comentários não disponível",
+    "contentNotAvailable": "Resumo de conteúdo não disponível",
+    "originalTitle": "Título original",
     "todaysBest": "Os melhores de hoje",
     "loadingMore": "Carregando mais histórias...",
     "allLoaded": "Todas as histórias carregadas",
     "offline": "Modo offline - Visualizando conteúdo em cache"
   },
   "settings": {
-    "title": "ConfiguraÃ§Ãµes",
+    "title": "Configurações",
     "language": {
-      "title": "ConfiguraÃ§Ãµes de idioma",
+      "title": "Configurações de idioma",
       "uiLabel": "Idioma da interface",
-      "translationLabel": "Idioma de traduÃ§Ã£o de conteÃºdo",
-      "uiDescription": "Idioma para interface, menus e botÃµes",
-      "translationDescription": "Idioma para o qual o conteÃºdo do Hacker News serÃ¡ traduzido",
-      "independentNote": "Estas duas configuraÃ§Ãµes sÃ£o completamente independentes"
+      "translationLabel": "Idioma de tradução de conteúdo",
+      "uiDescription": "Idioma para interface, menus e botões",
+      "translationDescription": "Idioma para o qual o conteúdo do Hacker News será traduzido",
+      "independentNote": "Estas duas configurações são completamente independentes"
     },
     "ai": {
       "title": "Provedor de IA",
-      "description": "Chaves API sÃ£o configuradas via arquivo .env. Apenas provedores com chaves configuradas sÃ£o listados.",
+      "description": "Chaves API são configuradas via arquivo .env. Apenas provedores com chaves configuradas são listados.",
       "providerLabel": "Provedor de IA",
       "providerPlaceholder": "-- Selecionar provedor --",
-      "configLabel": "EndereÃ§o do provedor (opcional)",
+      "configLabel": "Endereço do provedor (opcional)",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "Insira o endereÃ§o para provedores locais como LM Studio ou Ollama",
-      "keyConfigured": "â Chave API configurada no .env",
-      "keyLocal": "â¹ Provedor local (nenhuma chave API necessÃ¡ria)",
+      "configHelp": "Insira o endereço para provedores locais como LM Studio ou Ollama",
+      "keyConfigured": "✓ Chave API configurada no .env",
+      "keyLocal": "ℹ Provedor local (nenhuma chave API necessária)",
       "modelLabel": "Modelo de IA",
       "modelPlaceholder": "-- Selecionar modelo --",
       "modelSelectFirst": "-- Selecione um provedor primeiro --",
@@ -64,35 +64,35 @@
       "title": "Processamento de dados",
       "description": "Buscar e processar dados do Hacker News manualmente.",
       "fetchButton": "Iniciar busca de dados",
-      "reprocessButton": "Reprocessar nÃ£o traduzidos",
+      "reprocessButton": "Reprocessar não traduzidos",
       "statusText": "Processando... Aguarde."
     },
     "fetch": {
-      "title": "ConfiguraÃ§Ãµes de busca",
+      "title": "Configurações de busca",
       "hour": "Hora",
       "minute": "Minuto",
       "days": "Dias",
       "monday": "Segunda",
-      "tuesday": "TerÃ§a",
+      "tuesday": "Terça",
       "wednesday": "Quarta",
       "thursday": "Quinta",
       "friday": "Sexta",
-      "saturday": "SÃ¡bado",
+      "saturday": "Sábado",
       "sunday": "Domingo",
-      "daysHelp": "Selecione os dias de execuÃ§Ã£o",
-      "minScore": "PontuaÃ§Ã£o mÃ­nima",
-      "minScoreHelp": "Apenas histÃ³rias com pontuaÃ§Ã£o acima serÃ£o processadas",
-      "retentionDays": "RetenÃ§Ã£o de dados (dias)",
-      "retentionDaysHelp": "Dados mais antigos serÃ£o excluÃ­dos automaticamente"
+      "daysHelp": "Selecione os dias de execução",
+      "minScore": "Pontuação mínima",
+      "minScoreHelp": "Apenas histórias com pontuação acima serão processadas",
+      "retentionDays": "Retenção de dados (dias)",
+      "retentionDaysHelp": "Dados mais antigos serão excluídos automaticamente"
     },
     "preferences": {
-      "title": "PreferÃªncias do usuÃ¡rio",
+      "title": "Preferências do usuário",
       "highlightKeywords": "Palavras-chave de destaque",
-      "highlightPlaceholder": "IA, aprendizado de mÃ¡quina, ciÃªncia de dados",
-      "highlightHelp": "Insira separadas por vÃ­rgulas",
+      "highlightPlaceholder": "IA, aprendizado de máquina, ciência de dados",
+      "highlightHelp": "Insira separadas por vírgulas",
       "blocklistKeywords": "Palavras-chave bloqueadas",
-      "blocklistPlaceholder": "polÃ­tica, agenda, debate",
-      "blocklistHelp": "ConteÃºdo com estas palavras-chave serÃ¡ atenuado"
+      "blocklistPlaceholder": "política, agenda, debate",
+      "blocklistHelp": "Conteúdo com estas palavras-chave será atenuado"
     },
     "telegram": {
       "title": "Notificações do Telegram",
@@ -103,13 +103,13 @@
       "enabledLabel": "Ativar notificações do Telegram",
       "enabledHelp": "Quando ativado, você receberá uma notificação do Telegram para cada lote de histórias recém-processadas."
     },
-    "save": "Salvar configuraÃ§Ãµes",
+    "save": "Salvar configurações",
     "saving": "Salvando...",
-    "saveSuccess": "ConfiguraÃ§Ãµes salvas com sucesso!",
-    "saveError": "Ocorreu um erro ao salvar as configuraÃ§Ãµes."
+    "saveSuccess": "Configurações salvas com sucesso!",
+    "saveError": "Ocorreu um erro ao salvar as configurações."
   },
   "display": {
-    "title": "ConfiguraÃ§Ãµes de exibiÃ§Ã£o",
+    "title": "Configurações de exibição",
     "fontFamily": "Fonte",
     "fontSize": "Tamanho da fonte",
     "contrast": "Contraste",
@@ -119,17 +119,17 @@
     },
     "sizes": {
       "small": "Pequeno",
-      "medium": "MÃ©dio",
+      "medium": "Médio",
       "large": "Grande",
       "xlarge": "Extra grande"
     },
     "contrasts": {
       "light": "Claro",
       "dark": "Escuro",
-      "sepia": "SÃ©pia",
+      "sepia": "Sépia",
       "high": "Alto contraste"
     },
-    "reset": "Restaurar padrÃµes",
+    "reset": "Restaurar padrões",
     "save": "Salvar"
   },
   "theme": {
@@ -139,9 +139,9 @@
   },
   "worker": {
     "started": "Busca iniciada! O processamento pode levar alguns minutos.",
-    "reprocessStarted": "Reprocessamento iniciado! ConteÃºdo e comentÃ¡rios estÃ£o sendo atualizados.",
-    "error": "NÃ£o foi possÃ­vel iniciar o worker.",
-    "reprocessError": "NÃ£o foi possÃ­vel iniciar o reprocessamento.",
+    "reprocessStarted": "Reprocessamento iniciado! Conteúdo e comentários estão sendo atualizados.",
+    "error": "Não foi possível iniciar o worker.",
+    "reprocessError": "Não foi possível iniciar o reprocessamento.",
     "starting": "Iniciando busca de dados..."
   },
   "common": {
