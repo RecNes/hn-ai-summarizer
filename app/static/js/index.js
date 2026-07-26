@@ -26,7 +26,7 @@ async function loadStories(page = 0, append = false) {
         document.getElementById('stories-container').innerHTML = `
             <div class="text-center py-8">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                <p class="mt-2">Hikayeler yükleniyor...</p>
+                <p class="mt-2">${__('home.loading')}</p>
             </div>
         `;
     }
@@ -46,8 +46,8 @@ async function loadStories(page = 0, append = false) {
             if (!append) {
                 document.getElementById('stories-container').innerHTML = `
                     <div class="text-center py-8">
-                        <p>Henüz özetlenmiş haber bulunmuyor. İlk özetler yakında eklenecek.</p>
-                        <p class="mt-2 text-sm text-gray-500">Veri çekmek için yukarıdaki "Veri Çek" butonunu kullanabilirsiniz.</p>
+                        <p>${__('home.noStories')}</p>
+                        <p class="mt-2 text-sm text-gray-500">${__('home.noStoriesDetail')}</p>
                     </div>
                 `;
             }
@@ -73,7 +73,7 @@ async function loadStories(page = 0, append = false) {
         if (!append) {
             document.getElementById('stories-container').innerHTML = `
                 <div class="text-center py-8 text-red-500">
-                    <p>Hikayeler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.</p>
+                    <p>${__('home.error')}</p>
                 </div>
             `;
         }
@@ -102,6 +102,18 @@ async function loadStories(page = 0, append = false) {
 // ──────────────────────────────────────────────
 function buildStoryCardHtml(story) {
     const isRead = story.is_read || false;
+    const scoreLabel = __('home.score');
+    const summaryLabel = __('home.summary');
+    const commentsLabel = __('home.comments');
+    const originalContentLabel = __('home.originalContent');
+    const reprocessLabel = __('home.reprocess');
+    const hideStoryLabel = __('home.hideStory');
+    const readUnreadTitle = isRead ? __('home.readToggleUnread') : __('home.readToggleRead');
+    
+    // Use the UI language for date formatting
+    const uiLang = (typeof i18next !== 'undefined' && i18next.language) || 'en';
+    const dateStr = new Date(story.hn_created_at || story.created_at).toLocaleDateString(uiLang === 'tr' ? 'tr-TR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    
     return `
         <article class="mb-6 p-4 rounded-lg shadow story-card ${story.is_dimmed ? 'grayscale opacity-50' : ''} ${story.is_highlighted ? 'border-l-4 border-blue-500' : ''} ${isRead ? 'is-read' : ''}" 
                  data-story-id="${story.id}">
@@ -115,8 +127,8 @@ function buildStoryCardHtml(story) {
                     </a>
                 </h3>
                 <div class="flex items-center gap-2 text-sm text-gray-500 flex-shrink-0 ml-2">
-                    <span>${story.score} puan</span>
-                    <button class="read-toggle-btn" data-story-id="${story.id}" title="${isRead ? 'Okunmadı olarak işaretle' : 'Okundu olarak işaretle'}">
+                    <span>${story.score} ${scoreLabel}</span>
+                    <button class="read-toggle-btn" data-story-id="${story.id}" title="${readUnreadTitle}">
                         ${isRead ? EYE_CLOSED_SVG : EYE_OPEN_SVG}
                     </button>
                 </div>
@@ -127,14 +139,14 @@ function buildStoryCardHtml(story) {
                 
                 ${story.content_tr ? `
                     <div class="mb-3">
-                        <h4 class="font-bold mb-1">Özet:</h4>
+                        <h4 class="font-bold mb-1">${summaryLabel}:</h4>
                         <div class="pl-4">${story.content_tr.replace(/\n/g, '<br>')}</div>
                     </div>
                 ` : ''}
                 
                 ${story.comments_summary ? `
                     <div class="mb-3">
-                        <h4 class="font-bold mb-1">Yorumlar:</h4>
+                        <h4 class="font-bold mb-1">${commentsLabel}:</h4>
                         <p class="pl-4">${story.comments_summary}</p>
                     </div>
                 ` : ''}
@@ -142,7 +154,7 @@ function buildStoryCardHtml(story) {
                 <div class="flex flex-wrap gap-2 mt-3 items-center">
                     ${story.url ? `
                         <a href="${story.url}" target="_blank" class="text-blue-500 hover:underline text-sm">
-                            Orijinal içerik
+                            ${originalContentLabel}
                         </a>
                     ` : ''}
                     
@@ -151,7 +163,7 @@ function buildStoryCardHtml(story) {
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
-                        Yenile
+                        ${reprocessLabel}
                     </button>
                     
                     <button class="negative-feedback-btn text-red-500 hover:text-red-700 text-sm flex items-center" 
@@ -159,9 +171,9 @@ function buildStoryCardHtml(story) {
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                        Tekrar gösterme
+                        ${hideStoryLabel}
                     </button>
-                    <span class="text-xs text-gray-400 ml-auto hover:underline cursor-default" title="ID: ${story.id}">${new Date(story.hn_created_at || story.created_at).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span class="text-xs text-gray-400 ml-auto hover:underline cursor-default" title="ID: ${story.id}">${dateStr}</span>
                 </div>
             </div>
         </article>
@@ -196,13 +208,13 @@ async function toggleReadStatus(storyId) {
             article.classList.add('is-read');
             if (btn) {
                 btn.innerHTML = EYE_CLOSED_SVG;
-                btn.title = 'Okunmadı olarak işaretle';
+                btn.title = __('home.readToggleUnread');
             }
         } else {
             article.classList.remove('is-read');
             if (btn) {
                 btn.innerHTML = EYE_OPEN_SVG;
-                btn.title = 'Okundu olarak işaretle';
+                btn.title = __('home.readToggleRead');
             }
         }
     } catch (e) {
@@ -224,10 +236,10 @@ async function addNegativeFeedback(storyId) {
             if (storyElement) {
                 storyElement.classList.add('hidden');
             }
-            showToast('success', 'Bu içerik bundan sonra gösterilmeyecek.');
+            showToast('success', __('home.hideFeedbackDone'));
         }
     } catch (error) {
-        showToast('error', 'Bir hata oluştu. Lütfen tekrar deneyin.');
+        showToast('error', __('home.hideFeedbackError'));
     }
 }
 
@@ -241,7 +253,7 @@ async function triggerWorkerHome() {
     const statusText = document.getElementById('worker-status-home');
 
     button.disabled = true;
-    btnText.textContent = 'Başlatılıyor...';
+    btnText.textContent = __('worker.starting');
     spinner.classList.remove('hidden');
     statusText.classList.remove('hidden');
 
@@ -255,19 +267,19 @@ async function triggerWorkerHome() {
 
         if (response.ok) {
             const result = await response.json();
-            showToast('success', 'Veri çekimi başlatıldı! ' + (result.message || ''));
+            showToast('success', __('home.fetchStarted') + ' ' + (result.message || ''));
             simulateWorkerProgress();
         } else {
             const err = await response.json();
-            showToast('error', err.detail || 'Worker başlatılamadı');
+            showToast('error', err.detail || __('home.fetchFail'));
             if (window.hideWorkerProgress) window.hideWorkerProgress();
         }
     } catch (error) {
-        showToast('error', 'Veri çekimi başlatılırken bir hata oluştu.');
+        showToast('error', __('home.fetchError'));
         if (window.hideWorkerProgress) window.hideWorkerProgress();
     } finally {
         button.disabled = false;
-        btnText.textContent = 'Veri Çek';
+        btnText.textContent = __('home.fetchData');
         spinner.classList.add('hidden');
         statusText.classList.add('hidden');
     }
@@ -283,7 +295,7 @@ async function reprocessUntranslatedHome() {
     const statusText = document.getElementById('worker-status-home');
 
     button.disabled = true;
-    btnText.textContent = 'İşleniyor...';
+    btnText.textContent = __('home.processing');
     spinner.classList.remove('hidden');
     statusText.classList.remove('hidden');
 
@@ -294,7 +306,7 @@ async function reprocessUntranslatedHome() {
 
     function resetButton() {
         button.disabled = false;
-        btnText.textContent = 'Çevrilmemişleri İşle';
+        btnText.textContent = __('home.reprocessUntranslated');
         spinner.classList.add('hidden');
         statusText.classList.add('hidden');
         const cancelBtn = document.getElementById('cancel-reprocess-home');
@@ -316,7 +328,7 @@ async function reprocessUntranslatedHome() {
                 window.showWorkerLabel(label);
             }
             if (data.story_id) {
-                statusText.textContent = `İşleniyor: #${data.story_id} (${data.current}/${data.total})`;
+                statusText.textContent = __('home.reprocessProgress', { id: data.story_id, current: data.current, total: data.total });
                 statusText.classList.remove('hidden');
             }
         } catch (err) {
@@ -350,8 +362,10 @@ async function reprocessUntranslatedHome() {
             }, 2000);
 
             const msg = data.processed > 0
-                ? `${data.processed} hikaye işlendi. ${data.errors > 0 ? `${data.errors} hata.` : ''}`
-                : 'İşlenecek hikaye bulunamadı.';
+                ? (data.errors > 0 
+                    ? __('home.reprocessCompleteErrors', { processed: data.processed, errors: data.errors })
+                    : __('home.reprocessComplete', { processed: data.processed }))
+                : __('home.reprocessNone');
             showToast(data.errors > 0 ? 'warning' : 'success', msg);
 
             // Reload first page if stories were processed
@@ -375,8 +389,7 @@ async function reprocessUntranslatedHome() {
         if (window.hideWorkerProgress) window.hideWorkerProgress();
         if (window.hideWorkerLabel) window.hideWorkerLabel();
 
-        // Show error only if there was no 'complete' event
-        showToast('warning', 'Çeviri bağlantısı koptu. Sayfayı yenileyip durumu kontrol edin.');
+        showToast('warning', __('home.reprocessConnectionLost'));
     });
 }
 
@@ -388,17 +401,17 @@ async function reprocessSingleStory(storyId) {
     const originalText = btn ? btn.innerHTML : '';
     if (btn) {
         btn.disabled = true;
-        btn.innerHTML = '<span class="inline-block w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin mr-1"></span> Yenileniyor...';
+        btn.innerHTML = '<span class="inline-block w-3 h-3 border-2 border-green-600 border-t-transparent rounded-full animate-spin mr-1"></span> ' + __('home.reloading');
     }
     try {
         const res = await fetch(`/api/stories/${storyId}/reprocess`, { method: 'POST' });
         if (!res.ok) {
             const err = await res.json();
-            showToast('error', err.detail || 'Yenileme başarısız');
+            showToast('error', err.detail || __('home.reprocessFail'));
             if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
             return;
         }
-        showToast('info', 'HN verisi alındı, AI çevirisi başlatıldı. Güncelleniyor...');
+        showToast('info', __('home.reprocessStarted'));
 
         const maxAttempts = 20;
         let attempt = 0;
@@ -416,11 +429,11 @@ async function reprocessSingleStory(storyId) {
                         && updated.content_tr !== ''
                         && updated.comments_summary !== ''
                         && !updated.title_tr.startsWith('[TR]')
-                        && updated.content_tr !== 'İçerik özeti mevcut değil.'
-                        && updated.comments_summary !== 'Yorum özeti mevcut değil.') {
+                        && updated.content_tr !== __('home.contentNotAvailable')
+                        && updated.comments_summary !== __('home.commentSummaryNotAvailable')) {
                         done = true;
                         updateStoryCard(updated);
-                        showToast('success', 'Hikaye güncellendi!');
+                        showToast('success', __('home.reprocessDone'));
                         if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
                         return;
                     }
@@ -430,7 +443,7 @@ async function reprocessSingleStory(storyId) {
             }
             if (attempt >= maxAttempts && !done) {
                 done = true;
-                showToast('warning', 'AI çevirisi tamamlanamadı, sayfayı yenileyin.');
+                showToast('warning', __('home.reprocessTimeout'));
                 if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
                 return;
             }
@@ -440,7 +453,7 @@ async function reprocessSingleStory(storyId) {
         setTimeout(pollOnce, 6000);
 
     } catch (e) {
-        showToast('error', 'Yenileme sırasında hata oluştu.');
+        showToast('error', __('home.reprocessNetworkError'));
         if (btn) { btn.disabled = false; btn.innerHTML = originalText; }
     }
 }
@@ -462,11 +475,11 @@ function updateStoryCard(story) {
     if (headerRight) {
         const scoreSpan = headerRight.querySelector('span');
         const eyeBtn = headerRight.querySelector('.read-toggle-btn');
-        if (scoreSpan) scoreSpan.textContent = story.score + ' puan';
+        if (scoreSpan) scoreSpan.textContent = story.score + ' ' + __('home.score');
         if (eyeBtn) {
             const isRead = story.is_read || false;
             eyeBtn.innerHTML = isRead ? EYE_CLOSED_SVG : EYE_OPEN_SVG;
-            eyeBtn.title = isRead ? 'Okunmadı olarak işaretle' : 'Okundu olarak işaretle';
+            eyeBtn.title = isRead ? __('home.readToggleUnread') : __('home.readToggleRead');
         }
     }
 
@@ -482,37 +495,39 @@ function updateStoryCard(story) {
     }
 
     const existingContent = article.querySelector('h4.font-bold.mb-1');
+    const summaryLabel = __('home.summary');
     if (story.content_tr) {
-        if (existingContent && existingContent.textContent === 'Özet:') {
+        if (existingContent && existingContent.textContent === summaryLabel + ':') {
             const contentDiv = existingContent.nextElementSibling;
             if (contentDiv) contentDiv.innerHTML = story.content_tr.replace(/\n/g, '<br>');
         } else {
             const oldContentHeader = article.querySelector('h4');
-            if (oldContentHeader && oldContentHeader.textContent === 'Özet:') {
+            if (oldContentHeader && oldContentHeader.textContent === summaryLabel + ':') {
                 oldContentHeader.parentElement.remove();
             }
             const authorP = article.querySelector('p.text-gray-600');
             if (authorP) {
                 const newContent = document.createElement('div');
                 newContent.className = 'mb-3';
-                newContent.innerHTML = '<h4 class="font-bold mb-1">Özet:</h4><div class="pl-4">' + story.content_tr.replace(/\n/g, '<br>') + '</div>';
+                newContent.innerHTML = '<h4 class="font-bold mb-1">' + summaryLabel + ':</h4><div class="pl-4">' + story.content_tr.replace(/\n/g, '<br>') + '</div>';
                 authorP.insertAdjacentElement('afterend', newContent);
             }
         }
     }
 
     const existingComments = article.querySelectorAll('h4.font-bold.mb-1');
+    const commentsLabel = __('home.comments');
     let commentsHeader = null;
-    existingComments.forEach(h => { if (h.textContent === 'Yorumlar:') commentsHeader = h; });
+    existingComments.forEach(h => { if (h.textContent === commentsLabel + ':') commentsHeader = h; });
 
-    if (story.comments_summary && story.comments_summary !== 'Yorum özeti mevcut değil.') {
+    if (story.comments_summary && story.comments_summary !== __('home.commentSummaryNotAvailable')) {
         if (commentsHeader) {
             const commentsDiv = commentsHeader.nextElementSibling;
             if (commentsDiv) commentsDiv.textContent = story.comments_summary;
         } else {
             const newComments = document.createElement('div');
             newComments.className = 'mb-3';
-            newComments.innerHTML = '<h4 class="font-bold mb-1">Yorumlar:</h4><p class="pl-4">' + story.comments_summary + '</p>';
+            newComments.innerHTML = '<h4 class="font-bold mb-1">' + commentsLabel + ':</h4><p class="pl-4">' + story.comments_summary + '</p>';
             const contentSection = article.querySelector('.card-body-wrapper > .mb-3:last-of-type');
             if (contentSection) {
                 contentSection.insertAdjacentElement('afterend', newComments);
@@ -592,7 +607,7 @@ window.onNewStoryPoll = function(story) {
     if (typeof window.updateLastKnownStoryId === 'function') {
         window.updateLastKnownStoryId(story.id);
     }
-    showToast('info', 'Yeni hikaye eklendi: ' + (story.title_tr || story.title).substring(0, 40) + '...');
+    showToast('info', __('home.newStoryAdded') + ': ' + (story.title_tr || story.title).substring(0, 40) + '...');
 };
 
 window.onNewStorySSE = window.onNewStoryPoll;

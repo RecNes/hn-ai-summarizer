@@ -1,47 +1,47 @@
 <!-- Display Settings Modal -->
 <div id="settings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full relative">
-        <button id="close-settings-modal" class="absolute top-3 right-3 p-1 rounded hover:bg-gray-200 modal-close-btn" title="Kapat">
+        <button id="close-settings-modal" class="absolute top-3 right-3 p-1 rounded hover:bg-gray-200 modal-close-btn" data-i18n-title="common.close" title="Close">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
-        <h2 class="text-xl font-bold mb-4">Görüntüleme Ayarları</h2>
+        <h2 class="text-xl font-bold mb-4" data-i18n="display.title">Display Settings</h2>
         
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Yazı Tipi</label>
+            <label class="block text-gray-700 mb-2" data-i18n="display.fontFamily">Font Family</label>
             <select id="font-family" class="w-full p-2 border rounded">
-                <option value="atkinson">Atkinson Hyperlegible</option>
-                <option value="merriweather">Merriweather</option>
+                <option value="atkinson" data-i18n="display.fonts.atkinson">Atkinson Hyperlegible</option>
+                <option value="merriweather" data-i18n="display.fonts.merriweather">Merriweather</option>
             </select>
         </div>
         
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Yazı Boyutu</label>
+            <label class="block text-gray-700 mb-2" data-i18n="display.fontSize">Font Size</label>
             <select id="font-size" class="w-full p-2 border rounded">
-                <option value="small">Küçük</option>
-                <option value="medium" selected>Orta</option>
-                <option value="large">Büyük</option>
-                <option value="xlarge">Çok Büyük</option>
+                <option value="small" data-i18n="display.sizes.small">Small</option>
+                <option value="medium" selected data-i18n="display.sizes.medium">Medium</option>
+                <option value="large" data-i18n="display.sizes.large">Large</option>
+                <option value="xlarge" data-i18n="display.sizes.xlarge">Extra Large</option>
             </select>
         </div>
         
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Tema</label>
+            <label class="block text-gray-700 mb-2" data-i18n="theme.title">Theme</label>
             <select id="theme-select" class="w-full p-2 border rounded">
-                <option value="light">☀️ Açık</option>
-                <option value="dark">🌙 Koyu</option>
-                <option value="system">🖥️ Sistem</option>
+                <option value="light" data-i18n="theme.light">☀️ Light</option>
+                <option value="dark" data-i18n="theme.dark">🌙 Dark</option>
+                <option value="system" data-i18n="theme.system">🖥️ Auto</option>
             </select>
         </div>
         
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Kontrast</label>
+            <label class="block text-gray-700 mb-2" data-i18n="display.contrast">Contrast</label>
             <select id="contrast" class="w-full p-2 border rounded">
-                <option value="light">Açık</option>
-                <option value="dark">Koyu</option>
-                <option value="sepia">Sepya</option>
-                <option value="high">Yüksek Kontrast</option>
+                <option value="light" data-i18n="display.contrasts.light">Light</option>
+                <option value="dark" data-i18n="display.contrasts.dark">Dark</option>
+                <option value="sepia" data-i18n="display.contrasts.sepia">Sepia</option>
+                <option value="high" data-i18n="display.contrasts.high">High Contrast</option>
             </select>
         </div>
     </div>
