@@ -28,7 +28,9 @@
     "todaysBest": "আজকের সেরা",
     "loadingMore": "আরও গল্প লোড হচ্ছে...",
     "allLoaded": "সব গল্প লোড হয়েছে",
-    "offline": "অফলাইন মোড - ক্যাশে কন্টেন্ট দেখানো হচ্ছে"
+    "offline": "অফলাইন মোড - ক্যাশে কন্টেন্ট দেখানো হচ্ছে",
+    "processing": "প্রক্রিয়াকরণ হচ্ছে...",
+    "reprocessComplete": "{processed} টি গল্প প্রক্রিয়াকৃত।"
   },
   "settings": {
     "title": "সেটিংস",
@@ -142,7 +144,15 @@
     "reprocessStarted": "পুনঃপ্রক্রিয়াকরণ শুরু! বিষয়বস্তু এবং মন্তব্য রিফ্রেশ করা হচ্ছে।",
     "error": "কর্মী শুরু করা যায়নি।",
     "reprocessError": "পুনঃপ্রক্রিয়াকরণ শুরু করা যায়নি।",
-    "starting": "ডেটা ফেচ শুরু হচ্ছে..."
+    "starting": "ডেটা ফেচ শুরু হচ্ছে...",
+    "reprocessUnknownError": "অজানা ত্রুটি",
+    "processingLabel": "{current} / {total} প্রক্রিয়াকরণ",
+    "completedPercent": "%{pct} সম্পন্ন",
+    "reprocessComplete": "পুনঃপ্রক্রিয়াকরণ সম্পন্ন! {processed} টি গল্প প্রক্রিয়াকৃত।",
+    "reprocessCancelled": "পুনঃপ্রক্রিয়াকরণ বাতিল ({current}/{total})।",
+    "reprocessAborted": "ব্যবহারকারী দ্বারা অপারেশন বাতিল করা হয়েছে।",
+    "reprocessConnectionError": "সংযোগ ত্রুটি। পৃষ্ঠাটি রিফ্রেশ করে আবার চেষ্টা করুন।",
+    "totalProgress": "মোট: {total} | প্রক্রিয়াকৃত: {processed} | ত্রুটি: {errors}"
   },
   "common": {
     "loading": "লোড হচ্ছে...",

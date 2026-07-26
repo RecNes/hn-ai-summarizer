@@ -28,7 +28,9 @@
     "todaysBest": "今日最佳",
     "loadingMore": "正在載入更多故事...",
     "allLoaded": "所有故事已載入",
-    "offline": "離線模式 - 查看緩存內容"
+    "offline": "離線模式 - 查看緩存內容",
+    "processing": "處理中...",
+    "reprocessComplete": "已處理 {processed} 篇文章。"
   },
   "settings": {
     "title": "設定",
@@ -142,7 +144,15 @@
     "reprocessStarted": "重新處理已開始！內容和評論正在重新整理。",
     "error": "無法啟動工作程式。",
     "reprocessError": "無法啟動重新處理。",
-    "starting": "正在開始取得資料..."
+    "starting": "正在開始取得資料...",
+    "reprocessUnknownError": "未知錯誤",
+    "processingLabel": "{current} / {total} 處理中",
+    "completedPercent": "%{pct} 已完成",
+    "reprocessComplete": "重新處理完成！已處理 {processed} 篇文章。",
+    "reprocessCancelled": "重新處理已取消（{current}/{total}）。",
+    "reprocessAborted": "使用者已中止操作。",
+    "reprocessConnectionError": "連線錯誤。請重新整理頁面後再試。",
+    "totalProgress": "總計: {total} | 已處理: {processed} | 錯誤: {errors}"
   },
   "common": {
     "loading": "載入中...",

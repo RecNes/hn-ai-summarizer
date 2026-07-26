@@ -28,7 +28,9 @@
     "todaysBest": "أفضل ما اليوم",
     "loadingMore": "جارٍ تحميل المزيد من القصص...",
     "allLoaded": "تم تحميل جميع القصص",
-    "offline": "وضع غير متصل - عرض المحتوى المخبأ"
+    "offline": "وضع غير متصل - عرض المحتوى المخبأ",
+    "processing": "جارٍ المعالجة...",
+    "reprocessComplete": "تمت معالجة {processed} قصة."
   },
   "settings": {
     "title": "الإعدادات",
@@ -142,7 +144,15 @@
     "reprocessStarted": "تم بدء إعادة المعالجة! يتم تحديث المحتوى والتعليقات.",
     "error": "تعذر بدء العامل.",
     "reprocessError": "تعذر بدء إعادة المعالجة.",
-    "starting": "جاري بدء جلب البيانات..."
+    "starting": "جاري بدء جلب البيانات...",
+    "reprocessUnknownError": "خطأ غير معروف",
+    "processingLabel": "{current} / {total} قيد المعالجة",
+    "completedPercent": "%{pct} مكتمل",
+    "reprocessComplete": "اكتملت إعادة المعالجة! تمت معالجة {processed} قصة.",
+    "reprocessCancelled": "تم إلغاء إعادة المعالجة ({current}/{total}).",
+    "reprocessAborted": "تم إيقاف العملية من قبل المستخدم.",
+    "reprocessConnectionError": "خطأ في الاتصال. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
+    "totalProgress": "الإجمالي: {total} | تمت المعالجة: {processed} | الأخطاء: {errors}"
   },
   "common": {
     "loading": "جاري التحميل...",

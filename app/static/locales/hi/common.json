@@ -28,7 +28,9 @@
     "todaysBest": "आज का सर्वश्रेष्ठ",
     "loadingMore": "और कहानियाँ लोड हो रही हैं...",
     "allLoaded": "सभी कहानियाँ लोड हो गईं",
-    "offline": "ऑफ़लाइन मोड - कैश की गई सामग्री देखना"
+    "offline": "ऑफ़लाइन मोड - कैश की गई सामग्री देखना",
+    "processing": "प्रसंस्करण हो रहा है...",
+    "reprocessComplete": "{processed} कहानियाँ संसाधित।"
   },
   "settings": {
     "title": "सेटिंग्स",
@@ -142,7 +144,15 @@
     "reprocessStarted": "पुनःप्रसंस्करण शुरू! सामग्री और टिप्पणियाँ ताज़ा की जा रही हैं।",
     "error": "कार्यकर्ता शुरू नहीं किया जा सका।",
     "reprocessError": "पुनःप्रसंस्करण शुरू नहीं किया जा सका।",
-    "starting": "डेटा लाना शुरू हो रहा है..."
+    "starting": "डेटा लाना शुरू हो रहा है...",
+    "reprocessUnknownError": "अज्ञात त्रुटि",
+    "processingLabel": "{current} / {total} प्रसंस्करण",
+    "completedPercent": "%{pct} पूर्ण",
+    "reprocessComplete": "पुनर्प्रसंस्करण पूर्ण! {processed} कहानियाँ संसाधित।",
+    "reprocessCancelled": "पुनर्प्रसंस्करण रद्द ({current}/{total})।",
+    "reprocessAborted": "उपयोगकर्ता द्वारा संचालन रोका गया।",
+    "reprocessConnectionError": "कनेक्शन त्रुटि। कृपया पृष्ठ को ताज़ा करें और पुनः प्रयास करें।",
+    "totalProgress": "कुल: {total} | संसाधित: {processed} | त्रुटियाँ: {errors}"
   },
   "common": {
     "loading": "लोड हो रहा है...",

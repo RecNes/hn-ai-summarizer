@@ -28,7 +28,9 @@
     "todaysBest": "Dnešní nejlepší",
     "loadingMore": "Načítají se další příběhy...",
     "allLoaded": "Všechny příběhy načteny",
-    "offline": "Offline režim - Zobrazení obsahu z mezipaměti"
+    "offline": "Offline režim - Zobrazení obsahu z mezipaměti",
+    "processing": "Zpracovávání...",
+    "reprocessComplete": "{processed} příběhů zpracováno."
   },
   "settings": {
     "title": "Nastavení",
@@ -133,7 +135,15 @@
     "reprocessStarted": "Přepracování spuštěno! Obsah a komentáře se obnovují.",
     "error": "Nepodařilo se spustit worker.",
     "reprocessError": "Nepodařilo se spustit přepracování.",
-    "starting": "Spouští se načítání dat..."
+    "starting": "Spouští se načítání dat...",
+    "reprocessUnknownError": "Neznámá chyba",
+    "processingLabel": "{current} / {total} zpracováváno",
+    "completedPercent": "%{pct} dokončeno",
+    "reprocessComplete": "Opětovné zpracování dokončeno! Zpracováno {processed} příběhů.",
+    "reprocessCancelled": "Opětovné zpracování zrušeno ({current}/{total}).",
+    "reprocessAborted": "Operace přerušena uživatelem.",
+    "reprocessConnectionError": "Chyba připojení. Obnovte stránku a zkuste to znovu.",
+    "totalProgress": "Celkem: {total} | Zpracováno: {processed} | Chyby: {errors}"
   },
   "common": {
     "loading": "Načítání...",

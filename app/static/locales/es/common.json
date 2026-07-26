@@ -28,7 +28,9 @@
     "todaysBest": "Lo mejor de hoy",
     "loadingMore": "Cargando más historias...",
     "allLoaded": "Todas las historias cargadas",
-    "offline": "Modo sin conexión - Viendo contenido en caché"
+    "offline": "Modo sin conexión - Viendo contenido en caché",
+    "processing": "Procesando...",
+    "reprocessComplete": "{processed} historias procesadas."
   },
   "settings": {
     "title": "Ajustes",
@@ -142,7 +144,15 @@
     "reprocessStarted": "¡Reprocesamiento iniciado! El contenido y los comentarios se están actualizando.",
     "error": "No se pudo iniciar el worker.",
     "reprocessError": "No se pudo iniciar el reprocesamiento.",
-    "starting": "Iniciando la obtención de datos..."
+    "starting": "Iniciando la obtención de datos...",
+    "reprocessUnknownError": "Error desconocido",
+    "processingLabel": "{current} / {total} procesando",
+    "completedPercent": "%{pct} completado",
+    "reprocessComplete": "¡Reprocesamiento completado! {processed} historias procesadas.",
+    "reprocessCancelled": "Reprocesamiento cancelado ({current}/{total}).",
+    "reprocessAborted": "Operación abortada por el usuario.",
+    "reprocessConnectionError": "Error de conexión. Actualice la página e inténtelo de nuevo.",
+    "totalProgress": "Total: {total} | Procesado: {processed} | Errores: {errors}"
   },
   "common": {
     "loading": "Cargando...",

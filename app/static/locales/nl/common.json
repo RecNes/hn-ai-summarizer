@@ -28,7 +28,9 @@
     "todaysBest": "De beste van vandaag",
     "loadingMore": "Meer verhalen laden...",
     "allLoaded": "Alle verhalen geladen",
-    "offline": "Offline modus - Gecachte inhoud bekijken"
+    "offline": "Offline modus - Gecachte inhoud bekijken",
+    "processing": "Verwerken...",
+    "reprocessComplete": "{processed} verhalen verwerkt."
   },
   "settings": {
     "title": "Instellingen",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Opnieuw verwerken gestart! Inhoud en reacties worden ververst.",
     "error": "Worker kon niet worden gestart.",
     "reprocessError": "Opnieuw verwerken kon niet worden gestart.",
-    "starting": "Gegevens ophalen wordt gestart..."
+    "starting": "Gegevens ophalen wordt gestart...",
+    "reprocessUnknownError": "Onbekende fout",
+    "processingLabel": "{current} / {total} wordt verwerkt",
+    "completedPercent": "%{pct} voltooid",
+    "reprocessComplete": "Herverwerking voltooid! {processed} verhalen verwerkt.",
+    "reprocessCancelled": "Herverwerking geannuleerd ({current}/{total}).",
+    "reprocessAborted": "Bewerking afgebroken door gebruiker.",
+    "reprocessConnectionError": "Verbindingsfout. Vernieuw de pagina en probeer het opnieuw.",
+    "totalProgress": "Totaal: {total} | Verwerkt: {processed} | Fouten: {errors}"
   },
   "common": {
     "loading": "Laden...",

@@ -28,7 +28,9 @@
     "todaysBest": "بهترین‌های امروز",
     "loadingMore": "در حال بارگذاری داستان‌های بیشتر...",
     "allLoaded": "همه داستان‌ها بارگذاری شدند",
-    "offline": "حالت آفلاین - نمایش محتوای کش شده"
+    "offline": "حالت آفلاین - نمایش محتوای کش شده",
+    "processing": "در حال پردازش...",
+    "reprocessComplete": "{processed} داستان پردازش شد."
   },
   "settings": {
     "title": "تنظیمات",
@@ -142,7 +144,15 @@
     "reprocessStarted": "پردازش مجدد آغاز شد! محتوا و نظرات در حال به‌روزرسانی هستند.",
     "error": "کارگر قابل شروع نیست.",
     "reprocessError": "پردازش مجدد قابل شروع نیست.",
-    "starting": "در حال شروع واکشی داده‌ها..."
+    "starting": "در حال شروع واکشی داده‌ها...",
+    "reprocessUnknownError": "خطای ناشناخته",
+    "processingLabel": "{current} / {total} در حال پردازش",
+    "completedPercent": "%{pct} تکمیل شد",
+    "reprocessComplete": "پردازش مجدد کامل شد! {processed} داستان پردازش شد.",
+    "reprocessCancelled": "پردازش مجدد لغو شد ({current}/{total}).",
+    "reprocessAborted": "عملیات توسط کاربر متوقف شد.",
+    "reprocessConnectionError": "خطای اتصال. لطفاً صفحه را بازنشانی کرده و دوباره تلاش کنید.",
+    "totalProgress": "کل: {total} | پردازش شده: {processed} | خطاها: {errors}"
   },
   "common": {
     "loading": "در حال بارگذاری...",

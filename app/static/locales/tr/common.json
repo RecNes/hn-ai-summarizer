@@ -194,9 +194,19 @@
   "worker": {
     "started": "Veri çekimi başlatıldı! İşlem birkaç dakika sürebilir.",
     "reprocessStarted": "Yeniden işleme başlatıldı! İçerik ve yorumlar tazeleniyor...",
+    "reprocessComplete": "Yeniden işleme tamamlandı! {processed} hikaye işlendi.",
+    "reprocessCancelled": "Yeniden işleme iptal edildi ({current}/{total}).",
+    "reprocessAlreadyRunning": "Zaten çalışıyor",
+    "reprocessUnknownError": "Bilinmeyen hata",
+    "reprocessAborted": "İşlem kullanıcı tarafından durduruldu.",
+    "reprocessConnectionError": "Bağlantı hatası. Sayfayı yenileyip tekrar deneyin.",
     "error": "Worker başlatılamadı.",
     "reprocessError": "Yeniden işleme başlatılamadı.",
-    "starting": "Veri çekimi başlatılıyor..."
+    "starting": "Başlatılıyor...",
+    "processingLabel": "{current} / {total} işleniyor",
+    "completedPercent": "%{pct} tamamlandı",
+    "stuckCleaned": "Önceki işlem kilitli kalmıştı, temizlendi. Tekrar deneyebilirsiniz.",
+    "totalProgress": "Toplam: {total} | İşlenen: {processed} | Hata: {errors}"
   },
   "common": {
     "loading": "Yükleniyor...",

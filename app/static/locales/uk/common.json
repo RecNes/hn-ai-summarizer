@@ -28,7 +28,9 @@
     "todaysBest": "Найкраще сьогодні",
     "loadingMore": "Завантаження інших історій...",
     "allLoaded": "Усі історії завантажено",
-    "offline": "Офлайн-режим - Перегляд кешованого вмісту"
+    "offline": "Офлайн-режим - Перегляд кешованого вмісту",
+    "processing": "Обробка...",
+    "reprocessComplete": "Оброблено {processed} історій."
   },
   "settings": {
     "title": "Налаштування",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Переобробку запущено! Вміст і коментарі оновлюються.",
     "error": "Не вдалося запустити worker.",
     "reprocessError": "Не вдалося запустити переобробку.",
-    "starting": "Запуск отримання даних..."
+    "starting": "Запуск отримання даних...",
+    "reprocessUnknownError": "Невідома помилка",
+    "processingLabel": "{current} / {total} обробляється",
+    "completedPercent": "%{pct} завершено",
+    "reprocessComplete": "Повторну обробку завершено! Оброблено {processed} історій.",
+    "reprocessCancelled": "Повторну обробку скасовано ({current}/{total}).",
+    "reprocessAborted": "Операцію перервано користувачем.",
+    "reprocessConnectionError": "Помилка з'єднання. Оновіть сторінку та спробуйте ще раз.",
+    "totalProgress": "Всього: {total} | Оброблено: {processed} | Помилок: {errors}"
   },
   "common": {
     "loading": "Завантаження...",

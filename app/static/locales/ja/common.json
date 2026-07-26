@@ -28,7 +28,9 @@
     "todaysBest": "今日のベスト",
     "loadingMore": "さらにストーリーを読み込み中...",
     "allLoaded": "すべてのストーリーを読み込みました",
-    "offline": "オフラインモード - キャッシュコンテンツを表示中"
+    "offline": "オフラインモード - キャッシュコンテンツを表示中",
+    "processing": "処理中...",
+    "reprocessComplete": "{processed}件のストーリーを処理しました。"
   },
   "settings": {
     "title": "設定",
@@ -142,7 +144,15 @@
     "reprocessStarted": "再処理を開始しました！コンテンツとコメントを更新中です。",
     "error": "ワーカーを開始できませんでした。",
     "reprocessError": "再処理を開始できませんでした。",
-    "starting": "データ取得を開始しています..."
+    "starting": "データ取得を開始しています...",
+    "reprocessUnknownError": "不明なエラー",
+    "processingLabel": "{current} / {total} 処理中",
+    "completedPercent": "%{pct} 完了",
+    "reprocessComplete": "再処理が完了しました！{processed}件のストーリーを処理しました。",
+    "reprocessCancelled": "再処理がキャンセルされました（{current}/{total}）。",
+    "reprocessAborted": "ユーザーによって操作が中断されました。",
+    "reprocessConnectionError": "接続エラー。ページを更新してもう一度お試しください。",
+    "totalProgress": "合計: {total} | 処理済み: {processed} | エラー: {errors}"
   },
   "common": {
     "loading": "読み込み中...",

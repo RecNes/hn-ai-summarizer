@@ -28,7 +28,9 @@
     "todaysBest": "I migliori di oggi",
     "loadingMore": "Caricamento di altre storie...",
     "allLoaded": "Tutte le storie caricate",
-    "offline": "Modalità offline - Visualizzazione contenuti nella cache"
+    "offline": "Modalità offline - Visualizzazione contenuti nella cache",
+    "processing": "Elaborazione in corso...",
+    "reprocessComplete": "{processed} storie elaborate."
   },
   "settings": {
     "title": "Impostazioni",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Rielaborazione avviata! Contenuti e commenti vengono aggiornati.",
     "error": "Impossibile avviare il worker.",
     "reprocessError": "Impossibile avviare la rielaborazione.",
-    "starting": "Avvio recupero dati..."
+    "starting": "Avvio recupero dati...",
+    "reprocessUnknownError": "Errore sconosciuto",
+    "processingLabel": "{current} / {total} in elaborazione",
+    "completedPercent": "%{pct} completato",
+    "reprocessComplete": "Rielaborazione completata! {processed} storie elaborate.",
+    "reprocessCancelled": "Rielaborazione annullata ({current}/{total}).",
+    "reprocessAborted": "Operazione interrotta dall'utente.",
+    "reprocessConnectionError": "Errore di connessione. Aggiorna la pagina e riprova.",
+    "totalProgress": "Totale: {total} | Elaborato: {processed} | Errori: {errors}"
   },
   "common": {
     "loading": "Caricamento...",

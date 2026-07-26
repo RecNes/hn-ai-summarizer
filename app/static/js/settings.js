@@ -11,7 +11,7 @@ function setSelectedModel(value) {
     const native = document.getElementById('ai_model');
     const displayText = document.getElementById('model-display-text');
     native.innerHTML = value ? `<option value="${value}" selected>${value}</option>` : '';
-    displayText.textContent = value || '-- Model Seçin --';
+    displayText.textContent = value || __('settings.ai.modelPlaceholder');
     displayText.className = value ? 'text-gray-900' : 'text-gray-400';
 }
 
@@ -35,7 +35,7 @@ function buildModelList(filter) {
         }
     });
     if (count === 0) {
-        container.innerHTML = '<div class="p-2 text-gray-400 text-sm">Eşleşen model yok</div>';
+        container.innerHTML = '<div class="p-2 text-gray-400 text-sm">' + __('settings.ai.modelNotFound') + '</div>';
     }
 }
 
@@ -105,15 +105,11 @@ async function loadAISettings() {
         const enabledCheckbox = document.getElementById('telegram_enabled');
         if (enabledCheckbox) enabledCheckbox.checked = data.telegram_enabled || false;
 
-        // Model listesini async olarak arkaplanda yükle — sayfa render'ını bloke etme.
-        // Önce kayıtlı model varsa dropdown'da göster (henüz listesiz), sonra liste gelince güncelle.
         const savedModel = data.ai_model || null;
         const savedProvider = data.ai_provider || null;
 
         if (savedProvider) {
-            // dropdown hemen disabled+loader olsun, kayıtlı model görünsün
             showModelLoading(savedModel);
-            // await'siz çağır — arka planda tamamlansın
             loadModelsForProviderAsync(savedProvider, data.ai_provider_config, savedModel);
         }
     } catch (e) {
@@ -121,10 +117,6 @@ async function loadAISettings() {
     }
 }
 
-/**
- * Model dropdown'u loading durumuna geçir.
- * Eğer savedModel varsa onu metin olarak göster (yanında spinner ile).
- */
 function showModelLoading(savedModel) {
     const display = document.getElementById('model-display');
     const searchInput = document.getElementById('model-search');
@@ -136,20 +128,16 @@ function showModelLoading(savedModel) {
     if (searchInput) searchInput.disabled = true;
     if (refreshBtn) refreshBtn.disabled = true;
     if (status) {
-        status.textContent = 'Modeller yükleniyor...';
+        status.textContent = __('settings.ai.modelLoading');
         status.className = 'text-sm text-gray-500 mt-1';
     }
     if (displayText) {
-        displayText.textContent = savedModel || 'Modeller yükleniyor...';
+        displayText.textContent = savedModel || __('settings.ai.modelLoading');
         displayText.className = savedModel ? 'text-gray-900' : 'text-gray-400';
     }
     closeModelPanel();
 }
 
-/**
- * loadModelsForProvider'ın async versiyonu — sayfayı bloke etmez.
- * Yükleme bitince önceden seçilmiş modeli geri yükler.
- */
 async function loadModelsForProviderAsync(providerId, configStr, savedModel) {
     try {
         const params = new URLSearchParams({ provider: providerId });
@@ -158,28 +146,24 @@ async function loadModelsForProviderAsync(providerId, configStr, savedModel) {
         const res = await fetch(`/api/settings/available-models?${params}`);
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || 'Failed to fetch models');
+            throw new Error(err.detail || __('settings.ai.modelError'));
         }
 
         const data = await res.json();
         currentModels = data.models || [];
 
-        // Listeyi güncelle (search input bozulmaz, buildModelList sadece options container'ı yeniler)
         buildModelList('');
 
-        // Kayıtlı modeli geri yükle
         if (savedModel && currentModels.includes(savedModel)) {
             setSelectedModel(savedModel);
         } else if (currentModels.length > 0) {
-            // Kayıtlı model listede yoksa ilk modeli seçme, kullanıcı seçsin
             const displayText = document.getElementById('model-display-text');
             if (displayText) {
-                displayText.textContent = '-- Model Seçin --';
+                displayText.textContent = __('settings.ai.modelPlaceholder');
                 displayText.className = 'text-gray-900';
             }
         }
 
-        // Input'ları aktif et
         const display = document.getElementById('model-display');
         const searchInput = document.getElementById('model-search');
         const refreshBtn = document.getElementById('refresh-models');
@@ -189,18 +173,18 @@ async function loadModelsForProviderAsync(providerId, configStr, savedModel) {
         if (searchInput) searchInput.disabled = false;
         if (refreshBtn) refreshBtn.disabled = false;
         if (status) {
-            status.textContent = `${currentModels.length} model bulundu`;
+            status.textContent = __('settings.ai.modelCount', { count: currentModels.length });
             status.className = 'text-sm text-gray-500 mt-1';
         }
     } catch (e) {
         console.error('Error loading models:', e);
         const container = document.getElementById('model-options');
         if (container) {
-            container.innerHTML = '<div class="p-2 text-red-500 text-sm">Modeller yüklenemedi: ' + (e.message || '') + '</div>';
+            container.innerHTML = '<div class="p-2 text-red-500 text-sm">' + __('settings.ai.modelError') + ': ' + (e.message || '') + '</div>';
         }
         const status = document.getElementById('model-status');
         if (status) {
-            status.textContent = 'Hata: ' + (e.message || 'Bilinmeyen hata');
+            status.textContent = __('common.error') + ': ' + (e.message || __('worker.reprocessUnknownError'));
             status.className = 'text-sm text-red-500 mt-1';
         }
     }
@@ -212,13 +196,13 @@ async function loadModelsForProviderAsync(providerId, configStr, savedModel) {
 function populateProviderDropdown(selected) {
     const sel = document.getElementById('ai_provider');
     if (!sel) return;
-    sel.innerHTML = '<option value="">-- Sağlayıcı Seçin --</option>';
+    sel.innerHTML = '<option value="">' + __('settings.ai.providerPlaceholder') + '</option>';
 
     availableProviders.forEach(p => {
         if (!p.has_key && !p.config_required) return;
         const opt = document.createElement('option');
         opt.value = p.id;
-        opt.textContent = p.name + (p.has_key ? '' : ' (yerel)');
+        opt.textContent = p.name + (p.has_key ? '' : ' (' + __('settings.ai.keyLocal').replace('ℹ ', '') + ')');
         if (p.id === selected) opt.selected = true;
         sel.appendChild(opt);
     });
@@ -262,8 +246,8 @@ async function loadModelsForProvider(providerId, configStr) {
     display.disabled = true;
     if (searchInput) searchInput.disabled = true;
     if (refreshBtn) refreshBtn.disabled = true;
-    document.getElementById('model-display-text').textContent = 'Modeller yükleniyor...';
-    status.textContent = 'Modeller API\'den çekiliyor...';
+    document.getElementById('model-display-text').textContent = __('settings.ai.modelLoading');
+    status.textContent = __('settings.ai.modelRefresh');
     closeModelPanel();
 
     try {
@@ -273,7 +257,7 @@ async function loadModelsForProvider(providerId, configStr) {
         const res = await fetch(`/api/settings/available-models?${params}`);
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || 'Failed to fetch models');
+            throw new Error(err.detail || __('settings.ai.modelError'));
         }
 
         const data = await res.json();
@@ -284,17 +268,17 @@ async function loadModelsForProvider(providerId, configStr) {
         display.disabled = false;
         if (searchInput) searchInput.disabled = false;
         if (refreshBtn) refreshBtn.disabled = false;
-        document.getElementById('model-display-text').textContent = '-- Model Seçin --';
+        document.getElementById('model-display-text').textContent = __('settings.ai.modelPlaceholder');
         document.getElementById('model-display-text').className = 'text-gray-900';
-        status.textContent = `${currentModels.length} model bulundu`;
+        status.textContent = __('settings.ai.modelCount', { count: currentModels.length });
         status.className = 'text-sm text-gray-500 mt-1';
     } catch (e) {
         console.error('Error loading models:', e);
         const container = document.getElementById('model-options');
         if (container) {
-            container.innerHTML = '<div class="p-2 text-r ed-500 text-sm">Modeller yüklenemedi: ' + (e.message || '') + '</div>';
+            container.innerHTML = '<div class="p-2 text-red-500 text-sm">' + __('settings.ai.modelError') + ': ' + (e.message || '') + '</div>';
         }
-        status.textContent = 'Hata: ' + (e.message || 'Bilinmeyen hata');
+        status.textContent = __('common.error') + ': ' + (e.message || __('worker.reprocessUnknownError'));
         status.className = 'text-sm text-red-500 mt-1';
     }
 }
@@ -333,9 +317,6 @@ async function loadPreferences() {
         
         document.getElementById('highlight_keywords').value = data.highlight_keywords || '';
         document.getElementById('blocklist_keywords').value = data.blocklist_keywords || '';
-        
-        // base.js initUILanguage zaten i18n'i yükler ve DOM'a uygular.
-        // Burada sadece dropdown'lar doldurulur, i18n DOM güncellemesi yapılmaz.
     } catch (e) {
         console.error('Error loading preferences:', e);
     }
@@ -353,7 +334,7 @@ async function saveSettings(event) {
     if (!btn) return;
 
     btn.disabled = true;
-    btnText.textContent = 'Saving...';
+    btnText.textContent = __('settings.saving');
     btnSpinner.classList.remove('hidden');
 
     const nativeSelect = document.getElementById('ai_model');
@@ -398,19 +379,18 @@ async function saveSettings(event) {
             body: JSON.stringify(prefsData)
         });
 
-        // Update UI language immediately without page reload
         const newUiLang = document.getElementById('ui_language').value;
         if (newUiLang && typeof changeUILanguage === 'function') {
             await changeUILanguage(newUiLang);
         }
 
-        showToast('success', 'Settings saved successfully!');
+        showToast('success', __('settings.saveSuccess'));
     } catch (e) {
         console.error('Error saving settings:', e);
-        showToast('error', 'An error occurred while saving settings.');
+        showToast('error', __('settings.saveError'));
     } finally {
         btn.disabled = false;
-        btnText.textContent = 'Save Settings';
+        btnText.textContent = __('settings.save');
         btnSpinner.classList.add('hidden');
     }
 }
@@ -426,7 +406,7 @@ async function triggerWorker() {
     if (!button) return;
 
     button.disabled = true;
-    btnText.textContent = 'İşlem Başlatılıyor...';
+    btnText.textContent = __('worker.starting');
     spinner.classList.remove('hidden');
     statusText.classList.remove('hidden');
 
@@ -434,44 +414,39 @@ async function triggerWorker() {
         const response = await fetch('/api/settings/trigger-worker', { method: 'POST' });
         if (response.ok) {
             const result = await response.json();
-            showToast('success', 'Veri çekimi başlatıldı! ' + (result.message || ''));
+            showToast('success', __('worker.started') + ' ' + (result.message || ''));
         } else {
             const err = await response.json();
-            showToast('error', err.detail || 'Worker başlatılamadı');
+            showToast('error', err.detail || __('worker.error'));
         }
     } catch (e) {
         console.error(e);
-        showToast('error', 'Veri çekimi başlatılırken bir hata oluştu.');
+        showToast('error', __('home.fetchError'));
     } finally {
         button.disabled = false;
-        btnText.textContent = 'Veri Çekimini Başlat';
+        btnText.textContent = __('settings.data.fetchButton');
         spinner.classList.add('hidden');
         statusText.classList.add('hidden');
     }
 }
 
-/**
- * Sayfa yüklendiğinde stuck state var mı kontrol et, varsa temizle.
- * Ayrıca mevcut durumu worker-status div'inde göster.
- */
 async function checkAndCleanStuckReprocess() {
     const statusText = document.getElementById('worker-status');
     try {
         const res = await fetch('/api/stories/reprocess-untranslated/status');
         const state = await res.json();
         if (state.running) {
-            // Stuck tespit edildi – cancel çağır (backend auto-reset yapacaktır ama garantile)
             await fetch('/api/stories/reprocess-untranslated/cancel', { method: 'POST' });
             if (statusText) {
                 statusText.classList.remove('hidden');
-                statusText.innerHTML = `<div class="text-yellow-600 text-sm">⚠️ Önceki işlem kilitli kalmıştı, temizlendi. Tekrar deneyebilirsiniz.</div>`;
+                statusText.innerHTML = `<div class="text-yellow-600 text-sm">⚠️ ${__('worker.stuckCleaned')}</div>`;
                 setTimeout(() => {
                     statusText.classList.add('hidden');
                 }, 5000);
             }
         }
     } catch (e) {
-        // Sessiz geç – hata durumunda kullanıcıyı rahatsız etme
+        // Silent
     }
 }
 
@@ -482,14 +457,12 @@ function reprocessUntranslated() {
     const statusText = document.getElementById('worker-status');
     if (!button) return;
 
-    // Butonu devre dışı bırak
     button.disabled = true;
-    btnText.textContent = 'İşleniyor...';
+    btnText.textContent = __('home.processing');
     spinner.classList.remove('hidden');
 
-    // Status div pulldown-arrow stili + canlı bilgi
     statusText.classList.remove('hidden');
-    statusText.innerHTML = `<span class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></span> İşlem başlatılıyor...`;
+    statusText.innerHTML = `<span class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-2"></span> ${__('worker.reprocessStarted')}`;
 
     const abortController = new AbortController();
 
@@ -500,7 +473,6 @@ function reprocessUntranslated() {
 
     async function connectSSE() {
         try {
-            // Önce stuck state kontrolü – eğer backend auto-recovery yapamamışsa burada temizle
             const statusRes = await fetch('/api/stories/reprocess-untranslated/status');
             const statusData = await statusRes.json();
             if (statusData.running) {
@@ -514,12 +486,12 @@ function reprocessUntranslated() {
             if (!response.ok) {
                 if (response.status === 409) {
                     const errData = await response.json();
-                    statusText.innerHTML = `⚠️ <b>Zaten çalışıyor:</b> ${errData.detail || ''} <button onclick="checkAndCleanStuckReprocess().then(() => location.reload())" class="text-blue-500 underline ml-2">Kilit temizle ve yenile</button>`;
+                    statusText.innerHTML = `⚠️ <b>${__('worker.reprocessAlreadyRunning')}:</b> ${errData.detail || ''} <button onclick="checkAndCleanStuckReprocess().then(() => location.reload())" class="text-blue-500 underline ml-2">${__('home.reprocess')}</button>`;
                 } else {
                     const errData = await response.json();
-                    statusText.innerHTML = `❌ Hata: ${errData.detail || 'Bilinmeyen hata'}`;
+                    statusText.innerHTML = `❌ ${__('common.error')}: ${errData.detail || __('worker.reprocessUnknownError')}`;
                 }
-                showToast('error', 'Yeniden işleme başlatılamadı');
+                showToast('error', __('worker.reprocessError'));
                 resetButton();
                 return;
             }
@@ -546,7 +518,6 @@ function reprocessUntranslated() {
                     } else if (line.startsWith('data: ')) {
                         currentData = line.slice(6).trim();
                     } else if (line === '' && currentData) {
-                        // SSE event tamamlandı
                         try {
                             const parsed = JSON.parse(currentData);
                             handleSSEEvent(currentEvent, parsed);
@@ -560,10 +531,10 @@ function reprocessUntranslated() {
             }
         } catch (e) {
             if (e.name === 'AbortError') {
-                statusText.innerHTML = '⏹️ İşlem kullanıcı tarafından durduruldu.';
+                statusText.innerHTML = '⏹️ ' + __('worker.reprocessAborted');
             } else {
                 console.error('SSE connection error:', e);
-                statusText.innerHTML = '⚠️ Bağlantı hatası. Sayfayı yenileyip tekrar deneyin.';
+                statusText.innerHTML = '⚠️ ' + __('worker.reprocessConnectionError');
             }
         } finally {
             resetButton();
@@ -580,17 +551,16 @@ function reprocessUntranslated() {
                 statusText.innerHTML = `
                     <div class="flex items-center gap-2 mb-1">
                         <span class="inline-block w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-                        <span class="font-medium">${current} / ${total} işleniyor</span>
+                        <span class="font-medium">${__('worker.processingLabel', { current: current, total: total })}</span>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1">
                         <div class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
                     </div>
-                    <div class="text-sm text-gray-500">%${pct} tamamlandı</div>
+                    <div class="text-sm text-gray-500">${__('worker.completedPercent', { pct: pct })}</div>
                 `;
                 break;
 
             case 'story_update':
-                // İsteğe bağlı: hangi story işleniyor göster
                 if (data.title_tr) {
                     const titlePreview = data.title_tr.length > 50 ? data.title_tr.slice(0, 50) + '...' : data.title_tr;
                     statusText.innerHTML = statusText.innerHTML.replace(
@@ -602,24 +572,23 @@ function reprocessUntranslated() {
 
             case 'complete':
                 statusText.innerHTML = `
-                    <div class="text-green-600 font-medium">✅ İşlem tamamlandı!</div>
-                    <div class="text-sm text-gray-500">Toplam: ${data.total} | İşlenen: ${data.processed} | Hata: ${data.errors}</div>
+                    <div class="text-green-600 font-medium">✅ ${__('worker.reprocessComplete', { processed: data.processed })}</div>
+                    <div class="text-sm text-gray-500">${__('worker.totalProgress', { total: data.total, processed: data.processed, errors: data.errors })}</div>
                 `;
-                showToast('success', `Yeniden işleme tamamlandı! ${data.processed} story işlendi.`);
+                showToast('success', __('worker.reprocessComplete', { processed: data.processed }));
                 break;
 
             case 'cancelled':
-                statusText.innerHTML = `⏹️ İşlem iptal edildi (${data.current}/${data.total}).`;
-                showToast('warning', 'Yeniden işleme iptal edildi.');
+                statusText.innerHTML = '⏹️ ' + __('worker.reprocessCancelled', { current: data.current, total: data.total });
+                showToast('warning', __('worker.reprocessCancelled', { current: data.current, total: data.total }));
                 break;
 
             case 'error':
-                statusText.innerHTML = `❌ <b>Hata:</b> ${data.detail || 'Bilinmeyen hata'}`;
-                showToast('error', data.detail || 'İşlem sırasında hata oluştu.');
+                statusText.innerHTML = `❌ <b>${__('common.error')}:</b> ${data.detail || __('worker.reprocessUnknownError')}`;
+                showToast('error', data.detail || __('worker.reprocessError'));
                 break;
 
             case 'keepalive':
-                // session canlı tut, görsel değişiklik yapma
                 break;
 
             default:
@@ -629,7 +598,7 @@ function reprocessUntranslated() {
 
     function resetButton() {
         button.disabled = false;
-        btnText.textContent = 'Çevrilmemişleri Yeniden İşle';
+        btnText.textContent = __('settings.data.reprocessButton');
         spinner.classList.add('hidden');
     }
 
@@ -640,14 +609,9 @@ function reprocessUntranslated() {
 // DOMContentLoaded (settings page)
 // ──────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
-    // base.js'de de loadSettings() var — isim çakışmasını önlemek için loadAISettings kullanılıyor.
     loadAISettings();
-    // loadPreferences base.js'in initUILanguage'i bitmesini bekler.
-    // languageChanged event'i base.js tarafından dispatch edilir.
 });
 
-// base.js initUILanguage bittiğinde languageChanged fırlatır.
-// settings.js dil yüklemesini bu event'ten sonra yapar.
 document.addEventListener('languageChanged', function() {
     loadPreferences();
 
@@ -660,7 +624,6 @@ document.addEventListener('languageChanged', function() {
     const reprocessBtn = document.getElementById('reprocess-untranslated');
     if (reprocessBtn) reprocessBtn.addEventListener('click', reprocessUntranslated);
 
-    // Custom dropdown events
     const displayBtn = document.getElementById('model-display');
     const searchInput = document.getElementById('model-search');
     const panel = document.getElementById('model-panel');
@@ -701,7 +664,7 @@ document.addEventListener('languageChanged', function() {
                 if (display) display.disabled = true;
                 const displayText = document.getElementById('model-display-text');
                 if (displayText) {
-                    displayText.textContent = '-- Önce sağlayıcı seçin --';
+                    displayText.textContent = __('settings.ai.modelSelectFirst');
                     displayText.className = 'text-gray-400';
                 }
                 const search = document.getElementById('model-search');
@@ -725,7 +688,6 @@ document.addEventListener('languageChanged', function() {
         });
     }
 
-    // UI language dropdown change → apply immediately
     const uiLangSelect = document.getElementById('ui_language');
     if (uiLangSelect) {
         uiLangSelect.addEventListener('change', async function() {

@@ -28,7 +28,9 @@
     "todaysBest": "Лучшее сегодня",
     "loadingMore": "Загрузка других историй...",
     "allLoaded": "Все истории загружены",
-    "offline": "Офлайн-режим - Просмотр кэшированного контента"
+    "offline": "Офлайн-режим - Просмотр кэшированного контента",
+    "processing": "Обработка...",
+    "reprocessComplete": "Обработано {processed} историй."
   },
   "settings": {
     "title": "Настройки",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Переобработка запущена! Контент и комментарии обновляются.",
     "error": "Не удалось запустить worker.",
     "reprocessError": "Не удалось запустить переобработку.",
-    "starting": "Запуск получения данных..."
+    "starting": "Запуск получения данных...",
+    "reprocessUnknownError": "Неизвестная ошибка",
+    "processingLabel": "{current} / {total} обрабатывается",
+    "completedPercent": "%{pct} завершено",
+    "reprocessComplete": "Повторная обработка завершена! Обработано {processed} историй.",
+    "reprocessCancelled": "Повторная обработка отменена ({current}/{total}).",
+    "reprocessAborted": "Операция прервана пользователем.",
+    "reprocessConnectionError": "Ошибка соединения. Пожалуйста, обновите страницу и попробуйте снова.",
+    "totalProgress": "Всего: {total} | Обработано: {processed} | Ошибок: {errors}"
   },
   "common": {
     "loading": "Загрузка...",

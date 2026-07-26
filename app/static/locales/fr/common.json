@@ -28,7 +28,9 @@
     "todaysBest": "Les meilleurs d'aujourd'hui",
     "loadingMore": "Chargement d'autres histoires...",
     "allLoaded": "Toutes les histoires chargées",
-    "offline": "Mode hors ligne - Affichage du contenu en cache"
+    "offline": "Mode hors ligne - Affichage du contenu en cache",
+    "processing": "Traitement en cours...",
+    "reprocessComplete": "{processed} histoires traitées."
   },
   "settings": {
     "title": "Paramètres",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Retraitement lancé ! Le contenu et les commentaires sont actualisés.",
     "error": "Le worker n'a pas pu être démarré.",
     "reprocessError": "Le retraitement n'a pas pu être lancé.",
-    "starting": "Lancement de la récupération des données..."
+    "starting": "Lancement de la récupération des données...",
+    "reprocessUnknownError": "Erreur inconnue",
+    "processingLabel": "{current} / {total} en traitement",
+    "completedPercent": "%{pct} terminé",
+    "reprocessComplete": "Retraitement terminé ! {processed} histoires traitées.",
+    "reprocessCancelled": "Retraitement annulé ({current}/{total}).",
+    "reprocessAborted": "Opération interrompue par l'utilisateur.",
+    "reprocessConnectionError": "Erreur de connexion. Veuillez actualiser la page et réessayer.",
+    "totalProgress": "Total : {total} | Traité : {processed} | Erreurs : {errors}"
   },
   "common": {
     "loading": "Chargement...",

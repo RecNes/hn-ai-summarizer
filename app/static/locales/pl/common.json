@@ -28,7 +28,9 @@
     "todaysBest": "Dzisiejsze najlepsze",
     "loadingMore": "Ładowanie kolejnych historii...",
     "allLoaded": "Wszystkie historie załadowane",
-    "offline": "Tryb offline - Wyświetlanie zawartości z pamięci podręcznej"
+    "offline": "Tryb offline - Wyświetlanie zawartości z pamięci podręcznej",
+    "processing": "Przetwarzanie...",
+    "reprocessComplete": "Przetworzono {processed} historii."
   },
   "settings": {
     "title": "Ustawienia",
@@ -142,7 +144,15 @@
     "reprocessStarted": "Ponowne przetwarzanie uruchomione! Treść i komentarze są odświeżane.",
     "error": "Nie udało się uruchomić workera.",
     "reprocessError": "Nie udało się uruchomić ponownego przetwarzania.",
-    "starting": "Rozpoczynanie pobierania danych..."
+    "starting": "Rozpoczynanie pobierania danych...",
+    "reprocessUnknownError": "Nieznany błąd",
+    "processingLabel": "{current} / {total} przetwarzanie",
+    "completedPercent": "%{pct} ukończono",
+    "reprocessComplete": "Ponowne przetwarzanie zakończone! Przetworzono {processed} historii.",
+    "reprocessCancelled": "Ponowne przetwarzanie anulowane ({current}/{total}).",
+    "reprocessAborted": "Operacja przerwana przez użytkownika.",
+    "reprocessConnectionError": "Błąd połączenia. Odśwież stronę i spróbuj ponownie.",
+    "totalProgress": "Łącznie: {total} | Przetworzono: {processed} | Błędy: {errors}"
   },
   "common": {
     "loading": "Ładowanie...",

@@ -194,9 +194,19 @@
   "worker": {
     "started": "Data fetch started! Processing may take a few minutes.",
     "reprocessStarted": "Reprocessing started! Content and comments are being refreshed.",
+    "reprocessComplete": "Reprocessing complete! {processed} stories processed.",
+    "reprocessCancelled": "Reprocessing cancelled ({current}/{total}).",
+    "reprocessAlreadyRunning": "Already running",
+    "reprocessUnknownError": "Unknown error",
+    "reprocessAborted": "Operation aborted by user.",
+    "reprocessConnectionError": "Connection error. Please refresh the page and try again.",
     "error": "Worker could not be started.",
     "reprocessError": "Reprocessing could not be started.",
-    "starting": "Data fetch starting..."
+    "starting": "Starting...",
+    "processingLabel": "{current} / {total} processing",
+    "completedPercent": "%{pct} complete",
+    "stuckCleaned": "Previous operation was stuck and has been cleaned up. You can try again.",
+    "totalProgress": "Total: {total} | Processed: {processed} | Errors: {errors}"
   },
   "common": {
     "loading": "Loading...",
