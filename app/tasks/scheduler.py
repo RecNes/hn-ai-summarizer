@@ -14,8 +14,7 @@ import asyncio
 import json
 import logging
 import zoneinfo
-from datetime import datetime, timedelta
-from datetime import timezone as dt_timezone
+from datetime import UTC, datetime, timedelta
 
 from arq import create_pool
 from arq.connections import RedisSettings
@@ -56,16 +55,16 @@ def _parse_cron_days(cron: str) -> list[int]:
         return []
     days: list[int] = []
     for chunk in field.split(","):
-        chunk = chunk.strip()
-        if "-" in chunk:
+        stripped = chunk.strip()
+        if "-" in stripped:
             try:
-                a, b = map(int, chunk.split("-", 1))
+                a, b = map(int, stripped.split("-", 1))
                 days.extend(range(a, b + 1))
             except ValueError:
                 pass
         else:
             try:
-                days.append(int(chunk))
+                days.append(int(stripped))
             except ValueError:
                 pass
     return days
@@ -175,6 +174,7 @@ async def _get_schedule_version() -> str:
         v = await pool.get(VERSION_KEY)  # type: ignore[union-attr]
         return v or "0"
     except Exception as e:
+        logger.warning("[SCHEDULER] ❌ Versionkey not found: %s", e)
         return "0"
     finally:
         await pool.aclose()
@@ -225,8 +225,8 @@ async def _enqueue_worker_job() -> bool:
         else:
             logger.warning("[SCHEDULER] ❌ Enqueue returned None (queue full?)")
             return False
-    except Exception as e:
-        logger.error("[SCHEDULER] ❌ Failed to enqueue job: %s", e)
+    except Exception:
+        logger.exception("[SCHEDULER] ❌ Failed to enqueue job")
         return False
     finally:
         await pool.aclose()
@@ -237,7 +237,7 @@ async def _enqueue_worker_job() -> bool:
 
 async def _cleanup_old_logs():
     """Delete AiActivityLog records older than 30 days."""
-    cutoff = datetime.now(dt_timezone.utc) - timedelta(days=30)
+    cutoff = datetime.now(UTC) - timedelta(days=30)
     try:
         async with AsyncSessionLocal() as db:
             result = await db.execute(
@@ -250,11 +250,74 @@ async def _cleanup_old_logs():
             await db.commit()
             if old:
                 logger.info("[SCHEDULER] Cleaned up %d old activity logs", len(old))
-    except Exception as e:
-        logger.error("[SCHEDULER] Cleanup error: %s", e)
+    except Exception:
+        logger.exception("[SCHEDULER] Cleanup error")
 
 
 # ── Main scheduler loop ─────────────────
+
+
+async def _check_schedule_update(
+    cron: str,
+    current_version: str,
+    tz: zoneinfo.ZoneInfo,
+    next_run: datetime,
+    now: datetime,
+) -> tuple[str, str, datetime | None]:
+    """Check Redis for schedule version change. Returns (cron, version, new_next_run).
+
+    new_next_run is None if no update was detected.
+    """
+    ver = await _get_schedule_version()
+    if ver == current_version:
+        return cron, current_version, None
+
+    logger.info(
+        "[SCHEDULER] Version changed: %s → %s, reloading",
+        current_version,
+        ver,
+    )
+    cfg = await _get_schedule_from_redis()
+    if cfg and cfg.get("cron_schedule"):
+        new_cron = cfg["cron_schedule"]
+    else:
+        new_cron = await _get_schedule_from_db()
+
+    new_next = _calculate_next_run(new_cron, tz, now=now)
+    if new_next != next_run:
+        logger.info(
+            "[SCHEDULER] Schedule updated! New cron='%s'", new_cron
+        )
+        _log_next_run(new_next, new_cron)
+        return new_cron, ver, new_next
+
+    return new_cron, ver, None
+
+
+async def _sleep_with_schedule_check(
+    sleep_seconds: float,
+    cron: str,
+    current_version: str,
+    tz: zoneinfo.ZoneInfo,
+    next_run: datetime,
+) -> tuple[str, str, datetime, float]:
+    """Sleep in 30s chunks, checking for schedule updates.
+
+    Returns updated (cron, version, next_run, remaining_sleep_seconds).
+    """
+    remaining = sleep_seconds
+    while remaining > 30:
+        await asyncio.sleep(30)
+        remaining -= 30
+
+        now = datetime.now(tz)
+        new_cron, new_ver, updated_next = await _check_schedule_update(
+            cron, current_version, tz, next_run, now
+        )
+        if updated_next is not None:
+            return new_cron, new_ver, updated_next, 0
+
+    return cron, current_version, next_run, remaining
 
 
 async def run_scheduler():
@@ -290,38 +353,16 @@ async def run_scheduler():
             sleep_seconds = max(0, (next_run - now).total_seconds())
 
             if sleep_seconds > 0:
-                # Sleep in 30-second chunks so we can check for schedule updates
-                while sleep_seconds > 30:
-                    await asyncio.sleep(30)
-                    sleep_seconds -= 30
+                cron, current_version, next_run, sleep_seconds = (
+                    await _sleep_with_schedule_check(
+                        sleep_seconds, cron, current_version, tz, next_run
+                    )
+                )
+                # If next_run was updated, restart the outer loop
+                if sleep_seconds == 0 and next_run > datetime.now(tz):
+                    continue
 
-                    # Check for schedule version change
-                    ver = await _get_schedule_version()
-                    if ver != current_version:
-                        logger.info(
-                            "[SCHEDULER] Version changed: %s → %s, reloading",
-                            current_version,
-                            ver,
-                        )
-                        cfg = await _get_schedule_from_redis()
-                        if cfg and cfg.get("cron_schedule"):
-                            cron = cfg["cron_schedule"]
-                        else:
-                            cron = await _get_schedule_from_db()
-                        current_version = ver
-                        new_next = _calculate_next_run(cron, tz, now=now)
-                        if new_next != next_run:
-                            logger.info(
-                                "[SCHEDULER] Schedule updated! New cron='%s'", cron
-                            )
-                            next_run = new_next
-                            _log_next_run(next_run, cron)
-                            # Break out of inner loop to restart the outer sleep
-                            break
-
-                # If next_run was updated, skip the remaining sleep & recalc
-                now = datetime.now(tz)
-                sleep_seconds = max(0, (next_run - now).total_seconds())
+                # Sleep the remaining time
                 if sleep_seconds > 0:
                     await asyncio.sleep(sleep_seconds)
 
@@ -333,7 +374,7 @@ async def run_scheduler():
                 tz_name,
                 cron,
             )
-            success = await _enqueue_worker_job()
+            await _enqueue_worker_job()
 
             # ── Schedule next run ───────────
             now = datetime.now(tz)
@@ -347,8 +388,8 @@ async def run_scheduler():
         except asyncio.CancelledError:
             logger.info("[SCHEDULER] Cancelled, shutting down")
             break
-        except Exception as e:
-            logger.error("[SCHEDULER] Unexpected error in main loop: %s", e, exc_info=True)
+        except Exception:
+            logger.exception("[SCHEDULER] Unexpected error in main loop")
             await asyncio.sleep(30)
 
 
