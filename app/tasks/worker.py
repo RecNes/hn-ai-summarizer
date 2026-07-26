@@ -87,7 +87,7 @@ async def _get_ui_language(db) -> str:
 
 async def _notify_ai_unreachable(ctx, language_code: str):
     """Send Telegram notification that AI model is unreachable."""
-    from app.services.telegram_service import _get_locale_message, TelegramService
+    from app.services.telegram_service import TelegramService, _get_locale_message
 
     bot_token = app_settings.TELEGRAM_BOT_TOKEN
     if not bot_token:
@@ -107,7 +107,7 @@ async def _notify_ai_unreachable(ctx, language_code: str):
 
 async def _notify_ai_reachable(ctx, language_code: str):
     """Send Telegram notification that AI model is back online."""
-    from app.services.telegram_service import _get_locale_message, TelegramService
+    from app.services.telegram_service import TelegramService, _get_locale_message
 
     bot_token = app_settings.TELEGRAM_BOT_TOKEN
     if not bot_token:

@@ -4,15 +4,15 @@ Defines all supported AI providers, their types, default base URLs,
 and which environment variable holds their API key.
 """
 
-from typing import Any, Dict, List, Optional
-from app.core.config import settings
+from typing import Any
 
+from app.core.config import settings
 
 # Provider definitions
 # type: "openai-compat" → uses openai SDK with custom base_url
 #       "anthropic"     → uses anthropic SDK
 #       "ollama-http"   → uses raw HTTP to Ollama API
-PROVIDERS: Dict[str, Dict[str, Any]] = {
+PROVIDERS: dict[str, dict[str, Any]] = {
     "openai": {
         "name": "OpenAI",
         "type": "openai-compat",
@@ -65,12 +65,12 @@ PROVIDERS: Dict[str, Dict[str, Any]] = {
 }
 
 
-def get_provider(provider_id: str) -> Optional[Dict[str, Any]]:
+def get_provider(provider_id: str) -> dict[str, Any] | None:
     """Get provider configuration by ID."""
     return PROVIDERS.get(provider_id)
 
 
-def get_available_providers() -> List[Dict[str, Any]]:
+def get_available_providers() -> list[dict[str, Any]]:
     """Return list of providers that have their API key configured (or are local).
 
     Each entry: {id, name, has_key, config_required}

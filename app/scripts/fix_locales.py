@@ -3,7 +3,6 @@
 Run: python -m app.scripts.fix_locales
 """
 import os
-import glob
 
 BROKEN_LANGS = ["de", "es", "fr", "ja", "pt"]
 

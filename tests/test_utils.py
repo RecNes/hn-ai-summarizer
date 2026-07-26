@@ -1,5 +1,5 @@
 """Unit tests for utility functions."""
-from app.utils.keywords import extract_keywords, match_keywords, highlight_text
+from app.utils.keywords import extract_keywords, highlight_text, match_keywords
 
 
 class TestExtractKeywords:

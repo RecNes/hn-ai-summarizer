@@ -1,10 +1,11 @@
 """Unit tests for Pydantic schemas."""
 # pylint: disable=undefined-variable
-from datetime import datetime, timezone
-from app.schemas.story import StoryCreate, StoryResponse
-from app.schemas.setting import SettingBase, SettingUpdate, SettingResponse
-from app.schemas.preference import PreferenceBase
+from datetime import UTC, datetime
+
 from app.schemas.activity_log import AiActivityLogResponse
+from app.schemas.preference import PreferenceBase
+from app.schemas.setting import SettingBase, SettingResponse, SettingUpdate
+from app.schemas.story import StoryCreate, StoryResponse
 
 
 class TestStorySchemas:
@@ -52,7 +53,7 @@ class TestStorySchemas:
 
     def test_story_response_from_attributes(self):
         """StoryResponse with from_attributes enabled."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         data = {
             "id": 1,
             "hacker_news_id": "12345",
@@ -140,8 +141,8 @@ class TestActivityLogSchema:  # pylint: disable=undefined-variable
 
     def test_activity_log_minimal(self):
         """AiActivityLogResponse with all fields."""
-        from datetime import datetime, timezone
-        now = datetime.now(timezone.utc)
+        from datetime import datetime
+        now = datetime.now(UTC)
         schema = AiActivityLogResponse(
             id=1,
             event_type="translate",
@@ -160,8 +161,8 @@ class TestActivityLogSchema:  # pylint: disable=undefined-variable
 
     def test_activity_log_with_error(self):
         """AiActivityLogResponse with error details."""
-        from datetime import datetime, timezone
-        now = datetime.now(timezone.utc)
+        from datetime import datetime
+        now = datetime.now(UTC)
         schema = AiActivityLogResponse(
             id=2,
             event_type="summarize",

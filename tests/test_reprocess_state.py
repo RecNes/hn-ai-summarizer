@@ -1,14 +1,12 @@
 """Unit tests for reprocess state service."""
-from unittest.mock import AsyncMock, patch
-
 import time
+from unittest.mock import AsyncMock, patch
 
 from app.services.reprocess_state import (
     get_reprocess_state,
-    set_reprocess_state,
     reset_reprocess_state,
+    set_reprocess_state,
 )
-
 
 DEFAULT_EMPTY_STATE = {
     "running": False,

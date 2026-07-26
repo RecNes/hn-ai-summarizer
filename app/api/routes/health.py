@@ -4,13 +4,13 @@ import json
 import logging
 
 from fastapi import APIRouter, Depends
-
-logger = logging.getLogger(__name__)
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -25,9 +25,9 @@ async def health_check(db: AsyncSession = Depends(get_db)):
         await db.execute(select(1))
         db_status = "healthy"
     except SQLAlchemyError as e:
-        db_status = f"unhealthy: Database error - {str(e)}"
+        db_status = f"unhealthy: Database error - {e!s}"
     except Exception as e:  # pylint: disable=broad-except
-        db_status = f"unhealthy: Unexpected error - {str(e)}"
+        db_status = f"unhealthy: Unexpected error - {e!s}"
 
     return {
         "status": "healthy" if db_status == "healthy" else "unhealthy",
@@ -44,6 +44,7 @@ async def ai_health_status():
     Falls back to healthy if Redis is not available or key doesn't exist.
     """
     from redis.asyncio import Redis
+
     from app.core.config import settings as app_settings
 
     redis_url = app_settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"

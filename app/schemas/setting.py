@@ -1,6 +1,6 @@
 """Pydantic schemas for application settings."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -13,43 +13,42 @@ class SettingBase(BaseModel):
     """
 
     # AI Provider settings
-    ai_provider: Optional[str] = None
-    ai_model: Optional[str] = None
-    ai_provider_config: Optional[str] = None  # JSON string for configurable providers
+    ai_provider: str | None = None
+    ai_model: str | None = None
+    ai_provider_config: str | None = None  # JSON string for configurable providers
 
     # Legacy Ollama fields
-    ollama_api_url: Optional[str] = None
-    ollama_model: Optional[str] = None
+    ollama_api_url: str | None = None
+    ollama_model: str | None = None
 
     # Schedule settings
-    cron_schedule: Optional[str] = None
-    min_score: Optional[int] = None
-    retention_days: Optional[int] = None
-    scheduled_hour: Optional[int] = None
-    scheduled_minute: Optional[int] = None
-    scheduled_days: Optional[str] = None
+    cron_schedule: str | None = None
+    min_score: int | None = None
+    retention_days: int | None = None
+    scheduled_hour: int | None = None
+    scheduled_minute: int | None = None
+    scheduled_days: str | None = None
 
     # Telegram settings
-    telegram_chat_id: Optional[str] = None
+    telegram_chat_id: str | None = None
     telegram_enabled: bool = False
 
     # Display settings
-    display_font_family: Optional[str] = None
-    display_font_size: Optional[str] = None
-    display_contrast: Optional[str] = None
+    display_font_family: str | None = None
+    display_font_size: str | None = None
+    display_contrast: str | None = None
 
 
 class SettingUpdate(SettingBase):
     """Schema for updating application settings."""
 
-    pass
 
 
 class SettingResponse(SettingBase):
     """Schema for responding with application settings."""
 
     id: int
-    available_providers: List[Dict[str, Any]] = []
+    available_providers: list[dict[str, Any]] = []
     telegram_available: bool = False
 
     class Config:

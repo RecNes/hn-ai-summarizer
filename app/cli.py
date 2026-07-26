@@ -7,9 +7,9 @@ import uvicorn
 from arq import run_worker as run_worker_main
 
 from app.core.config import settings
+from app.tasks.schedule_manager import get_schedule_manager
 from app.tasks.scheduler import run_scheduler as scheduler_main
 from app.tasks.worker import WorkerSettings
-from app.tasks.schedule_manager import get_schedule_manager
 
 
 def run_server():
@@ -101,7 +101,7 @@ def test_schedule_sync():
                 print("✗ Schedule not found or incorrect in Redis")
 
             # Test 3: Apply schedule locally
-            from app.tasks.schedule_manager import _scheduler_tasks
+            from app.tasks.schedule_manager import _scheduler_tasks # type: ignore
 
             applied = await schedule_manager.apply_schedule_from_redis()
             if applied:

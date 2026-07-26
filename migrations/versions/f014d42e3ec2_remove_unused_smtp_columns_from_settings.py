@@ -5,9 +5,8 @@ Revises: 20260712_add_telegram_settings
 Create Date: 2026-07-17 16:43:00.379456
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'f014d42e3ec2'

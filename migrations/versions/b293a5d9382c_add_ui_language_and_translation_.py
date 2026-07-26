@@ -5,9 +5,8 @@ Revises: 20260709_add_is_translated
 Create Date: 2026-07-09 20:23:00.285738
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = 'b293a5d9382c'

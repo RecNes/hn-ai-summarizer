@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import httpx
 from sqlalchemy.future import select
@@ -40,7 +40,7 @@ class AIService:
         self._connection_failure_count = 0
         self._rate_limited = False
 
-    async def _get_active_config(self) -> Dict[str, Any]:
+    async def _get_active_config(self) -> dict[str, Any]:
         """Get the currently active AI provider configuration.
 
         Returns:
@@ -121,7 +121,7 @@ class AIService:
         }
         return defaults.get(provider_id, "gpt-3.5-turbo")
 
-    def _detect_available_from_env(self) -> List[str]:
+    def _detect_available_from_env(self) -> list[str]:
         """Detect which providers have API keys set in .env."""
         available = []
         for pid in ["openai", "anthropic", "deepseek", "openrouter", "gemini"]:
@@ -441,7 +441,7 @@ class AIService:
         return self._rate_limited
 
     @staticmethod
-    def _is_valid_translation(text: Optional[str], field_type: str) -> bool:
+    def _is_valid_translation(text: str | None, field_type: str) -> bool:
         """Check if a translation/summary field contains genuine content."""
         if not text:
             return False
@@ -495,11 +495,7 @@ class AIService:
         eng_chars = sum(1 for c in t if c.isascii() and c.isalpha())
         turkish_chars = sum(1 for c in t if c in 'çğıiöşüÇĞİÖŞÜ')
 
-        if eng_chars > len(t) * 0.6 and turkish_chars < 2:
-            if len(common) == 0 and len(orig_words) > 1:
-                return True
-
-        return False
+        return bool(eng_chars > len(t) * 0.6 and turkish_chars < 2 and len(common) == 0 and len(orig_words) > 1)
 
     async def translate_title(self, title: str, target_language: str = "Turkish") -> str:
         """Translate title to the specified language with natural output.
@@ -616,7 +612,7 @@ class AIService:
 
         return result_stripped
 
-    async def summarize_comments(self, comments: List[Dict[str, Any]], target_language: str = "Turkish") -> str:
+    async def summarize_comments(self, comments: list[dict[str, Any]], target_language: str = "Turkish") -> str:
         """Analyze top comments and provide meta-summary in the specified language."""
         if not comments:
             return f"Comment summary not available in {target_language}."
@@ -677,7 +673,7 @@ class AIService:
     # Provider & Model listing (for API endpoint)
     # ────────────────────────────────────────────
 
-    async def get_available_models(self, provider_id: str, config_str: str = "") -> List[str]:
+    async def get_available_models(self, provider_id: str, config_str: str = "") -> list[str]:
         """Fetch available models from a provider's API."""
         provider_def = get_provider(provider_id)
         if not provider_def:
@@ -706,7 +702,7 @@ class AIService:
             return await self._list_ollama_models(base_url)
         return []
 
-    async def _list_openai_compat_models(self, api_key: str, base_url: str) -> List[str]:
+    async def _list_openai_compat_models(self, api_key: str, base_url: str) -> list[str]:
         """List models from any OpenAI-compatible API."""
         try:
             from openai import OpenAI
@@ -718,7 +714,7 @@ class AIService:
             logger.error("Error listing models from %s: %s", base_url, e)
             return []
 
-    async def _list_anthropic_models(self, api_key: str) -> List[str]:
+    async def _list_anthropic_models(self, api_key: str) -> list[str]:
         """List models from Anthropic API."""
         try:
             from anthropic import Anthropic
@@ -737,7 +733,7 @@ class AIService:
             "claude-3-5-haiku-20241022",
         ]
 
-    async def _list_ollama_models(self, base_url: str) -> List[str]:
+    async def _list_ollama_models(self, base_url: str) -> list[str]:
         """List models from Ollama API."""
         try:
             response = await self.ollama_client.get(

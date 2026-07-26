@@ -2,7 +2,6 @@
 
 import asyncio
 import logging
-from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -42,8 +41,6 @@ class GlobalRateLimit:
 
         Checks multiple common fields in order of preference.
         """
-        now = asyncio.get_event_loop().time()
-
         # Retry-After header (seconds)
         retry_after = err_body.get("Retry-After") or err_body.get("retry-after")
         if retry_after is not None:

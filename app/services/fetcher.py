@@ -2,8 +2,8 @@
 
 import asyncio
 import logging
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 import httpx
 
@@ -21,7 +21,7 @@ class FetcherService:
     def __init__(self):
         self._client: httpx.AsyncClient | None = None
         # Track failed story IDs for later retry
-        self._failed_stories: List[Dict[str, Any]] = []
+        self._failed_stories: list[dict[str, Any]] = []
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the HTTP client."""
@@ -42,7 +42,7 @@ class FetcherService:
         await self.close()
 
     @property
-    def failed_stories(self) -> List[Dict[str, Any]]:
+    def failed_stories(self) -> list[dict[str, Any]]:
         """Return the list of stories that failed during this fetch cycle."""
         return self._failed_stories
 
@@ -52,7 +52,7 @@ class FetcherService:
         if delay > 0:
             await asyncio.sleep(delay)
 
-    async def fetch_top_stories(self, limit: int = 100) -> List[int]:
+    async def fetch_top_stories(self, limit: int = 100) -> list[int]:
         """Fetch top story IDs from Hacker News"""
         client = await self._get_client()
         try:
@@ -64,7 +64,7 @@ class FetcherService:
             logger.error("Error fetching top stories: %s", e)
             return []
 
-    async def fetch_story_details(self, story_id: int) -> Dict[str, Any]:
+    async def fetch_story_details(self, story_id: int) -> dict[str, Any]:
         """Fetch details for a specific story with throttle."""
         await self._throttle()
         client = await self._get_client()
@@ -88,8 +88,8 @@ class FetcherService:
             return {}
 
     async def fetch_comments(
-        self, story_id: int, kid_ids: Optional[List[int]] = None, limit: int = 5
-    ) -> List[Dict[str, Any]]:
+        self, story_id: int, kid_ids: list[int] | None = None, limit: int = 5
+    ) -> list[dict[str, Any]]:
         """Fetch top comments for a story.
 
         If kid_ids are provided (from the story data), use them directly
@@ -121,7 +121,7 @@ class FetcherService:
             )
             return []
 
-    async def process_story(self, story_id: int) -> Dict[str, Any]:
+    async def process_story(self, story_id: int) -> dict[str, Any]:
         """Process a story: fetch details, scrape content, and get comments"""
         story = await self.fetch_story_details(story_id)
         if not story or story.get("type") != "story":
@@ -141,7 +141,7 @@ class FetcherService:
 
         hn_time = story.get("time")
         hn_created_at = (
-            datetime.fromtimestamp(hn_time, tz=timezone.utc)
+            datetime.fromtimestamp(hn_time, tz=UTC)
             if hn_time
             else None
         )
@@ -159,7 +159,7 @@ class FetcherService:
 
     async def fetch_and_process_stories(
         self, min_score: int = 100, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch and process top stories above minimum score"""
         story_ids = await self.fetch_top_stories(limit)
         stories = []
@@ -190,7 +190,7 @@ class FetcherService:
 
     async def refetch_story_content(
         self, story_id: int, story_url: str = ""
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Refetch content for an existing story"""
         story = await self.fetch_story_details(story_id)
         if not story:
@@ -211,7 +211,7 @@ class FetcherService:
 
         hn_time = story.get("time")
         hn_created_at = (
-            datetime.fromtimestamp(hn_time, tz=timezone.utc)
+            datetime.fromtimestamp(hn_time, tz=UTC)
             if hn_time
             else None
         )

@@ -6,8 +6,6 @@ Create Date: 2026-07-12 12:25:00.000000
 
 """
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = '20260712_add_telegram_settings'

@@ -160,7 +160,7 @@ async def test_schedule_parsing():
     print("\nTesting schedule parsing...")
 
     try:
-        from app.tasks.scheduler import parse_cron_to_time, parse_cron_to_days
+        from app.tasks.scheduler import parse_cron_to_days, parse_cron_to_time
 
         # Test time parsing
         test_cases = [

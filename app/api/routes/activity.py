@@ -1,6 +1,5 @@
 """API routes for activity logs (AI, worker, etc.)."""
 
-from typing import List
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +12,7 @@ from app.schemas.activity_log import AiActivityLogResponse
 router = APIRouter()
 
 
-@router.get("/", response_model=List[AiActivityLogResponse])
+@router.get("/", response_model=list[AiActivityLogResponse])
 async def get_activity(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),

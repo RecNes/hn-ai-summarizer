@@ -1,23 +1,23 @@
 """API routes for managing application settings and triggering background tasks."""
 
+import logging
+
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-import logging
-
 from app.core.config import settings
 from app.core.database import get_db
-
-logger = logging.getLogger(__name__)
 from app.models.setting import Setting
 from app.schemas.setting import SettingResponse, SettingUpdate
 from app.services.ai_service import AIService
 from app.services.provider_registry import get_available_providers, get_provider
 from app.shared.languages import get_languages
 from app.tasks.schedule_manager import get_schedule_manager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -147,7 +147,7 @@ async def get_available_models(
         return {"provider": provider, "models": models}
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Failed to fetch models: {str(e)}"
+            status_code=500, detail=f"Failed to fetch models: {e!s}"
         )
 
 
@@ -179,7 +179,7 @@ async def trigger_worker():
             )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Worker başlatılamadı: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Worker başlatılamadı: {e!s}")
 
 
 @router.post("/reprocess-untranslated")
@@ -212,7 +212,7 @@ async def reprocess_untranslated():
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Reprocessing başlatılamadı: {str(e)}"
+            status_code=500, detail=f"Reprocessing başlatılamadı: {e!s}"
         )
 
 
@@ -241,7 +241,7 @@ async def debug_untranslated():
             )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Debug başlatılamadı: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Debug başlatılamadı: {e!s}")
 
 
 # Add this new endpoint
@@ -271,7 +271,7 @@ async def reprocess_all():
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Reprocessing başlatılamadı: {str(e)}"
+            status_code=500, detail=f"Reprocessing başlatılamadı: {e!s}"
         )
 
 
@@ -298,5 +298,5 @@ async def get_schedule_status():
 
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error getting schedule status: {str(e)}"
+            status_code=500, detail=f"Error getting schedule status: {e!s}"
         )

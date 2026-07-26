@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -16,8 +14,8 @@ class UserPreference(Base):
     __tablename__ = "user_preferences"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    highlight_keywords: Mapped[Optional[str]] = mapped_column(Text)
-    blocklist_keywords: Mapped[Optional[str]] = mapped_column(Text)
+    highlight_keywords: Mapped[str | None] = mapped_column(Text)
+    blocklist_keywords: Mapped[str | None] = mapped_column(Text)
 
     # Language preferences
     ui_language: Mapped[str] = mapped_column(String(10), default="en")

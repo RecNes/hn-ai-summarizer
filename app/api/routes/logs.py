@@ -23,7 +23,7 @@ REDIS_WORKER_LOG_KEY = "hn_reader:worker_logs:recent"
 
 async def _get_redis():
     """Create a redis asyncio connection."""
-    from redis.asyncio import Redis
+    from redis.asyncio import Redis  # noqa: I001
     from app.core.config import settings
 
     redis_url = settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
@@ -40,7 +40,7 @@ async def get_recent_logs():
     r = None
     try:
         r = await _get_redis()
-        raw_list = await r.lrange(REDIS_WORKER_LOG_KEY, 0, 19)
+        raw_list = await r.lrange(REDIS_WORKER_LOG_KEY, 0, 19) # type: ignore
         logs = []
         for raw in raw_list:
             try:

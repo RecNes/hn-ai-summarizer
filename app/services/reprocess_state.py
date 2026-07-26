@@ -3,7 +3,6 @@
 import json
 import logging
 import time
-from typing import Optional
 
 from redis.asyncio import Redis
 
@@ -96,13 +95,13 @@ async def get_reprocess_state() -> dict:
 
 
 async def set_reprocess_state(
-    running: Optional[bool] = None,
-    current: Optional[int] = None,
-    total: Optional[int] = None,
-    percentage: Optional[int] = None,
-    story_id: Optional[int] = None,
-    cancelled: Optional[bool] = None,
-    state: Optional[dict] = None,
+    running: bool | None = None,
+    current: int | None = None,
+    total: int | None = None,
+    percentage: int | None = None,
+    story_id: int | None = None,
+    cancelled: bool | None = None,
+    state: dict | None = None,
 ):
     """Set the current reprocess state in Redis.
 

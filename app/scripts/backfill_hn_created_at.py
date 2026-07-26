@@ -5,7 +5,7 @@ Usage:
 """
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.future import select
 
@@ -36,7 +36,7 @@ async def backfill():
                 details = await fetcher.fetch_story_details(hn_id)
                 hn_time = details.get("time")
                 if hn_time:
-                    story.hn_created_at = datetime.fromtimestamp(hn_time, tz=timezone.utc)
+                    story.hn_created_at = datetime.fromtimestamp(hn_time, tz=UTC)
                     updated_count += 1
                     if updated_count % 10 == 0:
                         await db.commit()

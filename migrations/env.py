@@ -9,13 +9,14 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.core.database import Base
+
 # Models are imported to register them with SQLAlchemy metadata
-from app.models import (  # noqa: F401, F403  # pylint: disable=unused-import
-    Story,
-    Setting,
-    UserPreference,
-    NegativeFeedback,
+from app.models import (  # noqa: F401  # pylint: disable=unused-import
     AiActivityLog,
+    NegativeFeedback,
+    Setting,
+    Story,
+    UserPreference,
 )
 
 load_dotenv()

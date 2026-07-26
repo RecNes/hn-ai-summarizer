@@ -1,10 +1,9 @@
 """Utility functions for keyword extraction and matching"""
 
 import re
-from typing import Set
 
 
-def extract_keywords(text: str) -> Set[str]:
+def extract_keywords(text: str) -> set[str]:
     """Extract keywords from text"""
     if not text:
         return set()

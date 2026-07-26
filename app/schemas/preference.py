@@ -1,21 +1,19 @@
 """Schemas for user preferences."""
 
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class PreferenceBase(BaseModel):
     """Base schema for user preferences."""
-    highlight_keywords: Optional[str] = None
-    blocklist_keywords: Optional[str] = None
+    highlight_keywords: str | None = None
+    blocklist_keywords: str | None = None
     ui_language: str = "en"
     translation_language: str = "en"
 
 
 class PreferenceUpdate(PreferenceBase):
     """Schema for updating user preferences."""
-    pass
 
 
 class PreferenceResponse(PreferenceBase):

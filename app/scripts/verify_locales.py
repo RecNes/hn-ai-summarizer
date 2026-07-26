@@ -1,7 +1,7 @@
 """Verify all locale files are valid UTF-8 JSON."""
+import glob
 import json
 import os
-import glob
 
 all_ok = True
 for path in sorted(glob.glob("app/static/locales/*/common.json")):

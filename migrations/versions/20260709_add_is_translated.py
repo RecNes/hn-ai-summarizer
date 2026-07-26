@@ -10,8 +10,6 @@ Create Date: 2026-07-09
 
 """
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = '20260709_add_is_translated'

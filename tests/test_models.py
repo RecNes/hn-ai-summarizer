@@ -1,6 +1,7 @@
-from app.models.story import Story
-from app.models.setting import Setting
 from app.models.preference import UserPreference
+from app.models.setting import Setting
+from app.models.story import Story
+
 
 def test_story_model():
     story = Story(

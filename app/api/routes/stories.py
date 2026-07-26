@@ -2,7 +2,7 @@
 
 import asyncio
 import json
-from typing import List
+import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
@@ -12,13 +12,11 @@ from sqlalchemy.future import select
 from app.core.database import get_db
 from app.models.story import Story
 from app.schemas.story import StoryResponse
-import logging
-
 from app.services.ai_service import AIService
-
-logger = logging.getLogger(__name__)
 from app.services.fetcher import FetcherService
 from app.services.story_service import StoryNotFoundError, StoryService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -44,7 +42,9 @@ def _story_to_dict(story) -> dict:
         "comments_summary": story.comments_summary,
         "is_translated": story.is_translated,
         "is_read": story.is_read,
-        "hn_created_at": story.hn_created_at.isoformat() if story.hn_created_at else None,
+        "hn_created_at": (
+            story.hn_created_at.isoformat() if story.hn_created_at else None
+        ),
         "created_at": story.created_at.isoformat() if story.created_at else None,
     }
 
@@ -73,16 +73,21 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
         ai_service = AIService()
         title_tr = await ai_service.translate_title(fresh_data["title"])
         content_tr = await ai_service.summarize_content(fresh_data.get("content", ""))
-        comments_summary = await ai_service.summarize_comments(fresh_data.get("comments", []))
+        comments_summary = await ai_service.summarize_comments(
+            fresh_data.get("comments", [])
+        )
 
         await StoryService.update_from_fetch(db, story, fresh_data)
         await StoryService.update_translations(
-            db, story,
+            db,
+            story,
             title_tr=title_tr,
             content_tr=content_tr,
             comments_summary=comments_summary,
         )
-        logger.info("[Background] Successfully reprocessed story %s (HN=%s)", story_id, hn_id)
+        logger.info(
+            "[Background] Successfully reprocessed story %s (HN=%s)", story_id, hn_id
+        )
     except Exception as e:
         logger.error("[Background] Error reprocessing story %s: %s", story_id, e)
     finally:
@@ -92,7 +97,7 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
 # ── Routes ──────────────────────────────────
 
 
-@router.get("/", response_model=List[StoryResponse])
+@router.get("/", response_model=list[StoryResponse])
 async def get_stories(
     skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)
 ):
@@ -105,6 +110,7 @@ async def get_stories(
 async def reprocess_untranslated_status():
     """Return current reprocess job state (Redis-backed, survives server restart)."""
     from app.services.reprocess_state import get_reprocess_state
+
     return await get_reprocess_state()
 
 
@@ -148,7 +154,9 @@ async def story_poll_stream(request: Request):
                         new_ones = [s for s in stories if s.id > last_max_id]
                         new_ones.sort(key=lambda s: s.id)
                         for story in new_ones:
-                            yield await _sse_event("story_update", _story_to_dict(story))
+                            yield await _sse_event(
+                                "story_update", _story_to_dict(story)
+                            )
                         last_max_id = current_max_id
                     elif current_max_id == last_max_id:
                         keepalive_counter += 1
@@ -184,7 +192,11 @@ async def reprocess_untranslated_stream(request: Request):
     """
     from app.core.database import AsyncSessionLocal
     from app.models.preference import UserPreference
-    from app.services.reprocess_state import get_reprocess_state, reset_reprocess_state, set_reprocess_state
+    from app.services.reprocess_state import (
+        get_reprocess_state,
+        reset_reprocess_state,
+        set_reprocess_state,
+    )
     from app.shared.languages import TranslationLanguageResolver
 
     # Check if a reprocess is already running
@@ -202,8 +214,11 @@ async def reprocess_untranslated_stream(request: Request):
                 result = await db.execute(
                     select(Story)
                     .where(
-                        (Story.is_blocked.is_(False)) &
-                        ((Story.is_translated.is_(None)) | (Story.is_translated == False))
+                        (Story.is_blocked.is_(False))
+                        & (
+                            (Story.is_translated.is_(None))
+                            | (Story.is_translated == False)
+                        )
                     )
                     .order_by(Story.created_at.desc())
                 )
@@ -212,17 +227,24 @@ async def reprocess_untranslated_stream(request: Request):
                 prefs_result = await db.execute(select(UserPreference).limit(1))
                 prefs = prefs_result.scalar_one_or_none()
                 target_lang_code = prefs.translation_language if prefs else "en"
-                target_lang_name = TranslationLanguageResolver.get_language_name(target_lang_code)
+                target_lang_name = TranslationLanguageResolver.get_language_name(
+                    target_lang_code
+                )
 
                 total = len(stories)
 
                 # ── Stuck state guard ──────────────────────────────
                 # Eğer Redis'te hala running=true varsa ama buraya yeni
                 # bir stream bağlantısı gelmişse, önce state'i sıfırla.
-                await set_reprocess_state(running=True, current=0, total=total, percentage=0, cancelled=False)
+                await set_reprocess_state(
+                    running=True, current=0, total=total, percentage=0, cancelled=False
+                )
                 # ────────────────────────────────────────────────────
 
-                yield await _sse_event("progress", {"current": 0, "total": total, "percentage": 0, "running": True})
+                yield await _sse_event(
+                    "progress",
+                    {"current": 0, "total": total, "percentage": 0, "running": True},
+                )
 
                 processed = 0
                 errors = 0
@@ -230,7 +252,11 @@ async def reprocess_untranslated_stream(request: Request):
 
                 for idx, story in enumerate(stories, 1):
                     if await request.is_disconnected():
-                        logger.info("[SSE/reprocess] Client disconnected at %s/%s, resetting state", idx, total)
+                        logger.info(
+                            "[SSE/reprocess] Client disconnected at %s/%s, resetting state",
+                            idx,
+                            total,
+                        )
                         await reset_reprocess_state()
                         break
 
@@ -239,7 +265,16 @@ async def reprocess_untranslated_stream(request: Request):
                     if state_check.get("cancelled"):
                         cancelled = True
                         logger.info("[SSE/reprocess] Cancelled at %s/%s", idx, total)
-                        yield await _sse_event("cancelled", {"current": idx, "total": total, "percentage": round((idx / total) * 100) if total > 0 else 0})
+                        yield await _sse_event(
+                            "cancelled",
+                            {
+                                "current": idx,
+                                "total": total,
+                                "percentage": (
+                                    round((idx / total) * 100) if total > 0 else 0
+                                ),
+                            },
+                        )
                         break
 
                     try:
@@ -251,36 +286,69 @@ async def reprocess_untranslated_stream(request: Request):
                         hn_id = int(hn_id_str)
                         ai_service = AIService(story_id=hn_id)
 
-                        fresh_data = await fetcher.refetch_story_content(hn_id, story.url or "")
+                        fresh_data = await fetcher.refetch_story_content(
+                            hn_id, story.url or ""
+                        )
                         if not fresh_data:
                             errors += 1
                             continue
 
-                        title_tr = await ai_service.translate_title(fresh_data["title"], target_lang_name)
-                        content_tr = await ai_service.summarize_content(fresh_data.get("content", ""), target_lang_name)
-                        comments_summary = await ai_service.summarize_comments(fresh_data.get("comments", []), target_lang_name)
+                        title_tr = await ai_service.translate_title(
+                            fresh_data["title"], target_lang_name
+                        )
+                        content_tr = await ai_service.summarize_content(
+                            fresh_data.get("content", ""), target_lang_name
+                        )
+                        comments_summary = await ai_service.summarize_comments(
+                            fresh_data.get("comments", []), target_lang_name
+                        )
 
                         story.title_tr = title_tr
                         story.content_tr = content_tr
                         story.comments_summary = comments_summary
-                        story.is_translated = ai_service.check_translation_complete(story)
+                        story.is_translated = ai_service.check_translation_complete(
+                            story
+                        )
                         await db.commit()
                         await db.refresh(story)
 
                         processed += 1
 
                         pct = round((idx / total) * 100) if total > 0 else 100
-                        await set_reprocess_state(current=idx, percentage=pct, story_id=story.id)
-                        yield await _sse_event("progress", {"current": idx, "total": total, "percentage": pct, "story_id": story.id, "running": True})
+                        await set_reprocess_state(
+                            current=idx, percentage=pct, story_id=story.id
+                        )
+                        yield await _sse_event(
+                            "progress",
+                            {
+                                "current": idx,
+                                "total": total,
+                                "percentage": pct,
+                                "story_id": story.id,
+                                "running": True,
+                            },
+                        )
                         yield await _sse_event("story_update", _story_to_dict(story))
 
                     except Exception as e:
                         errors += 1
-                        logger.error("[SSE/reprocess] Error reprocessing story %s: %s", story.id, e)
+                        logger.error(
+                            "[SSE/reprocess] Error reprocessing story %s: %s",
+                            story.id,
+                            e,
+                        )
 
                 if not cancelled:
                     await reset_reprocess_state()
-                    yield await _sse_event("complete", {"message": "Done", "total": total, "processed": processed, "errors": errors})
+                    yield await _sse_event(
+                        "complete",
+                        {
+                            "message": "Done",
+                            "total": total,
+                            "processed": processed,
+                            "errors": errors,
+                        },
+                    )
 
         except Exception as e:
             await reset_reprocess_state()

@@ -6,7 +6,7 @@ Worker ve route'lar doğrudan session.commit() çağırmaz.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -32,7 +32,7 @@ class StoryService:
     @staticmethod
     async def _get_by_field(
         session: AsyncSession, field: str, value: Any
-    ) -> Optional[Story]:
+    ) -> Story | None:
         """Generic: sorgula ve tek Story döndür."""
         result = await session.execute(
             select(Story).where(getattr(Story, field) == value)
@@ -42,23 +42,23 @@ class StoryService:
     # ── Sorgular ─────────────────────────────────────
 
     @staticmethod
-    async def get_by_id(session: AsyncSession, story_id: int) -> Optional[Story]:
+    async def get_by_id(session: AsyncSession, story_id: int) -> Story | None:
         """ID'ye göre story getir."""
         return await StoryService._get_by_field(session, "id", story_id)
 
     @staticmethod
     async def get_by_hn_id(
         session: AsyncSession, hn_id: str
-    ) -> Optional[Story]:
+    ) -> Story | None:
         """Hacker News ID'ye göre story getir."""
         return await StoryService._get_by_field(session, "hacker_news_id", hn_id)
 
     @staticmethod
-    async def get_untranslated(session: AsyncSession) -> List[Story]:
+    async def get_untranslated(session: AsyncSession) -> list[Story]:
         """Çevirisi tamamlanmamış story'leri getir."""
         result = await session.execute(
             select(Story)
-            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))  # noqa: E712
+            .where((Story.is_translated.is_(None)) | (Story.is_translated == False))
             .order_by(Story.created_at.desc())
         )
         return list(result.scalars().all())
@@ -66,7 +66,7 @@ class StoryService:
     @staticmethod
     async def get_all(
         session: AsyncSession, skip: int = 0, limit: int = 20
-    ) -> List[Story]:
+    ) -> list[Story]:
         """Tüm story'leri sayfalanmış şekilde getir (bloklanmış olanlar hariç)."""
         result = await session.execute(
             select(Story)
@@ -81,7 +81,7 @@ class StoryService:
 
     @staticmethod
     async def create(
-        session: AsyncSession, story_data: Dict[str, Any]
+        session: AsyncSession, story_data: dict[str, Any]
     ) -> Story:
         """Yeni bir Story kaydı oluştur.
 
@@ -142,10 +142,10 @@ class StoryService:
     async def update_translations(
         session: AsyncSession,
         story: Story,
-        title_tr: Optional[str] = None,
-        content_tr: Optional[str] = None,
-        comments_summary: Optional[str] = None,
-        is_translated: Optional[bool] = None,
+        title_tr: str | None = None,
+        content_tr: str | None = None,
+        comments_summary: str | None = None,
+        is_translated: bool | None = None,
     ) -> Story:
         """Bir story'nin AI çeviri/özet alanlarını güncelle.
 
@@ -194,7 +194,7 @@ class StoryService:
     async def update_from_fetch(
         session: AsyncSession,
         story: Story,
-        fresh_data: Dict[str, Any],
+        fresh_data: dict[str, Any],
     ) -> Story:
         """HN'den tazelenen veriyle story alanlarını güncelle.
 
