@@ -1,3 +1,4 @@
+ARG APP_VERSION=0.0.0
 FROM python:3.11-slim
 
 # Install uv (Rust-based, ~10-100x faster than pip)
@@ -29,6 +30,9 @@ RUN uv pip install --system . && uv cache clean
 
 # Copy static/locales to WORKDIR root so TelegramService can find it
 COPY app/static/locales/ static/locales/
+
+ARG APP_VERSION
+ENV APP_VERSION=${APP_VERSION}
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app

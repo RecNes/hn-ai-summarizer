@@ -24,6 +24,28 @@ steps:
         ```
         [🔗 Detaylar](${CI_PIPELINE_URL})
 
+  determine-version:
+    image: docker:27-cli
+    commands:
+      - apk add --no-cache git bash
+      - git fetch --tags --force
+      - bash scripts/version.sh
+      - cat .env_versions
+    when:
+      event: [push]
+      branch: [main, master]
+
+  create-tag:
+    image: docker:27-cli
+    commands:
+      - apk add --no-cache git bash openssh-client
+      - cat .env_versions
+      - bash scripts/create-tag.sh
+    when:
+      event: [push]
+      branch: [main, master]
+      status: [success]
+
   build-and-push:
     image: docker:27-cli
     volumes:
@@ -32,9 +54,16 @@ steps:
       DOCKER_REGISTRY:
         from_secret: DOCKER_REGISTRY
     commands:
-      - docker build -t "$DOCKER_REGISTRY/hn-reader:${CI_COMMIT_SHA:0:8}" -t "$DOCKER_REGISTRY/hn-reader:latest" .
-      - docker push "$DOCKER_REGISTRY/hn-reader:${CI_COMMIT_SHA:0:8}"
-      - docker push "$DOCKER_REGISTRY/hn-reader:latest"
+      - |
+        . .env_versions 2>/dev/null || export APP_VERSION="${CI_COMMIT_SHA:0:8}"
+        APP_VERSION="${APP_VERSION:-${CI_COMMIT_SHA:0:8}}"
+        echo "Building Docker image with version: $APP_VERSION"
+        docker build --build-arg APP_VERSION="$APP_VERSION" \
+          -t "$DOCKER_REGISTRY/hn-reader:$APP_VERSION" \
+          -t "$DOCKER_REGISTRY/hn-reader:latest" .
+        echo "Docker Image: $DOCKER_REGISTRY/hn-reader:$APP_VERSION"
+        docker push "$DOCKER_REGISTRY/hn-reader:$APP_VERSION"
+        docker push "$DOCKER_REGISTRY/hn-reader:latest"
     when:
       event: [push]
       branch: [main, master]
@@ -57,11 +86,13 @@ steps:
       DOCKER_REGISTRY:
         from_secret: DOCKER_REGISTRY
     commands:
-      - printf '%s' "$HN_READER_ENV_FILE" > /tmp/.env
-      - cp /tmp/.env .env 2>/dev/null || true
-      - docker compose --env-file /tmp/.env pull
-      - docker compose --env-file /tmp/.env up -d --remove-orphans --no-build
-      - docker image prune -af
+      - |
+        . .env_versions 2>/dev/null || true
+        printf '%s' "$HN_READER_ENV_FILE" > /tmp/.env
+        cp /tmp/.env .env 2>/dev/null || true
+        docker compose --env-file /tmp/.env pull
+        docker compose --env-file /tmp/.env up -d --remove-orphans --no-build
+        docker image prune -af
     when:
       event: [push]
       branch: [main, master]

@@ -6,7 +6,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routes import activity, events, health, logs, preferences, settings, stories, views
+from app.api.routes import (
+    activity,
+    events,
+    health,
+    logs,
+    preferences,
+    settings,
+    stories,
+    views,
+)
 from app.core.config import settings as app_settings
 from app.core.logging_config import setup_logging
 

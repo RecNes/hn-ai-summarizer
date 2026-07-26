@@ -1,11 +1,10 @@
 """Uygulama yapılandırma ayarları."""
 
-from typing import Optional
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field, computed_field
 
 # Force-load .env into environment before Pydantic reads it
 from dotenv import load_dotenv
+from pydantic import Field, computed_field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv(".env")
 
@@ -14,7 +13,7 @@ class Settings(BaseSettings):
     """Uygulama yapılandırma ayarları."""
 
     PROJECT_NAME: str = "HN-AI-Summerizer"
-    PROJECT_VERSION: str = "0.1.0"
+    PROJECT_VERSION: str = Field(default="0.0.0", validation_alias="APP_VERSION")
     PROJECT_DESCRIPTION: str = "AI-powered Hacker News summarizer"
 
     DATABASE_USER: str = Field(default="postgres")
@@ -28,26 +27,26 @@ class Settings(BaseSettings):
     REDIS_HOST: str = Field("localhost")
     REDIS_PORT: int = Field(6379)
     REDIS_DB: int = Field(0)
-    REDIS_USERNAME: Optional[str] = Field("")
-    REDIS_PASSWORD: Optional[str] = Field("")
+    REDIS_USERNAME: str | None = Field("")
+    REDIS_PASSWORD: str | None = Field("")
 
     # AI Provider API Keys (only read from .env, never exposed to frontend)
-    OPENAI_API_KEY: Optional[str] = Field("")
-    ANTHROPIC_API_KEY: Optional[str] = Field("")
-    DEEPSEEK_API_KEY: Optional[str] = Field("")
-    OPENROUTER_API_KEY: Optional[str] = Field("")
-    GEMINI_API_KEY: Optional[str] = Field("")
+    OPENAI_API_KEY: str | None = Field("")
+    ANTHROPIC_API_KEY: str | None = Field("")
+    DEEPSEEK_API_KEY: str | None = Field("")
+    OPENROUTER_API_KEY: str | None = Field("")
+    GEMINI_API_KEY: str | None = Field("")
 
     # Legacy
-    LOCAL_AI_BROKER: Optional[str] = Field("")
-    LOCAL_AI_BROKER_URL: Optional[str] = Field("")
-    LOCAL_AI_MODEL: Optional[str] = Field("")
+    LOCAL_AI_BROKER: str | None = Field("")
+    LOCAL_AI_BROKER_URL: str | None = Field("")
+    LOCAL_AI_MODEL: str | None = Field("")
 
-    TELEGRAM_BOT_TOKEN: Optional[str] = Field("")
+    TELEGRAM_BOT_TOKEN: str | None = Field("")
 
     # Public URL for links in notifications (Telegram, email, etc.)
     # Example: https://hnreader.example.com
-    PUBLIC_URL: Optional[str] = Field("http://localhost:8000")
+    PUBLIC_URL: str | None = Field("http://localhost:8000")
 
     DEVELOPMENT: bool = Field(False)
 

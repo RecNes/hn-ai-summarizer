@@ -1,5 +1,7 @@
 """Frontend views routes."""
 
+import os
+
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from jinja2 import Environment, FileSystemLoader
@@ -9,6 +11,8 @@ router = APIRouter()
 # Standalone Jinja2 environment with cache disabled
 # (Python 3.14+ LRUCache bug: unhashable type 'dict')
 _env = Environment(loader=FileSystemLoader("app/templates"), auto_reload=True, autoescape=True)
+# Inject APP_VERSION from environment; falls back to "0.0.0" if unset
+_env.globals["app_version"] = os.getenv("APP_VERSION", "0.0.0")
 
 
 async def _render(name: str, request: Request, **context) -> HTMLResponse:
