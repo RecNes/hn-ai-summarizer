@@ -79,7 +79,6 @@ def _get_tz() -> zoneinfo.ZoneInfo:
     name = (app_settings.TIMEZONE or "").strip()
     if name:
         try:
-            logger.info("[SCHEDULER] Using '%s' timezone.", name)
             return zoneinfo.ZoneInfo(name)
         except (zoneinfo.ZoneInfoNotFoundError, KeyError):
             logger.warning(
@@ -107,7 +106,6 @@ def _calculate_next_run(
             now = datetime.now(tz)
 
         next_run = now.replace(hour=9, minute=0, second=0, microsecond=0) + timedelta(days=1)
-        logger.info(f"[SCHEDULER] Next run: {next_run} (pn)")
         return next_run
 
     target_hour, target_minute = parsed
@@ -126,11 +124,9 @@ def _calculate_next_run(
         # cron weekday: 0=Sunday → Python weekday: 0=Monday
         today_cron = (now.weekday() + 1) % 7
         if today_cron in days and candidate > now:
-            logger.info(f"[SCHEDULER] Next run: {candidate} (d)")
             return candidate
     else:
         if candidate > now:
-            logger.info(f"[SCHEDULER] Next run: {candidate} (w/d)")
             return candidate
 
     # Either time has passed today or today isn't a selected day.
@@ -140,14 +136,11 @@ def _calculate_next_run(
         if days:
             cand_cron = (candidate.weekday() + 1) % 7
             if cand_cron in days:
-                logger.info(f"[SCHEDULER] Next run: {candidate} (dr)")
                 return candidate
         else:
-            logger.info(f"[SCHEDULER] Next run: {candidate} (d w/r)")
             return candidate
 
     # Should never reach here
-    logger.info(f"[SCHEDULER] Next run: {candidate} (raw)")
     return candidate
 
 
@@ -166,7 +159,6 @@ async def _get_schedule_from_redis() -> dict | None:
     try:
         data = await pool.get(SCHEDULE_KEY)  # type: ignore[union-attr]
         if data:
-            logger.info(f"[SCHEDULER] Redis Data: {data}")
             return json.loads(data)
         return None
     except Exception as e:
@@ -181,10 +173,8 @@ async def _get_schedule_version() -> str:
     pool = await _get_redis_pool()
     try:
         v = await pool.get(VERSION_KEY)  # type: ignore[union-attr]
-        logger.info(f"[SCHEDULER] Version: {v or '0'}")
         return v or "0"
     except Exception as e:
-        logger.info(f"[SCHEDULER] Version exception: {e}")
         return "0"
     finally:
         await pool.aclose()
