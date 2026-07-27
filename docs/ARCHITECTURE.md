@@ -7,7 +7,7 @@
 | **Backend** | Python 3.11+, FastAPI (Async), SQLAlchemy (Async), Pydantic |
 | **Database** | PostgreSQL (production), SQLite (development/testing) |
 | **Task Queue** | Redis + Arq |
-| **Scheduling** | aioschedule + Redis-based ScheduleManager |
+| **Scheduling** | asyncio.sleep() + custom cron parser + Redis version polling |
 | **AI/LLM** | OpenAI, Anthropic, DeepSeek, OpenRouter, Gemini, Ollama, LM Studio |
 | **Frontend** | Server-side rendered Jinja2 + TailwindCSS + Vanilla JS |
 | **Infrastructure** | Docker & Docker Compose |
@@ -25,7 +25,7 @@ hn-ai-summarizer/
 │   ├── models/        # SQLAlchemy models (Story, Setting, Preference)
 │   ├── schemas/       # Pydantic schemas
 │   ├── services/      # Business logic (fetcher, AI service, provider registry)
-│   ├── tasks/         # Background jobs (worker, scheduler, schedule manager)
+│   ├── tasks/         # Background jobs (worker, scheduler)
 │   ├── templates/     # Jinja2 HTML templates
 │   ├── utils/         # Scraping utilities
 │   └── cli.py         # CLI entry point
@@ -75,11 +75,11 @@ The application is built as a **three-process asynchronous system** connected th
 │                                                                   │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐     │
 │  │   SERVER     │    │  SCHEDULER   │    │     WORKER       │     │
-│  │ (FastAPI)    │    │ (aioschedule)│    │   (Arq Worker)   │     │
-│  │              │    │              │    │                  │     │
+│  │ (FastAPI)    │    │ (asyncio     │    │   (Arq Worker)   │     │
+│  │              │    │  sleep loop) │    │                  │     │
 │  │  Web UI      │    │  Cron Check  │    │  Process Story   │     │
-│  │  REST API    │    │  Monitor     │    │  AI Translate    │     │
-│  │  Settings    │    │  Catch-up    │    │  Summarize       │     │
+│  │  REST API    │    │  Version     │    │  AI Translate    │     │
+│  │  Settings    │    │  Polling     │    │  Summarize       │     │
 │  └──────┬───────┘    └──────┬───────┘    └────────┬─────────┘     │
 │         │                   │                     │               │
 │         └──────────┬────────┴──────────┬──────────┘               │
@@ -107,7 +107,7 @@ The application is built as a **three-process asynchronous system** connected th
 
 ### 1.1 Purpose
 
-The scheduler is a long-running Python process that periodically checks whether it's time to fetch new stories based on a cron schedule stored in Redis. It also handles **catch-up logic** (if the scheduled time has already passed when the scheduler starts) and **monitors** the Redis schedule state for real-time changes.
+The scheduler is a long-running, **self-contained** Python process that runs a simple `asyncio.sleep()` loop with built-in cron parsing. It periodically checks whether it's time to fetch new stories, monitors Redis for real-time schedule changes, and handles periodic cleanup of old activity logs. No external scheduling library is used.
 
 ### 1.2 Lifecycle
 
@@ -116,185 +116,138 @@ The scheduler is a long-running Python process that periodically checks whether 
        │
        ▼
 ┌──────────────────┐
-│ Initialize       │──── Reads cron from DB → stores in Redis
-│ Schedule from DB │
+│ Load Schedule    │──── Reads cron from Redis; falls back to DB → writes to Redis
+│ & Version        │
 └────────┬─────────┘
-         │
-         ▼
+          │
+          ▼
 ┌──────────────────┐
-│ Catch-up Check   │──── If today's scheduled time passed → enqueue fetch immediately
+│ Calculate        │──── _calculate_next_run(cron, tz) → next fire datetime
+│ Next Run         │
 └────────┬─────────┘
-         │
-         ▼
+          │
+          ▼
 ┌──────────────────┐
-│ Monitor Changes  │──── Background task: polls Redis every 5s for version changes
-│ (async task)     │
+│ Cleanup Old      │──── Delete AiActivityLog records older than 30 days
+│ Logs             │
 └────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Main Loop        │──── Every 30s: run pending aioschedule jobs
-│ (while True)     │
-└──────────────────┘
+          │
+          ▼
+┌──────────────────────────────────────────────────────────────┐
+│ Main Loop (while True)                                       │
+│                                                              │
+│  1. Calculate sleep_seconds = next_run - now                 │
+│  2. Sleep in 30s chunks → check Redis version each chunk     │
+│  3. If version changed → reload cron from Redis/DB           │
+│  4. When sleep ends → enqueue fetch_and_process_stories      │
+│  5. Calculate next run time                                  │
+│  6. Periodic: cleanup old logs at ~03:00                     │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### 1.3 Key Functions
 
 #### `run_scheduler()`
-The main entry point called via `python -m app.cli scheduler`.
+The main entry point — runs forever.
 
 ```python
 async def run_scheduler():
-    # 1. Read cron schedule from DB, store in Redis
-    await initialize_schedule_from_db()
+    tz = get_tz()
+    # 1. Load cron: Redis first, fallback DB → write to Redis
+    redis_config = await get_schedule_from_redis()
+    cron = redis_config["cron_schedule"] if redis_config else await get_schedule_from_db()
 
-    # 2. Check if today's fetch time has already passed
-    await catch_up_if_needed()
+    # 2. Calculate initial next run
+    next_run = calculate_next_run(cron, tz)
 
-    # 3. Start background monitor for schedule changes
-    monitor_task = asyncio.create_task(monitor_schedule_changes())
+    # 3. Cleanup old logs
+    await cleanup_old_logs()
 
-    # 4. Run the scheduling loop
+    # 4. Main loop
     while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(30)  # Check every 30 seconds
+        sleep_seconds = max(0, (next_run - now).total_seconds())
+        cron, version, next_run, sleep_seconds = \
+            await sleep_with_schedule_check(sleep_seconds, cron, version, tz, next_run)
+        await asyncio.sleep(sleep_seconds)
+        await enqueue_worker_job()
+        next_run = calculate_next_run(cron, tz, now=datetime.now(tz))
 ```
 
-#### `initialize_schedule_from_db()`
-Reads the `cron_schedule` field from the `Setting` model in the database and stores it in Redis using the `ScheduleManager`. Default: `"0 9 * * *"` (daily at 09:00).
+#### `_sleep_with_schedule_check(sleep_seconds, cron, version, tz, next_run)`
+Sleeps in 30-second chunks. After each chunk, checks Redis version key. If version changed, reloads cron schedule from Redis (or DB fallback). Returns updated state.
 
-#### Catch-Up Logic
-On startup, the scheduler calculates:
-- Today's cron weekday (converting from Python's 0=Monday to cron's 0=Sunday format)
-- The scheduled time in minutes (e.g., 09:00 → 540 minutes)
-- The current time in minutes
+**Version change fix (July 2026):** Even if the cron string hasn't changed, the version counter is updated to prevent the same version change from being re-detected every 30 seconds (infinite log spam bug).
 
-If today is a scheduled day AND the current time has passed the scheduled time, it immediately enqueues a `fetch_and_process_stories` job. This ensures that if the scheduler restarts after the scheduled time, no stories are missed.
+#### `_calculate_next_run(cron, tz, now=None)`
+Pure function — calculates the next fire datetime based on:
+- Cron hour/minute fields
+- Optional day-of-week filter (0=Sunday)
+- Current time (default `datetime.now(tz)`)
 
-#### `schedule_worker(cron_schedule)`
-Called either:
-- With a new cron schedule (from API settings update)
-- Without arguments (applies existing Redis schedule locally)
+If today's time hasn't passed → return today. Otherwise → walk forward up to 7 days.
 
-Uses `ScheduleManager.apply_schedule_from_redis()` to update local `aioschedule.jobs`.
+#### `_enqueue_worker_job()`
+Enqueues `fetch_and_process_stories` into the Arq Redis queue. Returns `True` on success.
+
+#### `_cleanup_old_logs()`
+Deletes `AiActivityLog` records older than 30 days. Called at startup and periodically around 03:00.
 
 ### 1.4 Cron Parsing Utilities
 
-#### `parse_cron_to_time(cron_schedule: str) -> str`
-Extracts minute and hour from a 5-field cron expression and returns `"HH:MM"` format.
+#### `_parse_cron_time(cron: str) -> tuple[int, int] | None`
+Extracts hour and minute from a 5-field cron expression. Returns `(hour, minute)` or `None`.
 
 | Cron | Output |
 |------|--------|
-| `"0 9 * * 1-5"` | `"09:00"` |
-| `"30 14 * * 1"` | `"14:30"` |
-| `"* * * * *"` | `"09:00"` (default fallback) |
+| `"0 9 * * 1-5"` | `(9, 0)` |
+| `"30 14 * * 1"` | `(14, 30)` |
+| `"0 9 * * *"` | `(9, 0)` |
 
-#### `parse_cron_to_days(cron_schedule: str) -> list`
-Extracts the weekday field and returns a list of cron weekdays (0=Sunday..6=Saturday).
+#### `_parse_cron_days(cron: str) -> list[int]`
+Extracts the weekday field (5th position). Returns list of cron weekdays (0=Sunday..6=Saturday). Empty list means every day.
 
-| Cron Weekday | Output | Meaning |
-|-------------|--------|---------|
+| Cron Field | Output | Meaning |
+|-----------|--------|---------|
 | `"1-5"` | `[1,2,3,4,5]` | Weekdays |
 | `"1,3,5"` | `[1,3,5]` | Mon, Wed, Fri |
-| `"*"` | `[]` | No scheduling (every day) |
+| `"*"` | `[]` | Every day |
 | `"1"` | `[1]` | Monday only |
-
-#### `format_days_to_cron(days: list, hour: int, minute: int) -> str`
-Reverse operation: converts day list + time back to cron format.
 
 ---
 
-## 2. ScheduleManager (`app/tasks/schedule_manager.py`)
+## 2. Redis Schedule Helpers (`app/tasks/scheduler.py` — inline)
 
 ### 2.1 Purpose
 
-The `ScheduleManager` is the **shared state coordinator** between the server and scheduler processes. It uses Redis to store and synchronize schedule configurations, ensuring that both processes always use the same cron expression.
+The scheduler uses Redis directly (without a separate `ScheduleManager` class) to store and synchronize the cron schedule between the server and scheduler processes.
 
 ### 2.2 Redis Key Schema
 
 | Redis Key | Type | Purpose |
 |-----------|------|---------|
-| `hn_reader:schedule:config` | String (JSON) | Current schedule configuration |
-| `hn_reader:schedule:version` | String (integer) | Version counter for cache invalidation |
-| `hn_reader:schedule:lock` | String ("1" or nil) | Distributed lock for atomic updates |
+| `hn_reader:schedule:config` | String (JSON) | Current schedule configuration: `{"cron_schedule": "..."}` |
+| `hn_reader:schedule:version` | String (integer) | Monotonically increasing version counter for change detection |
 
-### 2.3 Schedule Config JSON Structure
+### 2.3 Helper Functions
 
-```json
-{
-  "cron_schedule": "0 9 * * 1,2,3,4,5",
-  "updated_at": 1734567890.123
-}
-```
+All Redis interaction is done through short-lived connection pools (created/closed per call):
 
-### 2.4 Distributed Lock Mechanism
+| Function | Purpose |
+|----------|---------|
+| `_get_redis_pool()` | Creates a short-lived Arq Redis connection pool |
+| `_get_schedule_from_redis() -> dict` | Reads and parses `hn_reader:schedule:config` |
+| `_get_schedule_version() -> str` | Reads `hn_reader:schedule:version` |
+| `_write_schedule_to_redis(cron)` | Writes config JSON + bumps version counter |
 
-To prevent race conditions when both the server API and scheduler try to update the schedule simultaneously, the `ScheduleManager` implements a **Redis-based distributed lock**:
+### 2.4 Version-Based Change Detection
 
-1. **Lock Acquisition**: Uses `SET key "1" NX EX 10` — atomically creates the key only if it doesn't exist, with a 10-second TTL
-2. **Lock Release**: Deletes the key after the operation
-3. **Timeout Safety**: If a process crashes while holding the lock, the TTL ensures automatic cleanup
+The scheduler polls Redis version **inline during sleep** (every 30 seconds in `_sleep_with_schedule_check`), not via a separate background task:
 
-```python
-async def acquire_lock(self) -> bool:
-    result = await self.redis_pool.set(
-        SCHEDULE_LOCK_KEY, "1", nx=True, ex=LOCK_TIMEOUT  # 10 seconds
-    )
-    return result is True
-```
-
-### 2.5 Version-Based Cache Invalidation
-
-Each time the schedule is updated, the version counter is incremented. Both processes compare their local version with Redis's version to detect changes:
-
-```
-Schedule Update Flow:
-  1. Server API receives new cron schedule
-  2. ScheduleManager acquires Redis lock
-  3. Writes new config JSON to `hn_reader:schedule:config`
-  4. Increments `hn_reader:schedule:version` (e.g., "3" → "4")
-  5. Releases lock
-
-Change Detection Flow (both processes):
-  1. Read `hn_reader:schedule:version`
-  2. Compare with local `_schedule_version`
-  3. If different → call `apply_schedule_from_redis()`
-  4. Update local version
-```
-
-### 2.6 Monitoring Loop
-
-The scheduler runs a background task that polls Redis every 5 seconds:
-
-```python
-async def monitor_schedule_changes(self):
-    while True:
-        current_version = await self.get_schedule_version()
-
-        if self._schedule_version is None:
-            # First run — apply current schedule
-            await self.apply_schedule_from_redis()
-        elif current_version != self._schedule_version:
-            # Schedule changed — reload
-            await self.apply_schedule_from_redis()
-
-        self._schedule_version = current_version
-        await asyncio.sleep(5)
-```
-
-### 2.7 Schedule Application (`apply_schedule_from_redis()`)
-
-When a schedule change is detected, the following happens:
-
-1. **Clear existing** `aioschedule.jobs`
-2. **Parse** the cron expression (time + days)
-3. For each scheduled day, create an `aioschedule` job:
-   ```python
-   getattr(aioschedule.every(), day_name).at(scheduled_time).do(
-       lambda: asyncio.create_task(create_job_closure())
-   )
-   ```
-4. Each job calls `create_job_for_day()` which opens a Redis connection and enqueues `fetch_and_process_stories`
+1. Sleep 30 seconds → read `hn_reader:schedule:version`
+2. Compare with local `current_version`
+3. If changed → reload cron from Redis (or DB fallback) → recalculate `next_run`
+4. Update local `current_version` to match Redis (prevents re-detection)
+5. Repeat until target sleep time reached
 
 ---
 
@@ -482,26 +435,21 @@ POST /api/settings/ { cron_schedule: "0 14 * * 1,3,5" }
   ▼
 Server process:
   ├── Save to database (Setting.cron_schedule)
-  ├── Call schedule_manager.update_schedule("0 14 * * 1,3,5")
-  │     ├── Acquire Redis lock (NX EX 10)
-  │     ├── Write config to hn_reader:schedule:config
-  │     ├── Increment version: hn_reader:schedule:version → "5"
-  │     ├── Release lock
-  │     └── Apply schedule locally (update aioschedule.jobs)
+  ├── Write to Redis directly:
+  │     ├── SET hn_reader:schedule:config = {"cron_schedule": "0 14 * * 1,3,5"}
+  │     ├── INCR hn_reader:schedule:version
   │
   └── Response: 200 OK
   │
   ▼
-Scheduler process (monitoring every 5s):
-  ├── Read hn_reader:schedule:version → "5"
+Scheduler process (checking every 30s during sleep):
+  ├── GET hn_reader:schedule:version → "5"
   ├── Compare with local version "4" → different!
-  ├── Call apply_schedule_from_redis()
-  │     ├── Clear old aioschedule.jobs
-  │     ├── Parse new cron: "0 14 * * 1,3,5"
-  │     ├── Schedule: Monday at 14:00, Wednesday at 14:00, Friday at 14:00
-  │     └── Update local version to "5"
+  ├── GET hn_reader:schedule:config → {"cron_schedule": "0 14 * * 1,3,5"}
+  ├── Calculate new next_run with updated cron
+  ├── Update local version to "5"
   │
-  └── Next fetch will happen at 14:00 on the next scheduled day
+  └── Next fetch will happen at 14:00 on the next scheduled day (Mon/Wed/Fri)
 ```
 
 ---
@@ -583,7 +531,7 @@ Bash equivalent for Linux/macOS/Git Bash. Same service modes, with `--no-mig` fl
 |-----------|------------------|---------|
 | **FastAPI Server** | Asyncio (single process) | Async endpoints, async DB with SQLAlchemy |
 | **Arq Worker** | Asyncio + multiprocessing | `max_jobs=10` concurrent jobs per worker |
-| **Scheduler** | Asyncio (single process) | `aioschedule` + Redis polling |
+| **Scheduler** | Asyncio (single process) | `asyncio.sleep()` + Redis version polling |
 | **Fetcher** | Asyncio | `asyncio.gather` for concurrent HN API calls |
 | **AI Service** | Blocking I/O in async | OpenAI/Anthropic SDKs called with timeouts |
 
