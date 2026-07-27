@@ -317,6 +317,10 @@ async def _sleep_with_schedule_check(
         if updated_next is not None:
             return new_cron, new_ver, updated_next, 0
 
+        # Even if schedule didn't change, update the version to prevent
+        # re-detecting the same version change every 30 seconds.
+        current_version = new_ver
+
     return cron, current_version, next_run, remaining
 
 
