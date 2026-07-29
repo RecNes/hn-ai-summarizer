@@ -63,10 +63,18 @@
 </div>
 
 <script>
+// ── Global pairing code ─────────────────────────
+let currentPairingCode = null;
+
 // ── QR Code Loading ──────────────────────────────
 async function loadQrCode() {
     try {
-        const res = await fetch('/api/devices/qr-code');
+        const params = new URLSearchParams();
+        params.append('t', Date.now().toString());  // Cache-busting timestamp
+        if (currentPairingCode) {
+            params.append('pairing_code', currentPairingCode);
+        }
+        const res = await fetch('/api/devices/qr-code?' + params.toString());
         const data = await res.json();
         
         document.getElementById('qr-image').src = data.qr_code_base64;
@@ -94,8 +102,12 @@ async function loadPairingCode() {
         });
         const data = await res.json();
         
-        document.getElementById('pairing-code-display').textContent = data.pairing_code;
+        currentPairingCode = data.pairing_code;
+        document.getElementById('pairing-code-display').textContent = currentPairingCode;
         document.getElementById('pairing-code-section').classList.remove('hidden');
+        
+        // Reload QR code with the new pairing code embedded
+        loadQrCode();
         
         // Auto-cleanup after 5 minutes
         setTimeout(() => {

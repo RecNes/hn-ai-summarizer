@@ -239,11 +239,12 @@ async def sync_read_status(
 @router.get("/qr-code")
 async def get_pairing_qr_code(
     server_url: str = Query("", description="Server URL for pairing (auto-detected if empty)"),
+    pairing_code: str = Query("", description="Optional pairing code to embed in QR"),
 ):
     """Generate a QR code for device pairing.
 
     Returns a base64-encoded PNG image of the QR code.
-    The QR code contains JSON with server_url and a pairing endpoint URL.
+    The QR code contains JSON with server_url and optional pairing_code.
     """
     import base64
 
@@ -252,11 +253,14 @@ async def get_pairing_qr_code(
         server_url = app_settings.PUBLIC_URL or "http://localhost:8000"
 
     # QR code data: JSON with server info
-    qr_data = json.dumps({
+    qr_dict = {
         "server_url": str(server_url).rstrip("/"),
         "register_endpoint": "/api/devices/register",
         "version": "1.0",
-    })
+    }
+    if pairing_code:
+        qr_dict["pairing_code"] = pairing_code
+    qr_data = json.dumps(qr_dict)
 
     # Generate QR code
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
