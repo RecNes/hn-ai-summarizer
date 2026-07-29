@@ -97,19 +97,25 @@ async def confirm_device_pairing(
 
 @router.get("/list")
 async def list_devices(db: AsyncSession = Depends(get_db)):
-    """List all paired devices (for web UI device management panel)."""
+    """List all paired devices (for web UI device management panel).
+    
+    Filters out:
+      - Web UI temp devices (device_id starting with 'web-ui-')
+      - Devices with empty device_id or device_name
+    """
     devices = await get_paired_devices(db)
     return [
         {
             "id": d.id,
-            "device_name": d.device_name,
-            "device_id": d.device_id,
+            "device_name": d.device_name or "Bilinmeyen Cihaz",
+            "device_id": d.device_id or "",
             "is_paired": d.is_paired,
             "is_connected": d.is_connected,
             "last_sync_at": d.last_sync_at.isoformat() if d.last_sync_at else None,
             "created_at": d.created_at.isoformat() if d.created_at else None,
         }
         for d in devices
+        if d.device_id and not d.device_id.startswith("web-ui-")
     ]
 
 
