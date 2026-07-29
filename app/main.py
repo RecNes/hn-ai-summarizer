@@ -71,3 +71,11 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 async def simple_health_check():
     """Simple health check endpoint"""
     return {"status": "healthy"}
+
+
+@app.on_event("startup")
+async def startup_mdns_beacon():
+    """Start mDNS beacon for device auto-discovery on the local network."""
+    import asyncio
+    from app.services.mdns_beacon import start_mdns_beacon
+    asyncio.create_task(start_mdns_beacon())

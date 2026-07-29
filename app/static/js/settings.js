@@ -697,4 +697,85 @@ document.addEventListener('languageChanged', function() {
             }
         });
     }
+
+    // ── Device Management ────────────────────
+    loadDevices();
+    setInterval(loadDevices, 15000); // Refresh every 15s
 });
+
+// ── Device Management Functions ──────────────────
+
+async function loadDevices() {
+    const loadingEl = document.getElementById('devices-loading');
+    const emptyEl = document.getElementById('devices-empty');
+    const listEl = document.getElementById('devices-list');
+    const tbody = document.getElementById('devices-tbody');
+
+    try {
+        const res = await fetch('/api/devices/list');
+        const devices = await res.json();
+
+        if (loadingEl) loadingEl.classList.add('hidden');
+
+        if (!devices || devices.length === 0) {
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            if (listEl) listEl.classList.add('hidden');
+            return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+        if (listEl) listEl.classList.remove('hidden');
+
+        tbody.innerHTML = devices.map(d => `
+            <tr class="border-b">
+                <td class="py-3 font-medium">${escapeHtml(d.device_name)}</td>
+                <td class="py-3">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                        ${d.is_connected
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-100 text-gray-500'}">
+                        <span class="w-2 h-2 rounded-full ${d.is_connected ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                        ${d.is_connected ? 'Bağlı' : 'Bağlı Değil'}
+                    </span>
+                </td>
+                <td class="py-3 text-gray-500 text-xs">${d.last_sync_at ? formatDateShort(d.last_sync_at) : '—'}</td>
+                <td class="py-3">
+                    <button onclick="revokeDevice('${d.device_id}', '${escapeHtml(d.device_name)}')"
+                            class="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs transition">
+                        Bağlantıyı Kes
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Device list load error:', err);
+        if (loadingEl) loadingEl.innerHTML = '<span class="text-red-400">Cihaz listesi yüklenemedi</span>';
+    }
+}
+
+async function revokeDevice(deviceId, deviceName) {
+    if (!confirm(`"${deviceName}" cihazının bağlantısını kesmek istediğine emin misin?`)) return;
+    try {
+        const res = await fetch(`/api/devices/${deviceId}/revoke`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.revoked) loadDevices();
+    } catch (err) {
+        console.error('Revoke error:', err);
+        alert('Bağlantı kesilirken hata oluştu.');
+    }
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatDateShort(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr);
+    return d.toLocaleString('tr-TR', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    });
+}
