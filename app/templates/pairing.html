@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+B{% extends "base.html" %}
 {% block title %}Cihaz Eşleştirme — HN AI Summarizer{% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
             </div>
             <img id="qr-image" src="" alt="Pairing QR Code" class="hidden w-64 h-64" />
             <p id="server-url" class="mt-3 text-sm text-gray-500 dark:text-gray-400 hidden"></p>
-            <button id="qr-refresh" onclick="loadQrCode()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition hidden">
+            <button id="qr-refresh" onclick="loadPairingCode()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition hidden">
                 🔄 QR Kodu Yenile
             </button>
         </div>
@@ -63,8 +63,9 @@
 </div>
 
 <script>
-// ── Global pairing code ─────────────────────────
+// ── Global pairing state ─────────────────────────
 let currentPairingCode = null;
+let webUITempId = null;  // Reuse same temp device for refreshes
 
 // ── QR Code Loading ──────────────────────────────
 async function loadQrCode() {
@@ -93,12 +94,14 @@ async function loadQrCode() {
 // ── Pairing Code Generation ──────────────────────
 async function loadPairingCode() {
     try {
-        // Generate a pairing code by registering a temporary device
-        const tempId = 'web-ui-' + Date.now();
+        // Reuse existing temp device or create a new one
+        if (!webUITempId) {
+            webUITempId = 'web-ui-' + Date.now();
+        }
         const res = await fetch('/api/devices/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ device_name: 'Web UI Preview', device_id: tempId }),
+            body: JSON.stringify({ device_name: 'Web UI Preview', device_id: webUITempId }),
         });
         const data = await res.json();
         
@@ -107,12 +110,17 @@ async function loadPairingCode() {
         document.getElementById('pairing-code-section').classList.remove('hidden');
         
         // Reload QR code with the new pairing code embedded
-        loadQrCode();
+        await loadQrCode();
         
-        // Auto-cleanup after 5 minutes
-        setTimeout(() => {
-            fetch('/api/devices/' + tempId, { method: 'DELETE' }).catch(() => {});
-        }, 300000);
+        // Auto-cleanup after 5 minutes (only on first creation)
+        if (!window._cleanupScheduled) {
+            window._cleanupScheduled = true;
+            setTimeout(() => {
+                fetch('/api/devices/' + webUITempId, { method: 'DELETE' }).catch(() => {});
+                webUITempId = null;
+                window._cleanupScheduled = false;
+            }, 300000);
+        }
     } catch (err) {
         console.error('Pairing code generation error:', err);
     }
