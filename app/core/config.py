@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     # Empty string = UTC fallback. Set via .env: TIMEZONE=Europe/Istanbul
     TIMEZONE: str = Field("")
 
+    # Device sync settings
+    SECRET_KEY: str = Field("change-me-in-production-use-a-random-string")  # JWT signing key
+    SYNC_ENABLED: bool = Field(True)  # Enable device sync features
+    PAIRING_CODE_TTL: int = Field(300)  # Pairing code validity in seconds (5 minutes)
+
     @computed_field
     @property
     def ASYNC_DATABASE_URL(self) -> str:

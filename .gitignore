@@ -161,3 +161,21 @@ graphify-out
 
 # Implementation plan
 implementation_plan.md
+
+.ruff_cache
+
+# ── Flutter / Dart ─────────────────────
+.android_client/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+android_client/.dart_tool/
+android_client/build/
+android_client/.flutter-plugins*
+android_client/android/local.properties
+android_client/android/.gradle/
+android_client/android/app/build/
+android_client/android/app/.cxx/
+android_client/.idea/
+</content>

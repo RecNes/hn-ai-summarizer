@@ -242,6 +242,7 @@ Supports 20+ languages including:
 | [Installation](docs/INSTALLATION.md)  | Docker, Windows and local setup            |
 | [Architecture](docs/ARCHITECTURE.md)  | Scheduler, workers and processing pipeline |
 | [Configuration](.env.example) | Complete `.env` reference                  |
+| [Android Client](docs/ANDROID_CLIENT.md) | Android client reference                  |
 
 ---
 

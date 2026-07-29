@@ -221,6 +221,8 @@ async def _enqueue_worker_job() -> bool:
             logger.info(
                 "[SCHEDULER] ✅ Worker job enqueued — job_id=%s", job.job_id
             )
+            # Bildirim: bağlı cihazlara yeni içerik hazırlanmakta olduğunu bildir
+            _ = asyncio.create_task(_notify_devices_pending())
             return True
         else:
             logger.warning("[SCHEDULER] ❌ Enqueue returned None (queue full?)")
@@ -230,6 +232,26 @@ async def _enqueue_worker_job() -> bool:
         return False
     finally:
         await pool.aclose()
+
+
+async def _notify_devices_pending():
+    """Notify connected devices that new content processing has started."""
+    try:
+        from app.services.ws_manager import ws_manager
+
+        connected = ws_manager.get_connected_device_ids()
+        if connected:
+            await ws_manager.broadcast({
+                "type": "processing_started",
+                "message": "Yeni makaleler işleniyor...",
+                "device_count": len(connected),
+            })
+            logger.info(
+                "[SCHEDULER] Notified %d connected device(s) about pending content",
+                len(connected),
+            )
+    except Exception:
+        logger.exception("[SCHEDULER] ❌ Failed to notify devices")
 
 
 # ── Cleanup ─────────────────────────────

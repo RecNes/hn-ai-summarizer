@@ -4,6 +4,7 @@ import asyncio
 import json
 import logging
 import os
+from datetime import UTC, datetime
 
 from arq.connections import RedisSettings
 from sqlalchemy.future import select
@@ -449,7 +450,44 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True, trigger
     if send_notification:
         await _send_telegram_notification(processed_count, error_count)
 
-    return f"New: {processed_count}, Skipped: {skipped_count}, Errors: {error_count}"
+    result_summary = f"New: {processed_count}, Skipped: {skipped_count}, Errors: {error_count}"
+
+    # Bildirim: bağlı cihazlara yeni içerik hazır olduğunu bildir
+    if processed_count > 0:
+        _ = asyncio.create_task(_notify_devices_new_content(processed_count, ctx))
+
+    # Redis Pub/Sub: yeni içerik kanalına mesaj yayınla
+    try:
+        await ctx["redis"].publish(
+            "hn_reader:sync:new_content",
+            json.dumps({
+                "type": "new_content",
+                "story_count": processed_count,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }),
+        )
+        logger.info("[Worker] Published new_content event to Redis: %d stories", processed_count)
+    except Exception as e:
+        logger.warning("[Worker] Failed to publish new_content to Redis: %s", e)
+
+    return result_summary
+
+
+async def _notify_devices_new_content(processed_count: int, ctx):
+    """Notify connected devices via WebSocket that new content is ready."""
+    try:
+        from app.services.ws_manager import ws_manager
+
+        connected = ws_manager.get_connected_device_ids()
+        if connected:
+            await ws_manager.broadcast_new_content(processed_count)
+            logger.info(
+                "[Worker] Broadcated new_content (%d stories) to %d device(s)",
+                processed_count,
+                len(connected),
+            )
+    except Exception as e:
+        logger.warning("[Worker] Failed to notify devices: %s", e)
 
 
 async def _send_telegram_notification(processed_count: int, error_count: int = 0):

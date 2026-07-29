@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Cihaz Eşleştirme — HN AI Summarizer{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 dark:text-white">📱 Cihaz Eşleştirme</h1>
+
+    <!-- QR Code Section -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">QR Kod ile Bağlan</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">
+            Android uygulamasından QR kodu okutarak cihazını eşleştir.
+        </p>
+        <div id="qr-container" class="flex flex-col items-center">
+            <div id="qr-loading" class="animate-pulse w-48 h-48 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center">
+                <span class="text-gray-400">Yükleniyor...</span>
+            </div>
+            <img id="qr-image" src="" alt="Pairing QR Code" class="hidden w-64 h-64" />
+            <p id="server-url" class="mt-3 text-sm text-gray-500 dark:text-gray-400 hidden"></p>
+            <button id="qr-refresh" onclick="loadQrCode()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition hidden">
+                🔄 QR Kodu Yenile
+            </button>
+        </div>
+    </div>
+
+    <!-- Manual Pairing Code -->
+    <div id="pairing-code-section" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8 hidden">
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">Manuel Eşleştirme Kodu</h2>
+        <p class="text-gray-600 dark:text-gray-400 mb-3">
+            QR kodu okutamıyorsan bu kodu Android uygulamasına elle girebilirsin:
+        </p>
+        <div class="flex items-center gap-4">
+            <code id="pairing-code-display" class="text-4xl font-mono font-bold tracking-widest bg-gray-100 dark:bg-gray-700 px-6 py-3 rounded-lg dark:text-green-400"></code>
+            <button onclick="copyPairingCode()" class="px-3 py-2 bg-gray-200 dark:bg-gray-600 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition text-sm">
+                📋 Kopyala
+            </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2">Bu kod 5 dakika geçerlidir.</p>
+    </div>
+
+    <!-- Paired Devices List -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">Bağlı Cihazlar</h2>
+        <div id="devices-loading" class="animate-pulse text-gray-400">Yükleniyor...</div>
+        <div id="devices-empty" class="hidden text-gray-500 dark:text-gray-400 py-4 text-center">
+            Henüz eşleştirilmiş cihaz yok.
+        </div>
+        <div id="devices-list" class="hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+                        <th class="pb-2">Cihaz Adı</th>
+                        <th class="pb-2">Durum</th>
+                        <th class="pb-2">Son Senkronizasyon</th>
+                        <th class="pb-2">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody id="devices-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── QR Code Loading ──────────────────────────────
+async function loadQrCode() {
+    try {
+        const res = await fetch('/api/devices/qr-code');
+        const data = await res.json();
+        
+        document.getElementById('qr-image').src = data.qr_code_base64;
+        document.getElementById('qr-image').classList.remove('hidden');
+        document.getElementById('qr-loading').classList.add('hidden');
+        document.getElementById('qr-refresh').classList.remove('hidden');
+        
+        document.getElementById('server-url').textContent = 'Sunucu: ' + data.server_url;
+        document.getElementById('server-url').classList.remove('hidden');
+    } catch (err) {
+        console.error('QR code load error:', err);
+        document.getElementById('qr-loading').innerHTML = '<span class="text-red-400">QR kod yüklenemedi</span>';
+    }
+}
+
+// ── Pairing Code Generation ──────────────────────
+async function loadPairingCode() {
+    try {
+        // Generate a pairing code by registering a temporary device
+        const tempId = 'web-ui-' + Date.now();
+        const res = await fetch('/api/devices/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device_name: 'Web UI Preview', device_id: tempId }),
+        });
+        const data = await res.json();
+        
+        document.getElementById('pairing-code-display').textContent = data.pairing_code;
+        document.getElementById('pairing-code-section').classList.remove('hidden');
+        
+        // Auto-cleanup after 5 minutes
+        setTimeout(() => {
+            fetch('/api/devices/' + tempId, { method: 'DELETE' }).catch(() => {});
+        }, 300000);
+    } catch (err) {
+        console.error('Pairing code generation error:', err);
+    }
+}
+
+function copyPairingCode() {
+    const code = document.getElementById('pairing-code-display').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        btn.textContent = '✅ Kopyalandı!';
+        setTimeout(() => { btn.textContent = '📋 Kopyala'; }, 2000);
+    });
+}
+
+// ── Device List ──────────────────────────────────
+async function loadDevices() {
+    try {
+        const res = await fetch('/api/devices/list');
+        const devices = await res.json();
+        
+        document.getElementById('devices-loading').classList.add('hidden');
+        
+        if (!devices || devices.length === 0) {
+            document.getElementById('devices-empty').classList.remove('hidden');
+            return;
+        }
+        
+        document.getElementById('devices-list').classList.remove('hidden');
+        const tbody = document.getElementById('devices-tbody');
+        tbody.innerHTML = devices.map(d => `
+            <tr class="border-b dark:border-gray-700">
+                <td class="py-3 dark:text-white">${escapeHtml(d.device_name)}</td>
+                <td class="py-3">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                        ${d.is_connected 
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' 
+                            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}">
+                        <span class="w-2 h-2 rounded-full ${d.is_connected ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                        ${d.is_connected ? 'Bağlı' : 'Bağlı Değil'}
+                    </span>
+                </td>
+                <td class="py-3 text-gray-500 dark:text-gray-400">${d.last_sync_at ? formatDate(d.last_sync_at) : '—'}</td>
+                <td class="py-3">
+                    <button onclick="revokeDevice('${d.device_id}', '${escapeHtml(d.device_name)}')" 
+                            class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition text-xs">
+                        Bağlantıyı Kes
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        console.error('Device list load error:', err);
+        document.getElementById('devices-loading').innerHTML = '<span class="text-red-400">Cihaz listesi yüklenemedi</span>';
+    }
+}
+
+// ── Revoke Device ────────────────────────────────
+async function revokeDevice(deviceId, deviceName) {
+    if (!confirm(`"${deviceName}" cihazının bağlantısını kesmek istediğine emin misin?`)) {
+        return;
+    }
+    try {
+        const res = await fetch('/api/devices/' + deviceId + '/revoke', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.revoked) {
+            loadDevices(); // Refresh list
+        }
+    } catch (err) {
+        console.error('Revoke error:', err);
+        alert('Bağlantı kesilirken hata oluştu.');
+    }
+}
+
+// ── Helpers ──────────────────────────────────────
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatDate(isoStr) {
+    if (!isoStr) return '—';
+    const d = new Date(isoStr);
+    return d.toLocaleString('tr-TR', { 
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit' 
+    });
+}
+
+// ── Init ─────────────────────────────────────────
+loadQrCode();
+loadPairingCode();
+loadDevices();
+
+// Refresh device list every 10 seconds
+setInterval(loadDevices, 10000);
+</script>
+{% endblock %}

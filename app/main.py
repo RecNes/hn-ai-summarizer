@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import (
     activity,
+    devices,
     events,
     health,
     logs,
@@ -50,6 +51,7 @@ app.add_middleware(
 )
 
 # Include API routers
+app.include_router(devices.router, prefix="/api/devices", tags=["devices"])
 app.include_router(events.router, prefix="/api/events", tags=["events"])
 app.include_router(health.router, prefix="/api/health", tags=["health"])
 app.include_router(logs.router, prefix="/api/logs", tags=["logs"])

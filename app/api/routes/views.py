@@ -38,3 +38,9 @@ async def settings_page(request: Request):
 async def logs_page(request: Request):
     """Activity logs page"""
     return await _render("logs.html", request)
+
+
+@router.get("/pairing", response_class=HTMLResponse)
+async def pairing_page(request: Request):
+    """Device pairing page — shows QR code and pairing code"""
+    return await _render("pairing.html", request)
