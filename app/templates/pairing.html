@@ -169,7 +169,7 @@ async function loadDevices() {
                 <td class="py-3 text-gray-500 dark:text-gray-400">${d.last_sync_at ? formatDate(d.last_sync_at) : '—'}</td>
                 <td class="py-3">
                     ${hasValidId 
-                        ? `<button onclick="revokeDevice('${escapeHtml(safeId)}', '${escapeHtml(displayName)}')" 
+                        ? `<button onclick="confirmedRevokeDevice('${escapeHtml(safeId)}', '${escapeHtml(displayName)}')" 
                                 class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition text-xs">
                             Bağlantıyı Kes
                         </button>`
@@ -184,15 +184,21 @@ async function loadDevices() {
 }
 
 // ── Revoke Device ────────────────────────────────
-async function revokeDevice(deviceId, deviceName) {
+function confirmedRevokeDevice(deviceId, deviceName) {
     if (!confirm(`"${deviceName}" cihazının bağlantısını kesmek istediğine emin misin?`)) {
         return;
     }
+    return revokeDevice(deviceId);
+}
+
+async function revokeDevice(deviceId) {
     try {
         const res = await fetch('/api/devices/' + deviceId + '/revoke', { method: 'DELETE' });
         const data = await res.json();
         if (data.revoked) {
             loadDevices(); // Refresh list
+        } else {
+            alert('Bağlantı kesilemedi: ' + (data.message || 'Bilinmeyen hata'));
         }
     } catch (err) {
         console.error('Revoke error:', err);
