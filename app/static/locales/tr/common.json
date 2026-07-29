@@ -230,14 +230,14 @@
     }
   },
   "pairing": {
-    "title": "Cihaz Eşleştirme",
+    "title": "Cihaz Eșleștirme",
     "qrTitle": "QR Kod ile Bağlan",
-    "qrDescription": "Android uygulamasından QR kodu okutarak cihazını eşleştir.",
+    "qrDescription": "Android uygulamasından QR kodu okutarak cihazını eșleștir.",
     "qrLoading": "Yükleniyor...",
     "qrError": "QR kod yüklenemedi",
-    "serverLabel": "Sunucu: {url}",
+    "serverLabel": "Sunucu: {{url}}",
     "refreshQr": "QR Kodu Yenile",
-    "manualTitle": "Manuel Eşleştirme Kodu",
+    "manualTitle": "Manuel Eșleștirme Kodu",
     "manualDescription": "QR kodu okutamıyorsan bu kodu Android uygulamasına elle girebilirsin:",
     "copyButton": "Kopyala",
     "copiedButton": "Kopyalandı!",
@@ -245,17 +245,17 @@
     "devicesTitle": "Bağlı Cihazlar",
     "devicesLoading": "Yükleniyor...",
     "devicesLoadError": "Cihaz listesi yüklenemedi",
-    "devicesEmpty": "Henüz eşleştirilmiş cihaz yok.",
+    "devicesEmpty": "Henüz eșleștirilmiș cihaz yok.",
     "deviceNameHeader": "Cihaz Adı",
     "deviceStatusHeader": "Durum",
     "deviceLastSyncHeader": "Son Senkronizasyon",
-    "deviceActionsHeader": "İşlem",
+    "deviceActionsHeader": "İșlem",
     "statusConnected": "Bağlı",
     "statusDisconnected": "Bağlı Değil",
     "unknownDevice": "Bilinmeyen Cihaz",
     "revokeButton": "Bağlantıyı Kes",
-    "revokeConfirm": "\"{name}\" cihazının bağlantısını kesmek istediğine emin misin?",
-    "revokeFailed": "Bağlantı kesilemedi: {message}",
-    "revokeError": "Bağlantı kesilirken hata oluştu."
+    "revokeConfirm": "\"{{name}}\" cihazının bağlantısını kesmek istediğine emin misin?",
+    "revokeFailed": "Bağlantı kesilemedi: {{message}}",
+    "revokeError": "Bağlantı kesilirken hata oluștu."
   }
 }
