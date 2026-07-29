@@ -235,7 +235,7 @@
     "qrDescription": "Android uygulamasından QR kodu okutarak cihazını eșleștir.",
     "qrLoading": "Yükleniyor...",
     "qrError": "QR kod yüklenemedi",
-    "serverLabel": "Sunucu: {{url}}",
+    "serverLabel": "Sunucu: ",
     "refreshQr": "QR Kodu Yenile",
     "manualTitle": "Manuel Eșleștirme Kodu",
     "manualDescription": "QR kodu okutamıyorsan bu kodu Android uygulamasına elle girebilirsin:",

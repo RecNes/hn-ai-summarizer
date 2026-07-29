@@ -203,7 +203,7 @@
     "qrDescription": "Pair your device by scanning the QR code from the Android app.",
     "qrLoading": "Loading...",
     "qrError": "Failed to load QR code",
-    "serverLabel": "Server: {{url}}",
+    "serverLabel": "Server: ",
     "refreshQr": "Refresh QR Code",
     "manualTitle": "Manual Pairing Code",
     "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",

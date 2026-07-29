@@ -83,7 +83,7 @@ async function loadQrCode() {
         document.getElementById('qr-loading').classList.add('hidden');
         document.getElementById('qr-refresh').classList.remove('hidden');
         
-        document.getElementById('server-url').textContent = __('pairing.serverLabel', { url: data.server_url });
+        document.getElementById('server-url').textContent = __('pairing.serverLabel') + data.server_url;
         document.getElementById('server-url').classList.remove('hidden');
     } catch (err) {
         console.error('QR code load error:', err);
