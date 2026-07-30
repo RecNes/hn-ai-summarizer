@@ -41,6 +41,27 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# ── Token Verify ──────────────────────────────────────────
+
+
+@router.get("/verify")
+async def verify_device_token_endpoint(
+    token: str = Query(..., description="Device JWT auth token"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Verify that a stored device token is still valid.
+    
+    Returns 200 if token is valid and device is still paired.
+    Returns 401 if token is invalid, expired, or device was revoked.
+    """
+    device = await get_current_device_from_token(token, db)
+    return {
+        "device_id": device.device_id,
+        "device_name": device.device_name,
+        "valid": True,
+    }
+
+
 # ── Device Registration & Pairing ──────────────────────────
 
 
@@ -112,7 +133,7 @@ async def list_devices(db: AsyncSession = Depends(get_db)):
             "is_paired": d.is_paired,
             "is_connected": d.is_connected,
             "last_sync_at": d.last_sync_at.isoformat() if d.last_sync_at else None,
-            "created_at": d.created_at.isoformat() if d.created_at else None,
+            "paired_at": d.created_at.isoformat() if d.created_at else None,
         }
         for d in devices
         if d.device_id and not d.device_id.startswith("web-ui-")

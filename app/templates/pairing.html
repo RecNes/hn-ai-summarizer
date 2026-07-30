@@ -51,6 +51,7 @@
                     <tr class="border-b dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
                         <th class="pb-2" data-i18n="pairing.deviceNameHeader">Cihaz Adı</th>
                         <th class="pb-2" data-i18n="pairing.deviceStatusHeader">Durum</th>
+                        <th class="pb-2">Pair Tarihi</th>
                         <th class="pb-2" data-i18n="pairing.deviceLastSyncHeader">Son Senkronizasyon</th>
                         <th class="pb-2" data-i18n="pairing.deviceActionsHeader">İşlem</th>
                     </tr>
@@ -161,7 +162,7 @@ async function loadDevices() {
             const safeId = d.device_id || '';
             const hasValidId = safeId && safeId.length > 0;
             return `
-            <tr class="border-b dark:border-gray-700">
+            <tr class="border-b dark:border-gray-700" id="device-row-${safeId}">
                 <td class="py-3 dark:text-white">${displayName}</td>
                 <td class="py-3">
                     <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
@@ -172,14 +173,15 @@ async function loadDevices() {
                         ${d.is_connected ? connectedLabel : disconnectedLabel}
                     </span>
                 </td>
-                <td class="py-3 text-gray-500 dark:text-gray-400">${d.last_sync_at ? formatDate(d.last_sync_at) : '\u2014'}</td>
+                <td class="py-3 text-gray-500 dark:text-gray-400">${d.paired_at ? formatDate(d.paired_at) : '—'}</td>
+                <td class="py-3 text-gray-500 dark:text-gray-400">${d.last_sync_at ? formatDate(d.last_sync_at) : '—'}</td>
                 <td class="py-3">
                     ${hasValidId 
                         ? `<button onclick="confirmedRevokeDevice('${escapeHtml(safeId)}', '${escapeHtml(displayName)}')" 
                                 class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition text-xs">
                             ${revokeLabel}
                         </button>`
-                        : '<span class="text-xs text-gray-400">\u2014</span>'}
+                        : '<span class="text-xs text-gray-400">—</span>'}
                 </td>
             </tr>
         `}).join('');
