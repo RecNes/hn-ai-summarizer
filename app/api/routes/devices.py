@@ -89,7 +89,7 @@ async def register_device(
         )
 
     # New device
-    device = await create_device(db, req.device_name, req.device_id)
+    device = await create_device(db, req.device_name, req.device_id, req.device_type)
     plaintext_code = getattr(device, "_plaintext_pairing_code", "000000")
     return DeviceRegisterResponse(
         device_id=req.device_id,
@@ -130,6 +130,7 @@ async def list_devices(db: AsyncSession = Depends(get_db)):
             "id": d.id,
             "device_name": d.device_name or "Bilinmeyen Cihaz",
             "device_id": d.device_id or "",
+            "device_type": d.device_type or "android",
             "is_paired": d.is_paired,
             "is_connected": d.is_connected,
             "last_sync_at": d.last_sync_at.isoformat() if d.last_sync_at else None,

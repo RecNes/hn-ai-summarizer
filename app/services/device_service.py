@@ -51,7 +51,7 @@ def verify_device_token(token: str, secret_key: str | None = None) -> dict | Non
 
 
 async def create_device(
-    db: AsyncSession, device_name: str, device_id: str
+    db: AsyncSession, device_name: str, device_id: str, device_type: str = "android"
 ) -> Device:
     """Create a new device record with a pairing code."""
     pairing_code = generate_pairing_code()
@@ -59,6 +59,7 @@ async def create_device(
     device = Device(
         device_name=device_name,
         device_id=device_id,
+        device_type=device_type,
         pairing_code=_hash_pairing_code(pairing_code),
         is_paired=False,
     )

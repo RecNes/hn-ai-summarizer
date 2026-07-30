@@ -1,0 +1,193 @@
+// ═══════════════════════════════════════════
+// HN AI Summarizer — Device Pairing Page JS
+// ═══════════════════════════════════════════
+
+// ── Global pairing state ─────────────────────────
+let currentPairingCode = null;
+let webUITempId = null; // Reuse same temp device for refreshes
+
+// ── QR Code Loading ──────────────────────────────
+async function loadQrCode() {
+    try {
+        const params = new URLSearchParams();
+        params.append('t', Date.now().toString());
+        if (currentPairingCode) {
+            params.append('pairing_code', currentPairingCode);
+        }
+        const res = await fetch('/api/devices/qr-code?' + params.toString());
+        const data = await res.json();
+
+        document.getElementById('qr-image').src = data.qr_code_base64;
+        document.getElementById('qr-image').classList.remove('hidden');
+        document.getElementById('qr-loading').classList.add('hidden');
+        document.getElementById('qr-refresh').classList.remove('hidden');
+
+        document.getElementById('server-url').textContent =
+            __('pairing.serverLabel') + data.server_url;
+        document.getElementById('server-url').classList.remove('hidden');
+    } catch (err) {
+        console.error('QR code load error:', err);
+        document.getElementById('qr-loading').innerHTML =
+            '<span class="text-red-400">' + __('pairing.qrError') + '</span>';
+    }
+}
+
+// ── Pairing Code Generation ──────────────────────
+async function loadPairingCode() {
+    try {
+        if (!webUITempId) {
+            webUITempId = 'web-ui-' + Date.now();
+        }
+        const res = await fetch('/api/devices/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                device_name: 'Web UI Preview',
+                device_id: webUITempId,
+            }),
+        });
+        const data = await res.json();
+
+        currentPairingCode = data.pairing_code;
+        document.getElementById('pairing-code-display').textContent = currentPairingCode;
+        document.getElementById('pairing-code-section').classList.remove('hidden');
+
+        await loadQrCode();
+
+        if (!window._cleanupScheduled) {
+            window._cleanupScheduled = true;
+            setTimeout(() => {
+                fetch('/api/devices/' + webUITempId, { method: 'DELETE' }).catch(() => {});
+                webUITempId = null;
+                window._cleanupScheduled = false;
+            }, 300000);
+        }
+    } catch (err) {
+        console.error('Pairing code generation error:', err);
+    }
+}
+
+function copyPairingCode() {
+    const code = document.getElementById('pairing-code-display').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+        const btn = event.target;
+        btn.textContent = __('pairing.copiedPrefix') + __('pairing.copiedButton');
+        setTimeout(() => {
+            btn.textContent = __('pairing.copyPrefix') + __('pairing.copyButton');
+        }, 2000);
+    });
+}
+
+// ── Device List ──────────────────────────────────
+async function loadDevices() {
+    try {
+        const res = await fetch('/api/devices/list');
+        const devices = await res.json();
+
+        document.getElementById('devices-loading').classList.add('hidden');
+
+        if (!devices || devices.length === 0) {
+            document.getElementById('devices-list').classList.add('hidden');
+            document.getElementById('devices-empty').classList.remove('hidden');
+            return;
+        }
+
+        document.getElementById('devices-empty').classList.add('hidden');
+        document.getElementById('devices-list').classList.remove('hidden');
+        const tbody = document.getElementById('devices-tbody');
+
+        const unknownLabel = __('pairing.unknownDevice');
+        const connectedLabel = __('pairing.statusConnected');
+        const disconnectedLabel = __('pairing.statusDisconnected');
+        const revokeLabel = __('pairing.revokeButton');
+
+        tbody.innerHTML = devices
+            .map((d) => {
+                const displayName = escapeHtml(d.device_name || unknownLabel);
+                const safeId = d.device_id || '';
+                const hasValidId = safeId && safeId.length > 0;
+                const typeIcon = d.device_type === 'ios' ? '\uD83C\uDF4E' : '\uD83E\uDD16';
+                return `
+            <tr class="border-b dark:border-gray-700" id="device-row-${safeId}">
+                <td class="py-3 dark:text-white">${typeIcon} ${displayName}</td>
+                <td class="py-3">
+                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
+                        ${d.is_connected
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}">
+                        <span class="w-2 h-2 rounded-full ${d.is_connected ? 'bg-green-500' : 'bg-gray-400'}"></span>
+                        ${d.is_connected ? connectedLabel : disconnectedLabel}
+                    </span>
+                </td>
+                <td class="py-3 text-gray-500 dark:text-gray-400">${d.paired_at ? formatDate(d.paired_at) : '\u2014'}</td>
+                <td class="py-3 text-gray-500 dark:text-gray-400">${d.last_sync_at ? formatDate(d.last_sync_at) : '\u2014'}</td>
+                <td class="py-3">
+                    ${hasValidId
+                        ? `<button onclick="confirmedRevokeDevice('${escapeHtml(safeId)}', '${escapeHtml(displayName)}')"
+                                class="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition text-xs">
+                            ${revokeLabel}
+                        </button>`
+                        : '<span class="text-xs text-gray-400">\u2014</span>'}
+                </td>
+            </tr>
+        `;
+            })
+            .join('');
+    } catch (err) {
+        console.error('Device list load error:', err);
+        document.getElementById('devices-loading').innerHTML =
+            '<span class="text-red-400">' + __('pairing.devicesLoadError') + '</span>';
+    }
+}
+
+// ── Revoke Device ────────────────────────────────
+function confirmedRevokeDevice(deviceId, deviceName) {
+    const confirmMsg = __('pairing.revokeConfirm', { name: deviceName });
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+    return revokeDevice(deviceId);
+}
+
+async function revokeDevice(deviceId) {
+    try {
+        const res = await fetch('/api/devices/' + deviceId + '/revoke', { method: 'DELETE' });
+        const data = await res.json();
+        if (data.revoked) {
+            loadDevices();
+        } else {
+            alert(
+                __('pairing.revokeFailed', {
+                    message: data.message || __('pairing.unknownError'),
+                }),
+            );
+        }
+    } catch (err) {
+        console.error('Revoke error:', err);
+        alert(__('pairing.revokeError'));
+    }
+}
+
+// ── Helpers ──────────────────────────────────────
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function formatDate(isoStr) {
+    if (!isoStr) return '\u2014';
+    const d = new Date(isoStr);
+    return d.toLocaleString('tr-TR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
+
+// ── Init ─────────────────────────────────────────
+loadPairingCode();
+loadDevices();
+setInterval(loadDevices, 10000);

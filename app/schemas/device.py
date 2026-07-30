@@ -9,6 +9,7 @@ class DevicePairingRequest(BaseModel):
     """Request schema for device registration (pairing initiation)."""
     device_name: str
     device_id: str
+    device_type: str = "android"
 
 
 class DevicePairingConfirm(BaseModel):

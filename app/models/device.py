@@ -17,6 +17,7 @@ class Device(Base):
     device_name: Mapped[str] = mapped_column(String, nullable=False)
     device_id: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     pairing_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    device_type: Mapped[str] = mapped_column(String, nullable=False, default="android")
     auth_token: Mapped[str | None] = mapped_column(String, nullable=True)
     is_paired: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_connected: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

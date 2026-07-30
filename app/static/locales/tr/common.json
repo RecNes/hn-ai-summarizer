@@ -247,6 +247,7 @@
     "devicesLoadError": "Cihaz listesi yüklenemedi",
     "devicesEmpty": "Henüz eșleștirilmiș cihaz yok.",
     "deviceNameHeader": "Cihaz Adı",
+    "devicePairingDate": "Pair Tarihi",
     "deviceStatusHeader": "Durum",
     "deviceLastSyncHeader": "Son Senkronizasyon",
     "deviceActionsHeader": "İșlem",
@@ -256,6 +257,9 @@
     "revokeButton": "Bağlantıyı Kes",
     "revokeConfirm": "\"{{name}}\" cihazının bağlantısını kesmek istediğine emin misin?",
     "revokeFailed": "Bağlantı kesilemedi: {{message}}",
-    "revokeError": "Bağlantı kesilirken hata oluștu."
+    "revokeError": "Bağlantı kesilirken hata oluștu.",
+    "unknownError": "Bilinmeyen hata",
+    "copiedPrefix": "✅ ",
+    "copyPrefix": "📋 "
   }
 }

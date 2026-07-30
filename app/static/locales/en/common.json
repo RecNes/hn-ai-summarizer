@@ -247,6 +247,7 @@
     "devicesLoadError": "Failed to load device list",
     "devicesEmpty": "No paired devices yet.",
     "deviceNameHeader": "Device Name",
+    "devicePairingDate": "Pair Date",
     "deviceStatusHeader": "Status",
     "deviceLastSyncHeader": "Last Sync",
     "deviceActionsHeader": "Actions",
@@ -256,6 +257,9 @@
     "revokeButton": "Disconnect",
     "revokeConfirm": "Are you sure you want to disconnect \"{{name}}\"?",
     "revokeFailed": "Disconnect failed: {{message}}",
-    "revokeError": "An error occurred while disconnecting."
+    "revokeError": "An error occurred while disconnecting.",
+    "unknownError": "Unknown error",
+    "copiedPrefix": "✅ ",
+    "copyPrefix": "📋 "
   }
 }
