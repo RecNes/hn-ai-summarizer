@@ -1,6 +1,6 @@
-# hn_reader_client
+# hn_take_away
 
-A new Flutter project.
+HNS Take Away - Offline-first Android client for HN AI Summarizer
 
 ## Getting Started
 

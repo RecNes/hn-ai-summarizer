@@ -1,4 +1,4 @@
-package com.example.hn_reader_client
+package com.hnstakeaway.app
 
 import io.flutter.embedding.android.FlutterActivity
 

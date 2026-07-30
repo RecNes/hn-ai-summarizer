@@ -1,15 +1,15 @@
-name: hn_reader_client
-description: Hacker News AI Summarizer — Offline-first Android client
+name: hn_take_away
+description: "HNS Take Away — Kişisel Hacker News özetleyiciniz için günlük AI-özetli makaleleri çevrimdışı olarak yanınıza almanızı sağlayan mobil uygulama."
 publish_to: 'none'
-version: 1.0.0+1
+version: 0.0.0+1
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
-  flutter: '>=3.24.0'
+  sdk: ^3.12.2
 
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.8
 
   # State Management
   provider: ^6.1.2
@@ -48,7 +48,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo.png
+    - assets/locales/en.json
+    - assets/locales/tr.json
