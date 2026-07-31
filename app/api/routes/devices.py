@@ -5,6 +5,7 @@ import json
 import logging
 from datetime import UTC
 from datetime import datetime as dt
+from urllib.parse import urlparse
 
 import qrcode
 from fastapi import (
@@ -48,6 +49,26 @@ from app.shared.languages import get_languages
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _public_server_url() -> str:
+    """PUBLIC_URL değerini döndürür.
+
+    Port `0` (geçersiz) görüldüğünde temizler — ters proxy
+    kurulumlarında PUBLIC_URL bazen `https://domain:0` olarak
+    algılanabilir. Bu durumda port kaldırılır (https→443, http→80).
+    """
+    raw = str(app_settings.PUBLIC_URL or "http://localhost:8000").rstrip("/")
+    try:
+        parsed = urlparse(raw)
+        if parsed.port == 0 and parsed.hostname:
+            netloc = parsed.hostname
+            if parsed.path:
+                netloc += parsed.path
+            raw = f"{parsed.scheme}://{netloc}"
+    except ValueError:
+        pass  # Geçersiz URL — raw olarak kullan
+    return raw
 
 
 # ── Token Verify ──────────────────────────────────────────
@@ -292,7 +313,7 @@ async def create_pairing_session():
 
     try:
         code = generate_pairing_code()
-        server_url = str(app_settings.PUBLIC_URL or "http://localhost:8000").rstrip("/")
+        server_url = _public_server_url()
 
         session_data = json.dumps({
             "server_url": server_url,
@@ -326,7 +347,7 @@ async def get_pairing_qr_code(
 
     # Use provided URL or fall back to PUBLIC_URL or build from localhost
     if not server_url:
-        server_url = app_settings.PUBLIC_URL or "http://localhost:8000"
+        server_url = _public_server_url()
 
     # QR code data: JSON with server info
     qr_dict = {
