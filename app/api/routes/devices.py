@@ -3,16 +3,25 @@
 import io
 import json
 import logging
+from datetime import UTC
+from datetime import datetime as dt
+
 import qrcode
-from datetime import UTC, datetime as dt
-from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_device_from_token, get_ws_device
 from app.core.config import settings as app_settings
 from app.core.database import get_db
-from app.models.device import Device
 from app.models.preference import UserPreference
 from app.models.story import Story
 from app.schemas.device import (
@@ -20,17 +29,15 @@ from app.schemas.device import (
     DevicePairingRequest,
     DevicePairingResponse,
     DeviceRegisterResponse,
-    DeviceResetRequest,
     DeviceRevokeResponse,
     SyncStatusRequest,
 )
-from app.schemas.story import StoryResponse
 from app.services.device_service import (
     apply_read_status,
     confirm_pairing,
     create_device,
-    get_paired_devices,
     get_device_by_id,
+    get_paired_devices,
     reset_device,
     revoke_device,
     update_device_sync_time,
@@ -72,14 +79,18 @@ async def register_device(
     req: DevicePairingRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """Register a new device for pairing. Returns a 6-digit pairing code."""
+    """Register a new device for pairing. Returns a 6-digit pairing code.
+
+    If `req.pairing_code` is provided (e.g. from a web UI QR session), that
+    code is used as the device's pairing code. Otherwise a new code is generated.
+    """
+    from app.services.device_service import _hash_pairing_code, generate_pairing_code
+
     # Check if device already exists
     existing = await get_device_by_id(db, req.device_id)
     if existing:
-        # Re-register: generate new pairing code
-        from app.services.device_service import _hash_pairing_code, generate_pairing_code
-
-        new_code = generate_pairing_code()
+        # Re-register: generate new pairing code (or use provided session code)
+        new_code = req.pairing_code or generate_pairing_code()
         existing.pairing_code = _hash_pairing_code(new_code)
         existing.is_paired = False
         existing.auth_token = None
@@ -93,6 +104,13 @@ async def register_device(
     # New device
     device = await create_device(db, req.device_name, req.device_id, req.device_type)
     plaintext_code = getattr(device, "_plaintext_pairing_code", "000000")
+
+    # If a web-session code was provided, use it instead of the generated one
+    if req.pairing_code:
+        device.pairing_code = _hash_pairing_code(req.pairing_code)
+        await db.commit()
+        plaintext_code = req.pairing_code
+
     return DeviceRegisterResponse(
         device_id=req.device_id,
         pairing_code=plaintext_code,
@@ -329,7 +347,7 @@ async def get_pairing_qr_code(
 
     # Convert to base64 PNG
     buf = io.BytesIO()
-    img.save(buf, format="PNG")
+    img.save(buf, "PNG")
     buf.seek(0)
     img_base64 = base64.b64encode(buf.getvalue()).decode()
 

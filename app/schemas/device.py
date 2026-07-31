@@ -10,6 +10,9 @@ class DevicePairingRequest(BaseModel):
     device_name: str
     device_id: str
     device_type: str = "android"
+    # Optional: pairing code from the web UI QR/session.
+    # If provided, the server uses this code instead of generating a new one.
+    pairing_code: str | None = None
 
 
 class DevicePairingConfirm(BaseModel):
