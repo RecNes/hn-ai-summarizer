@@ -4,7 +4,6 @@
 
 // ── Global pairing state ─────────────────────────
 let currentPairingCode = null;
-let webUITempId = null; // Reuse same temp device for refreshes
 
 // ── QR Code Loading ──────────────────────────────
 async function loadQrCode() {
@@ -35,32 +34,13 @@ async function loadQrCode() {
 // ── Pairing Code Generation ──────────────────────
 async function loadPairingCode() {
     try {
-        if (!webUITempId) {
-            webUITempId = 'web-ui-' + Date.now();
-        }
-        const res = await fetch('/api/devices/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                device_name: 'Web UI Preview',
-                device_id: webUITempId,
-            }),
-        });
+        const res = await fetch('/api/devices/pairing-session', { method: 'POST' });
         const data = await res.json();
 
         currentPairingCode = data.pairing_code;
         document.getElementById('pairing-code-display').textContent = currentPairingCode;
 
         await loadQrCode();
-
-        if (!window._cleanupScheduled) {
-            window._cleanupScheduled = true;
-            setTimeout(() => {
-                fetch('/api/devices/' + webUITempId, { method: 'DELETE' }).catch(() => {});
-                webUITempId = null;
-                window._cleanupScheduled = false;
-            }, 300000);
-        }
     } catch (err) {
         console.error('Pairing code generation error:', err);
     }

@@ -4,7 +4,9 @@ import io
 import json
 import logging
 import qrcode
+from datetime import UTC, datetime as dt
 from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, status
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_device_from_token, get_ws_device
@@ -118,12 +120,7 @@ async def confirm_device_pairing(
 
 @router.get("/list")
 async def list_devices(db: AsyncSession = Depends(get_db)):
-    """List all paired devices (for web UI device management panel).
-    
-    Filters out:
-      - Web UI temp devices (device_id starting with 'web-ui-')
-      - Devices with empty device_id or device_name
-    """
+    """List all paired devices (for web UI device management panel)."""
     devices = await get_paired_devices(db)
     return [
         {
@@ -137,7 +134,6 @@ async def list_devices(db: AsyncSession = Depends(get_db)):
             "paired_at": d.created_at.isoformat() if d.created_at else None,
         }
         for d in devices
-        if d.device_id and not d.device_id.startswith("web-ui-")
     ]
 
 
@@ -259,6 +255,40 @@ async def sync_read_status(
     await update_device_sync_time(db, device.device_id)
 
     return {"updated_stories": updated, "message": f"Updated {updated} stories as read"}
+
+
+# ── Pairing Session (Web UI) ─────────────────────────────
+
+
+@router.post("/pairing-session")
+async def create_pairing_session():
+    """Generate a 6-digit pairing code stored in Redis with 5-minute TTL.
+    
+    No device record is created — this is purely for the web UI to show
+    a QR code + pairing code without polluting the devices table.
+    """
+    from app.services.device_service import generate_pairing_code
+
+    redis_url = app_settings.REDIS_CONNECTION_URL or "redis://localhost:6379/0"
+    r = Redis.from_url(redis_url, decode_responses=True)
+
+    try:
+        code = generate_pairing_code()
+        server_url = str(app_settings.PUBLIC_URL or "http://localhost:8000").rstrip("/")
+
+        session_data = json.dumps({
+            "server_url": server_url,
+            "pairing_code": code,
+            "created_at": str(dt.now(UTC)),
+        })
+        await r.setex(f"hn_reader:pairing:{code}", 300, session_data)
+
+        return {
+            "pairing_code": code,
+            "server_url": server_url,
+        }
+    finally:
+        await r.aclose()
 
 
 # ── QR Code ───────────────────────────────────────────────
