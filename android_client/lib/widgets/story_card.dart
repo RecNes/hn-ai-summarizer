@@ -17,7 +17,9 @@ class StoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textTheme = theme.textTheme;
     final title = story.titleTr ?? story.title;
 
     return Card(
@@ -52,8 +54,7 @@ class StoryCard extends StatelessWidget {
                       title,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 15,
+                      style: textTheme.bodyLarge?.copyWith(
                         fontWeight: story.isRead ? FontWeight.w400 : FontWeight.w600,
                         height: 1.3,
                       ),
@@ -72,8 +73,7 @@ class StoryCard extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             '${story.score}',
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: textTheme.bodySmall?.copyWith(
                               color: isDark ? Colors.grey[400] : Colors.grey[600],
                             ),
                           ),
@@ -85,8 +85,7 @@ class StoryCard extends StatelessWidget {
                               story.author!,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12,
+                              style: textTheme.bodySmall?.copyWith(
                                 color: isDark ? Colors.grey[400] : Colors.grey[600],
                               ),
                             ),
@@ -94,8 +93,7 @@ class StoryCard extends StatelessWidget {
                         const Spacer(),
                         Text(
                           DateFormatter.relative(story.createdAt),
-                          style: TextStyle(
-                            fontSize: 12,
+                          style: textTheme.bodySmall?.copyWith(
                             color: isDark ? Colors.grey[500] : Colors.grey[500],
                           ),
                         ),
@@ -113,8 +111,7 @@ class StoryCard extends StatelessWidget {
                         ),
                         child: Text(
                           'TR',
-                          style: TextStyle(
-                            fontSize: 10,
+                          style: textTheme.labelSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSecondaryContainer,
                           ),

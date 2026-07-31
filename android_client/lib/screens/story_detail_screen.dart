@@ -81,7 +81,9 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
       );
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textTheme = theme.textTheme;
     final title = story.titleTr ?? story.title;
     final hasContent = story.contentTr != null && story.contentTr!.isNotEmpty;
     final hasCommentsSummary =
@@ -97,9 +99,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             // ── Title ───────────────────────
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
+              style: textTheme.headlineMedium?.copyWith(
                 height: 1.3,
               ),
             ),
@@ -129,15 +129,14 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondaryContainer,
+                      color: theme.colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       'Türkçe Çeviri',
-                      style: TextStyle(
-                        fontSize: 12,
+                      style: textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSecondaryContainer,
+                        color: theme.colorScheme.onSecondaryContainer,
                       ),
                     ),
                   ),
@@ -154,8 +153,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               const SizedBox(height: 8),
               Text(
                 story.contentTr!,
-                style: TextStyle(
-                  fontSize: 15,
+                style: textTheme.bodyLarge?.copyWith(
                   height: 1.6,
                   color: isDark ? Colors.grey[300] : Colors.grey[800],
                 ),
@@ -174,8 +172,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                   ),
                   child: Text(
                     'Bu içerik yapay zeka ile çevrilmiştir.',
-                    style: TextStyle(
-                      fontSize: 12,
+                    style: textTheme.bodySmall?.copyWith(
                       fontStyle: FontStyle.italic,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
                     ),
@@ -203,8 +200,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 ),
                 child: Text(
                   story.commentsSummary!,
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: textTheme.bodyMedium?.copyWith(
                     height: 1.5,
                     color: isDark ? Colors.grey[200] : Colors.grey[800],
                   ),
@@ -232,8 +228,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             Center(
               child: Text(
                 'HN #${story.hackerNewsId}',
-                style: TextStyle(
-                  fontSize: 11,
+                style: textTheme.labelSmall?.copyWith(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),
               ),
@@ -258,7 +253,8 @@ class _MetaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -270,8 +266,7 @@ class _MetaChip extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: TextStyle(
-            fontSize: 12,
+          style: theme.textTheme.bodySmall?.copyWith(
             color: isDark ? Colors.grey[400] : Colors.grey[600],
           ),
         ),
@@ -293,20 +288,19 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Row(
       children: [
         Icon(
           icon,
           size: 18,
-          color: Theme.of(context).colorScheme.primary,
+          color: theme.colorScheme.primary,
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+          style: theme.textTheme.titleMedium?.copyWith(
             color: isDark ? Colors.grey[100] : Colors.grey[900],
           ),
         ),
