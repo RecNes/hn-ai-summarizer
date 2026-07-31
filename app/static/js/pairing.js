@@ -4,6 +4,7 @@
 
 // ── Global pairing state ─────────────────────────
 let currentPairingCode = null;
+let lastDeviceCount = 0;
 
 // ── QR Code Loading ──────────────────────────────
 async function loadQrCode() {
@@ -68,8 +69,15 @@ async function loadDevices() {
         if (!devices || devices.length === 0) {
             document.getElementById('devices-list').classList.add('hidden');
             document.getElementById('devices-empty').classList.remove('hidden');
+            lastDeviceCount = 0;
             return;
         }
+
+        // Auto-refresh pairing code when a new device appears
+        if (devices.length > lastDeviceCount && lastDeviceCount > 0) {
+            loadPairingCode();
+        }
+        lastDeviceCount = devices.length;
 
         document.getElementById('devices-empty').classList.add('hidden');
         document.getElementById('devices-list').classList.remove('hidden');
