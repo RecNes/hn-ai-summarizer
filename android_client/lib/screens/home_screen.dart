@@ -93,19 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.settings),
-          tooltip: 'Ayarlar',
-          onPressed: _openSettings,
-        ),
         title: const Text('HNS Take Away'),
         centerTitle: false,
         actions: [
-          // Refresh: pull new stories from server + reload list
+          // Settings: sağ üst köşede
           IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Senkronize Et',
-            onPressed: provider.isLoading ? null : _syncAndRefresh,
+            icon: const Icon(Icons.settings),
+            tooltip: 'Ayarlar',
+            onPressed: _openSettings,
           ),
         ],
       ),
@@ -164,13 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icon(Icons.article_outlined, size: 56, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
-                        'Henüz makale yok.\nYukarıdaki senkronize et ikonu ile\nsunucudan çekebilirsiniz.',
+                        'Henüz makale yok.\nAşağı çekerek sunucudan\nmakaleleri çekebilirsiniz.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey, fontSize: 15),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Aşağı çekerek de yenileyebilirsiniz.',
+                        'Çek bırak ile yenileyin.',
                         style: TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],
