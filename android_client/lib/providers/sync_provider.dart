@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../services/sync_service.dart';
@@ -18,6 +19,7 @@ class SyncProvider extends ChangeNotifier {
   SyncStatus _status = SyncStatus.idle;
   bool _isPaired = false;
   bool _isChecking = true;
+  String? _lastSyncError;
   StreamSubscription? _wsSubscription;
 
   SyncProvider(
@@ -30,6 +32,7 @@ class SyncProvider extends ChangeNotifier {
   SyncStatus get status => _status;
   bool get isPaired => _isPaired;
   bool get isChecking => _isChecking;
+  String? get lastSyncError => _lastSyncError;
 
   /// Check if device has stored token → verify with server → mark paired or clear.
   Future<void> checkStoredToken() async {
@@ -98,6 +101,7 @@ class SyncProvider extends ChangeNotifier {
   /// Returns number of new stories synced, or -1 on failure.
   Future<int> syncNow() async {
     _status = SyncStatus.syncing;
+    _lastSyncError = null;
     notifyListeners();
 
     try {
@@ -111,7 +115,16 @@ class SyncProvider extends ChangeNotifier {
       _status = SyncStatus.idle;
       notifyListeners();
       return newCount;
-    } catch (_) {
+    } on DioException catch (e) {
+      // Log the real error for debugging
+      debugPrint('Sync DioException: type=${e.type} msg=${e.message} uri=${e.requestOptions.uri}');
+      _lastSyncError = 'Bağlantı hatası: ${e.message}';
+      _status = SyncStatus.error;
+      notifyListeners();
+      return -1;
+    } catch (e) {
+      debugPrint('Sync error: $e');
+      _lastSyncError = 'Senkronizasyon hatası: $e';
       _status = SyncStatus.error;
       notifyListeners();
       return -1;

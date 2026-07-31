@@ -20,8 +20,8 @@ async def start_mdns_beacon():
     """Start mDNS beacon advertisement for device discovery."""
 
     try:
-        from zeroconf import IPVersion, ServiceInfo, Zeroconf
-        from zeroconf.asyncio import AsyncServiceInfo, AsyncZeroconf
+        from zeroconf import IPVersion, ServiceInfo
+        from zeroconf.asyncio import AsyncZeroconf
     except ImportError:
         logger.warning("zeroconf not installed — mDNS beacon disabled")
         return
@@ -56,7 +56,7 @@ async def start_mdns_beacon():
     aiozc = AsyncZeroconf(ip_version=IPVersion.V4Only)
 
     try:
-        await aiozc.register_service(info, allow_name_change=True)
+        await aiozc.async_register_service(info, allow_name_change=True)
         logger.info(
             "[mDNS] Beacon started — %s:%d (%s)", local_ip, port, SERVICE_TYPE
         )

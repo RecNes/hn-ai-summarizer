@@ -52,12 +52,17 @@ class _HomeScreenState extends State<HomeScreen> {
     // Reload list from local DB (shows new + existing stories)
     await storyProvider.loadStories();
 
-    // If sync failed, surface a brief message
+    // If sync failed, surface the real error message
     if (mounted && newCount < 0) {
+      final err = syncProvider.lastSyncError;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sunucuya ulaşılamadı. Çevrimdışı makaleler gösteriliyor.'),
-          duration: Duration(seconds: 3),
+        SnackBar(
+          content: Text(
+            err != null
+                ? 'Senkronizasyon hatası: $err'
+                : 'Sunucuya ulaşılamadı. Çevrimdışı makaleler gösteriliyor.',
+          ),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
