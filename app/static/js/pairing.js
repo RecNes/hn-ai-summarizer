@@ -50,7 +50,6 @@ async function loadPairingCode() {
 
         currentPairingCode = data.pairing_code;
         document.getElementById('pairing-code-display').textContent = currentPairingCode;
-        document.getElementById('pairing-code-section').classList.remove('hidden');
 
         await loadQrCode();
 
