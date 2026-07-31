@@ -181,4 +181,7 @@ android_client/.idea/
 </content>
 
 # Local dev scripts
-scripts/add_pairing_i18n.py
+scripts/*
+scripts/**
+!scripts/create-tag.sh
+!scripts/version.sh
