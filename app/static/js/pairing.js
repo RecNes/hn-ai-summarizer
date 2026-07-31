@@ -4,7 +4,7 @@
 
 // ── Global pairing state ─────────────────────────
 let currentPairingCode = null;
-let lastDeviceCount = 0;
+let lastDeviceCount = -1;
 
 // ── QR Code Loading ──────────────────────────────
 async function loadQrCode() {
@@ -74,7 +74,7 @@ async function loadDevices() {
         }
 
         // Auto-refresh pairing code when a new device appears
-        if (devices.length > lastDeviceCount && lastDeviceCount > 0) {
+        if (devices.length > lastDeviceCount && lastDeviceCount >= 0) {
             loadPairingCode();
         }
         lastDeviceCount = devices.length;
