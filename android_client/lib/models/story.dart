@@ -48,15 +48,23 @@ class Story {
       contentTr: map['content_tr'] as String?,
       commentsSummary: map['comments_summary'] as String?,
       imageUrl: map['image_url'] as String?,
-      isTranslated: (map['is_translated'] as int?) == 1,
-      isRead: (map['is_read'] as int?) == 1,
-      isHighlighted: (map['is_highlighted'] as int?) == 1,
-      isDimmed: (map['is_dimmed'] as int?) == 1,
+      isTranslated: _asBool(map['is_translated']),
+      isRead: _asBool(map['is_read']),
+      isHighlighted: _asBool(map['is_highlighted']),
+      isDimmed: _asBool(map['is_dimmed']),
       createdAt: DateTime.parse(map['created_at'] as String),
       hnCreatedAt: map['hn_created_at'] != null
           ? DateTime.parse(map['hn_created_at'] as String)
           : null,
     );
+  }
+
+  /// Server API `true/false` (bool) döndürür, SQLite ise `0/1` (int).
+  /// Her iki tipi de kabul eder.
+  static bool _asBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is int) return value == 1;
+    return false;
   }
 
   Map<String, dynamic> toMap() {
