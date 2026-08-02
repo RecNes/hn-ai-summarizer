@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-STORY_CHANNEL = "hn_reader:story:new"
+STORY_CHANNEL = "nunti:story:new"
 
 async def _get_redis():
     """Create a redis asyncio connection from settings."""

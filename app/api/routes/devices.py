@@ -320,7 +320,7 @@ async def create_pairing_session():
             "pairing_code": code,
             "created_at": str(dt.now(UTC)),
         })
-        await r.setex(f"hn_reader:pairing:{code}", 300, session_data)
+        await r.setex(f"nunti:pairing:{code}", 300, session_data)
 
         return {
             "pairing_code": code,

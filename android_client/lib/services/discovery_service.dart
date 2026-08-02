@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// Discovers HN Reader servers on the local network.
+/// Discovers Nunti servers on the local network.
 /// Simple implementation: tries common local URLs + user input.
 class DiscoveryService {
   /// Search for servers on the network.

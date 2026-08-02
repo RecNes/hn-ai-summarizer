@@ -1,14 +1,14 @@
 {
   "app": {
-    "title": "HN AI Özetleyici",
-    "description": "AI ile güçlendirilmiş Hacker News özetleyici",
-    "footer": "HN AI Özetleyici - AI ile güçlendirilmiş Hacker News özetleyici"
+    "title": "Nunti",
+    "description": "AI ile güçlendirilmiş news özetleyici",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "Ana Sayfa",
     "settings": "Ayarlar",
     "logs": "Aktivite Logları",
-    "themeToggle": "Tema değiştir",
+    "themeToggle": "Tema deÄŸiÅŸtir",
     "displaySettings": "Görüntüleme Ayarları",
     "refresh": "Sayfayı yenile"
   },
@@ -21,7 +21,7 @@
     "end": "Daha eski log yok.",
     "newArticle": "Yeni makale",
     "reprocessing": "Tekrar çevriliyor",
-    "processing": "işleniyor",
+    "processing": "iÅŸleniyor",
     "success": "başarılı",
     "error": "hata",
     "phaseTitle": "başlık",
@@ -63,7 +63,7 @@
     "loadingMore": "Daha fazla hikaye yükleniyor...",
     "allLoaded": "Tüm hikayeler yüklendi",
     "offline": "Çevrimdışı mod - Önbellekten içerik görüntüleniyor",
-    "readToggleRead": "Okundu olarak işaretle",
+    "readToggleRead": "Okundu olarak iÅŸaretle",
     "readToggleUnread": "Okunmadı olarak işaretle",
     "reloading": "Yenileniyor...",
     "reprocessFail": "Yenileme başarısız",
@@ -77,8 +77,8 @@
     "fetchStarted": "Veri çekimi başlatıldı!",
     "fetchFail": "Worker başlatılamadı",
     "fetchError": "Veri çekimi başlatılırken bir hata oluştu.",
-    "reprocessComplete": "{processed} hikaye işlendi.",
-    "reprocessCompleteErrors": "{processed} hikaye işlendi. {errors} hata.",
+    "reprocessComplete": "{processed} hikaye iÅŸlendi.",
+    "reprocessCompleteErrors": "{processed} hikaye iÅŸlendi. {errors} hata.",
     "reprocessNone": "İşlenecek hikaye bulunamadı.",
     "reprocessConnectionLost": "Çeviri bağlantısı koptu. Sayfayı yenileyip durumu kontrol edin.",
     "reprocessProgress": "İşleniyor: #{id} ({current}/{total})"
@@ -109,13 +109,13 @@
       "modelLoading": "Modeller yükleniyor...",
       "modelRefresh": "Modelleri yenile",
       "modelSearch": "Model ara...",
-      "modelNotFound": "Eşleşen model yok",
+      "modelNotFound": "EÅŸleÅŸen model yok",
       "modelCount": "{count} model bulundu",
       "modelError": "Modeller yüklenemedi"
     },
     "data": {
       "title": "Veri İşleme",
-      "description": "Hacker News verilerini manuel olarak çekmek ve işlemek için kullanabilirsiniz.",
+      "description": "news verilerini manuel olarak çekmek ve işlemek için kullanabilirsiniz.",
       "fetchButton": "Veri Çekimini Başlat",
       "reprocessButton": "Çevrilmemişleri Yeniden İşle",
       "statusText": "İşlem devam ediyor... Lütfen bekleyin."
@@ -128,7 +128,7 @@
       "monday": "Pazartesi",
       "tuesday": "Salı",
       "wednesday": "Çarşamba",
-      "thursday": "Perşembe",
+      "thursday": "PerÅŸembe",
       "friday": "Cuma",
       "saturday": "Cumartesi",
       "sunday": "Pazar",
@@ -153,13 +153,13 @@
       "chatIdLabel": "Telegram Chat ID",
       "chatIdPlaceholder": "1234567890",
       "chatIdHelp": "Bot'unuza mesaj atıp https://api.telegram.org/bot<TOKEN>/getUpdates adresinden chat ID'nizi öğrenebilirsiniz.",
-      "enabledLabel": "Telegram bildirimlerini etkinleştir",
+      "enabledLabel": "Telegram bildirimlerini etkinleÅŸtir",
       "enabledHelp": "Aktifleştirildiğinde, her yeni işlenmiş konu için Telegram'dan bildirim alırsınız."
     },
     "save": "Ayarları Kaydet",
     "saving": "Kaydediliyor...",
     "saveSuccess": "Ayarlar başarıyla kaydedildi!",
-    "saveError": "Ayarlar kaydedilirken bir hata oluştu.",
+    "saveError": "Ayarlar kaydedilirken bir hata oluÅŸtu.",
     "timezoneWarning": "TIMEZONE ayarlanmamış. .env dosyanıza TIMEZONE ekleyin. Örnek: TIMEZONE=Europe/Istanbul. Zamanlayıcı UTCyi yedek olarak kullanacak."
   },
   "display": {
@@ -196,7 +196,7 @@
     "started": "Veri çekimi başlatıldı! İşlem birkaç dakika sürebilir.",
     "reprocessStarted": "Yeniden işleme başlatıldı! İçerik ve yorumlar tazeleniyor...",
     "reprocessComplete": "Yeniden işleme tamamlandı! {processed} hikaye işlendi.",
-    "reprocessCancelled": "Yeniden işleme iptal edildi ({current}/{total}).",
+    "reprocessCancelled": "Yeniden iÅŸleme iptal edildi ({current}/{total}).",
     "reprocessAlreadyRunning": "Zaten çalışıyor",
     "reprocessUnknownError": "Bilinmeyen hata",
     "reprocessAborted": "İşlem kullanıcı tarafından durduruldu.",
@@ -204,7 +204,7 @@
     "error": "Worker başlatılamadı.",
     "reprocessError": "Yeniden işleme başlatılamadı.",
     "starting": "Başlatılıyor...",
-    "processingLabel": "{current} / {total} işleniyor",
+    "processingLabel": "{current} / {total} iÅŸleniyor",
     "completedPercent": "%{pct} tamamlandı",
     "stuckCleaned": "Önceki işlem kilitli kalmıştı, temizlendi. Tekrar deneyebilirsiniz.",
     "totalProgress": "Toplam: {total} | İşlenen: {processed} | Hata: {errors}"
@@ -221,23 +221,23 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 Hacker News'te <b>{count} yeni konu</b> özetlendi ve okunmaya hazır!",
+      "new_stories": "📰 news'te <b>{count} yeni konu</b> özetlendi ve okunmaya hazır!",
       "check_link": "🔗 <a href=\"{url}\">Hemen göz at</a>",
-      "no_stories": "🫡 Bugün Hacker News'te yeni bir konu yok. Bir sonraki taramada görüşmek üzere!",
+      "no_stories": "🫡 Bugün news'te yeni bir konu yok. Bir sonraki taramada görüşmek üzere!",
       "errors": "⚠️ <b>{count} hata</b> oluştu.",
       "ai_unreachable": "⚠️ AI modeline şu anda erişilemiyor. Erişim sağlanana kadar hikayeler kuyruğa alınacak.",
       "ai_reachable": "✅ AI modeline yeniden erişilebiliyor. Normal işlemlere devam ediliyor."
     }
   },
   "pairing": {
-    "title": "Cihaz Eşleştirme",
-    "qrTitle": "QR Kod ile Bağlan",
+    "title": "Cihaz EÅŸleÅŸtirme",
+    "qrTitle": "QR Kod ile BaÄŸlan",
     "qrDescription": "Android uygulamasından QR kodu okutarak cihazını eşleştir.",
     "qrLoading": "Yükleniyor...",
     "qrError": "QR kod yüklenemedi",
     "serverLabel": "Sunucu: ",
     "refreshQr": "Kodu Yenile",
-    "manualTitle": "Manuel Eşleştirme Kodu",
+    "manualTitle": "Manuel EÅŸleÅŸtirme Kodu",
     "manualDescription": "QR kodu okutamıyorsan bu kodu Android uygulamasına elle girebilirsin:",
     "copyButton": "Kopyala",
     "copiedButton": "Kopyalandı!",

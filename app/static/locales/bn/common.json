@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI সারাংশকারী",
-    "description": "AI-চালিত Hacker News সারাংশকারী",
-    "footer": "HN AI সারাংশকারী - AI-চালিত Hacker News সারাংশকারী"
+    "title": "Nunti",
+    "description": "AI-চালিত news সারাংশকারী",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "হোম",
@@ -27,7 +27,7 @@
     "originalTitle": "মূল শিরোনাম",
     "todaysBest": "আজকের সেরা",
     "loadingMore": "আরও গল্প লোড হচ্ছে...",
-    "allLoaded": "সব গল্প লোড হয়েছে",
+    "allLoaded": "সব গল্প লোড হয়েছে",
     "offline": "অফলাইন মোড - ক্যাশে কন্টেন্ট দেখানো হচ্ছে",
     "processing": "প্রক্রিয়াকরণ হচ্ছে...",
     "reprocessComplete": "{processed} টি গল্প প্রক্রিয়াকৃত।"
@@ -39,7 +39,7 @@
       "uiLabel": "অ্যাপ্লিকেশন ভাষা",
       "translationLabel": "বিষয়বস্তু অনুবাদ ভাষা",
       "uiDescription": "ইন্টারফেস, মেনু এবং বাটনের জন্য ভাষা",
-      "translationDescription": "যে ভাষায় Hacker News বিষয়বস্তু অনুবাদ করা হবে",
+      "translationDescription": "যে ভাষায় news বিষয়বস্তু অনুবাদ করা হবে",
       "independentNote": "এই দুটি সেটিংস সম্পূর্ণ স্বাধীন"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "ডেটা প্রক্রিয়াকরণ",
-      "description": "ম্যানুয়ালি Hacker News ডেটা আনুন এবং প্রক্রিয়া করুন।",
+      "description": "ম্যানুয়ালি news ডেটা আনুন এবং প্রক্রিয়া করুন।",
       "fetchButton": "ডেটা আনুন",
       "reprocessButton": "অঅনুবাদিত পুনরায় প্রক্রিয়া করুন",
       "statusText": "প্রক্রিয়াকরণ চলছে... অনুগ্রহ করে অপেক্ষা করুন।"
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 Hacker News-এ <b>{count}টি নতুন গল্প</b> সংক্ষিপ্ত করে পড়ার জন্য প্রস্তুত!",
+      "new_stories": "📰 news-এ <b>{count}টি নতুন গল্প</b> সংক্ষিপ্ত করে পড়ার জন্য প্রস্তুত!",
       "check_link": "🔗 <a href=\"{url}\">এখনই দেখুন</a>",
-      "no_stories": "🫡 আজ Hacker News-এ কোনো নতুন গল্প নেই। পরবর্তী স্ক্যানে দেখা হবে!",
+      "no_stories": "🫡 আজ news-এ কোনো নতুন গল্প নেই। পরবর্তী স্ক্যানে দেখা হবে!",
       "errors": "⚠️ <b>{count}টি ত্রুটি</b> ঘটেছে।"
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

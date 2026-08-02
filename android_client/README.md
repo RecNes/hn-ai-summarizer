@@ -1,6 +1,6 @@
-# hn_take_away
+﻿# nunti_go
 
-HNS Take Away - Offline-first Android client for HN AI Summarizer
+Nunti Go - Offline-first Android client for Nunti
 
 ## Getting Started
 

@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "ملخص HN AI",
-    "description": "ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي",
-    "footer": "ملخص HN AI - ملخص أخبار Hacker News المدعوم بالذكاء الاصطناعي"
+    "title": "ملخص Nunti",
+    "description": "ملخص أخبار news المدعوم بالذكاء الاصطناعي",
+    "footer": "ملخص Nunti"
   },
   "nav": {
     "home": "الرئيسية",
@@ -39,7 +39,7 @@
       "uiLabel": "لغة الواجهة",
       "translationLabel": "لغة ترجمة المحتوى",
       "uiDescription": "اللغة المستخدمة للواجهة والقوائم والأزرار",
-      "translationDescription": "اللغة التي سيتم ترجمة محتوى Hacker News إليها",
+      "translationDescription": "اللغة التي سيتم ترجمة محتوى news إليها",
       "independentNote": "هذان الإعدادان مستقلان تماماً"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "معالجة البيانات",
-      "description": "جلب ومعالجة بيانات Hacker News يدوياً.",
+      "description": "جلب ومعالجة بيانات news يدوياً.",
       "fetchButton": "بدء جلب البيانات",
       "reprocessButton": "إعادة معالجة غير المترجمة",
       "statusText": "جاري المعالجة... الرجاء الانتظار."
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 تم تلخيص <b>{count} قصة جديدة</b> على Hacker News وجاهزة للقراءة!",
+      "new_stories": "📰 تم تلخيص <b>{count} قصة جديدة</b> على news وجاهزة للقراءة!",
       "check_link": "🔗 <a href=\"{url}\">اطلع الآن</a>",
-      "no_stories": "🫡 لا توجد قصص جديدة على Hacker News اليوم. نراكم في المسح التالي!",
+      "no_stories": "🫡 لا توجد قصص جديدة على news اليوم. نراكم في المسح التالي!",
       "errors": "⚠️ حدث <b>{count} أخطاء</b>."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

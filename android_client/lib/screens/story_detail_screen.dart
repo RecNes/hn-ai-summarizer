@@ -227,7 +227,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             // ── IDs (small footer) ──────────
             Center(
               child: Text(
-                'HN #${story.hackerNewsId}',
+                'News #${story.hackerNewsId}',
                 style: textTheme.labelSmall?.copyWith(
                   color: isDark ? Colors.grey[600] : Colors.grey[400],
                 ),

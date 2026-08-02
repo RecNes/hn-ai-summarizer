@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI Riassuntore",
-    "description": "Riassuntore di Hacker News basato su IA",
-    "footer": "HN AI Riassuntore - Riassuntore di Hacker News basato su IA"
+    "title": "Nunti",
+    "description": "Riassuntore di news basato su IA",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "Home",
@@ -39,7 +39,7 @@
       "uiLabel": "Lingua interfaccia",
       "translationLabel": "Lingua traduzione contenuti",
       "uiDescription": "Lingua per interfaccia, menu e pulsanti",
-      "translationDescription": "Lingua in cui verrà tradotto il contenuto di Hacker News",
+      "translationDescription": "Lingua in cui verrà tradotto il contenuto di news",
       "independentNote": "Queste due impostazioni sono completamente indipendenti"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "Elaborazione dati",
-      "description": "Recupera ed elabora manualmente i dati di Hacker News.",
+      "description": "Recupera ed elabora manualmente i dati di news.",
       "fetchButton": "Avvia recupero dati",
       "reprocessButton": "Rielabora non tradotti",
       "statusText": "Elaborazione in corso... Attendere."
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 <b>{count} nuove storie</b> riassunte su Hacker News e pronte da leggere!",
+      "new_stories": "📰 <b>{count} nuove storie</b> riassunte su news e pronte da leggere!",
       "check_link": "🔗 <a href=\"{url}\">Guarda ora</a>",
-      "no_stories": "🫡 Oggi nessuna nuova storia su Hacker News. Al prossimo scan!",
+      "no_stories": "🫡 Oggi nessuna nuova storia su news. Al prossimo scan!",
       "errors": "⚠️ Si sono verificati <b>{count} errori</b>."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

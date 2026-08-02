@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HNS Take Away'),
+        title: const Text('Nunti Go'),
         centerTitle: false,
         actions: [
           // Settings: sağ üst köşede

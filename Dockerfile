@@ -1,4 +1,4 @@
-ARG APP_VERSION=0.0.0
+﻿ARG APP_VERSION=0.0.0
 FROM python:3.11-slim
 
 # Install uv (Rust-based, ~10-100x faster than pip)
@@ -38,9 +38,9 @@ ENV APP_VERSION=${APP_VERSION}
 RUN useradd --create-home --shell /bin/bash app && chown -R app:app /app
 
 # Create CLI shortcut
-RUN echo '#!/bin/bash' > /usr/local/bin/hn-ai-summerizer && \
-    echo 'exec python -m app.cli "$@"' >> /usr/local/bin/hn-ai-summerizer && \
-    chmod +x /usr/local/bin/hn-ai-summerizer
+RUN echo '#!/bin/bash' > /usr/local/bin/nunti && \
+    echo 'exec python -m app.cli "$@"' >> /usr/local/bin/nunti && \
+    chmod +x /usr/local/bin/nunti
 
 # Expose port
 EXPOSE 8000

@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-REDIS_WORKER_LOG_CHANNEL = "hn_reader:worker_log"
-REDIS_WORKER_LOG_KEY = "hn_reader:worker_logs:recent"
+REDIS_WORKER_LOG_CHANNEL = "nunti:worker_log"
+REDIS_WORKER_LOG_KEY = "nunti:worker_logs:recent"
 
 
 async def _get_redis():
@@ -82,7 +82,7 @@ async def get_logs(
 async def log_stream(request: Request):
     """SSE endpoint: GET /api/logs/stream
     
-    Subscribes to Redis Pub/Sub channel `hn_reader:worker_log`
+    Subscribes to Redis Pub/Sub channel `nunti:worker_log`
     and yields worker log entries as they arrive.
     """
     return StreamingResponse(

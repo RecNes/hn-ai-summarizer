@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../utils/url_helper.dart';
 
-/// REST API client for communicating with the HN Reader server.
+/// REST API client for communicating with the Nunti server.
 class ApiService {
   final Dio _dio = Dio(BaseOptions(
     connectTimeout: const Duration(seconds: 10),

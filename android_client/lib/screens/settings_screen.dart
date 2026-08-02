@@ -127,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: Icon(Icons.link_off, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                  title: const Text('Yeniden Eşleştir'),
+                  title: const Text('Yeniden EÅŸleÅŸtir'),
                   subtitle: const Text('Mevcut eşleşmeyi kaldır'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _confirmRePair(context),
@@ -140,7 +140,7 @@ class SettingsScreen extends StatelessWidget {
           // ── App info ─────────────────────
           Center(
             child: Text(
-              'HNS Take Away',
+              'Nunti Go',
               style: TextStyle(
                 fontSize: 13,
                 color: isDark ? Colors.grey[600] : Colors.grey[400],
@@ -156,7 +156,7 @@ class SettingsScreen extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Yeniden Eşleştir'),
+        title: const Text('Yeniden EÅŸleÅŸtir'),
         content: const Text(
           'Mevcut eşleşme kaldırılacak ve yeni bir cihaz eşleştirme işlemi başlayacak. '
           'Devam etmek istiyor musunuz?',

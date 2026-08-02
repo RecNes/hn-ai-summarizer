@@ -12,15 +12,15 @@ load_dotenv(".env")
 class Settings(BaseSettings):
     """Uygulama yapılandırma ayarları."""
 
-    PROJECT_NAME: str = "HN-AI-Summerizer"
+    PROJECT_NAME: str = "Nunti"
     PROJECT_VERSION: str = Field(default="0.0.0", validation_alias="APP_VERSION")
-    PROJECT_DESCRIPTION: str = "AI-powered Hacker News summarizer"
+    PROJECT_DESCRIPTION: str = "AI-powered news summarizer"
 
-    DATABASE_USER: str = Field(default="postgres")
-    DATABASE_PASSWORD: str = Field(default="postgres")
+    DATABASE_USER: str = Field(default="nunti")
+    DATABASE_PASSWORD: str = Field(default="nunti")
     DATABASE_HOST: str = Field(default="localhost")
     DATABASE_PORT: str = Field(default="5432")
-    DATABASE_NAME: str = Field(default="hn_ai_summerizer_db")
+    DATABASE_NAME: str = Field(default="nunti_db")
 
     DB_ECHO: bool = Field(False)
 
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str | None = Field("")
 
     # Public URL for links in notifications (Telegram, email, etc.)
-    # Example: https://hnreader.example.com
+    # Example: https://nunti.example.com
     PUBLIC_URL: str | None = Field("http://localhost:8000")
 
     DEVELOPMENT: bool = Field(False)
@@ -83,7 +83,7 @@ class Settings(BaseSettings):
                 f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
                 f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
             )
-        return "sqlite+aiosqlite:///./hn_ai_summerizer.db"
+        return "sqlite+aiosqlite:///./nunti.db"
 
     @computed_field
     @property
@@ -100,7 +100,7 @@ class Settings(BaseSettings):
                 f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}"
                 f":{self.DATABASE_PORT}/{self.DATABASE_NAME}"
             )
-        return "sqlite:///./hn_ai_summerizer.db"
+        return "sqlite:///./nunti.db"
 
     @computed_field
     @property

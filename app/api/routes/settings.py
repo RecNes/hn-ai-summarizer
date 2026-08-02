@@ -294,8 +294,8 @@ async def get_schedule_status():
         redis_pool = await create_pool(redis_settings)
 
         # Get schedule info from Redis
-        schedule_config = await redis_pool.get("hn_reader:schedule:config")
-        schedule_version = await redis_pool.get("hn_reader:schedule:version")
+        schedule_config = await redis_pool.get("nunti:schedule:config")
+        schedule_version = await redis_pool.get("nunti:schedule:version")
 
         await redis_pool.close()
 

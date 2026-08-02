@@ -6,8 +6,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/RecNes/hn-ai-summarizer.git
-cd hn-ai-summarizer
+git clone https://github.com/RecNes/nunti.git
+cd nunti
 
 # Copy and configure environment
 cp .env.example .env
@@ -63,8 +63,8 @@ cp .env.example .env
 ### 1.1 Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/hn-ai-summarizer.git
-cd hn-ai-summarizer
+git clone https://github.com/yourusername/nunti.git
+cd nunti
 ```
 
 ### 1.2 Configure Environment
@@ -168,22 +168,22 @@ Start each service in a separate terminal:
 alembic upgrade head
 
 # Terminal 2: Web server
-hn-ai-summerizer server
+nunti server
 
 # Terminal 3: Worker
-hn-ai-summerizer worker
+nunti worker
 
 # Terminal 4: Scheduler
-hn-ai-summerizer scheduler
+nunti scheduler
 ```
 
-> **Note:** The `hn-ai-summerizer` CLI command is installed automatically when you run `pip install -e .`
+> **Note:** The `nunti` CLI command is installed automatically when you run `pip install -e .`
 
 #### Option C: Start Everything with One Command
 
 ```bash
 # Starts server, worker, and scheduler in separate processes
-hn-ai-summerizer all
+nunti all
 ```
 
 ### 1.6 Access the Application
@@ -198,8 +198,8 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 
 ```bash
 # Clone and configure
-git clone https://github.com/yourusername/hn-ai-summarizer.git
-cd hn-ai-summarizer
+git clone https://github.com/yourusername/nunti.git
+cd nunti
 cp .env.example .env
 
 # Edit .env with your database and Redis connection details
@@ -210,9 +210,9 @@ docker compose up
 ```
 
 This starts three containers:
-- `hn-reader-app` — FastAPI web server on port 8000
-- `hn-reader-worker` — Arq background worker
-- `hn-reader-scheduler` — Cron scheduler
+- `nunti-app` — FastAPI web server on port 8000
+- `nunti-worker` — Arq background worker
+- `nunti-scheduler` — Cron scheduler
 
 All services use `network_mode: host` for direct connectivity to your external services.
 
@@ -223,9 +223,9 @@ docker compose --profile internal up
 ```
 
 This starts five containers:
-- `hn-reader-app` — Web server
-- `hn-reader-worker` — Worker
-- `hn-reader-scheduler` — Scheduler
+- `nunti-app` — Web server
+- `nunti-worker` — Worker
+- `nunti-scheduler` — Scheduler
 - `db` — PostgreSQL 13
 - `redis` — Redis 6 Alpine
 
@@ -254,7 +254,7 @@ export DOCKER_REGISTRY=your-registry.example.com
 docker compose up
 ```
 
-The images will be tagged as `${DOCKER_REGISTRY}/hn-reader:latest`.
+The images will be tagged as `${DOCKER_REGISTRY}/nunti:latest`.
 
 ---
 
@@ -270,7 +270,7 @@ The images will be tagged as `${DOCKER_REGISTRY}/hn-reader:latest`.
 | `DATABASE_PASSWORD` | `postgres` | PostgreSQL password |
 | `DATABASE_HOST` | `localhost` | PostgreSQL host |
 | `DATABASE_PORT` | `5432` | PostgreSQL port |
-| `DATABASE_NAME` | `hn_ai_summerizer_db` | PostgreSQL database name |
+| `DATABASE_NAME` | `nunti_db` | PostgreSQL database name |
 | `REDIS_HOST` | `localhost` | Redis host |
 | `REDIS_PORT` | `6379` | Redis port |
 | `REDIS_DB` | `0` | Redis database number |
@@ -346,17 +346,17 @@ redis-cli ping
 # Expected: PONG
 
 # Check Redis keys
-redis-cli keys 'hn_reader:*'
+redis-cli keys 'nunti:*'
 ```
 
 ### Worker Not Processing Jobs
 
 ```bash
 # Check worker logs
-hn-ai-summerizer worker
+nunti worker
 
 # Test schedule synchronization
-hn-ai-summerizer test-schedule
+nunti test-schedule
 ```
 
 ### Docker Permission Issues
@@ -376,4 +376,4 @@ docker compose --profile internal up
 pg_isready -h localhost -p 5432
 
 # Check connection from inside the container
-docker exec -it hn-reader-app psql -h $DATABASE_HOST -U $DATABASE_USER -d $DATABASE_NAME
+docker exec -it nunti-app psql -h $DATABASE_HOST -U $DATABASE_USER -d $DATABASE_NAME

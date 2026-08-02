@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "خلاصه‌کننده HN AI",
-    "description": "خلاصه‌کننده Hacker News با هوش مصنوعی",
-    "footer": "خلاصه‌کننده HN AI - خلاصه‌کننده Hacker News با هوش مصنوعی"
+    "title": "خلاصه‌کننده Nunti",
+    "description": "خلاصه‌کننده news با هوش مصنوعی",
+    "footer": "خلاصه‌کننده Nunti"
   },
   "nav": {
     "home": "خانه",
@@ -39,7 +39,7 @@
       "uiLabel": "زبان رابط",
       "translationLabel": "زبان ترجمه محتوا",
       "uiDescription": "زبان مورد استفاده برای رابط، منوها و دکمه‌ها",
-      "translationDescription": "زبانی که محتوای Hacker News به آن ترجمه می‌شود",
+      "translationDescription": "زبانی که محتوای news به آن ترجمه می‌شود",
       "independentNote": "این دو تنظیمات کاملاً مستقل از یکدیگر هستند"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "پردازش داده‌ها",
-      "description": "دست‌یابی و پردازش دستی داده‌های Hacker News.",
+      "description": "دست‌یابی و پردازش دستی داده‌های news.",
       "fetchButton": "شروع دریافت داده",
       "reprocessButton": "پردازش مجدد ترجمه‌نشده‌ها",
       "statusText": "در حال پردازش... لطفاً صبر کنید."
@@ -121,7 +121,7 @@
       "merriweather": "Merriweather"
     },
     "sizes": {
-      "small": "کوچک",
+      "small": "Ú©ÙˆÚ†Ú©",
       "medium": "متوسط",
       "large": "بزرگ",
       "xlarge": "خیلی بزرگ"
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 <b>{count} داستان جدید</b> در Hacker News خلاصه‌سازی و آماده خواندن شد!",
+      "new_stories": "📰 <b>{count} داستان جدید</b> در news خلاصه‌سازی و آماده خواندن شد!",
       "check_link": "🔗 <a href=\"{url}\">هم‌اکنون ببینید</a>",
-      "no_stories": "🫡 امروز داستان جدیدی در Hacker News وجود ندارد. تا اسکن بعدی!",
+      "no_stories": "🫡 امروز داستان جدیدی در news وجود ندارد. تا اسکن بعدی!",
       "errors": "⚠️ <b>{count} خطا</b> رخ داد."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

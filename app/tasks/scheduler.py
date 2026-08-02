@@ -4,8 +4,8 @@ Reads schedule cron from Redis (fallback: DB), waits until the
 next scheduled time, then enqueues a worker job via Arq.
 
 Redis keys:
-  hn_reader:schedule:config   → JSON {"cron_schedule": "..."}
-  hn_reader:schedule:version  → integer string
+  nunti:schedule:config   → JSON {"cron_schedule": "..."}
+  nunti:schedule:version  → integer string
 """
 
 from __future__ import annotations
@@ -28,8 +28,8 @@ from app.models.setting import Setting
 logger = logging.getLogger(__name__)
 
 # ── Redis keys ──────────────────────────
-SCHEDULE_KEY = "hn_reader:schedule:config"
-VERSION_KEY = "hn_reader:schedule:version"
+SCHEDULE_KEY = "nunti:schedule:config"
+VERSION_KEY = "nunti:schedule:version"
 
 # ── Cron parser helpers ─────────────────
 

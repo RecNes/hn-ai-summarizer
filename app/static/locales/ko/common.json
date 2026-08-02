@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI 요약기",
-    "description": "AI 기반 Hacker News 요약기",
-    "footer": "HN AI 요약기 - AI 기반 Hacker News 요약기"
+    "title": "Nunti",
+    "description": "AI 기반 news 요약기",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "홈",
@@ -39,7 +39,7 @@
       "uiLabel": "인터페이스 언어",
       "translationLabel": "콘텐츠 번역 언어",
       "uiDescription": "인터페이스, 메뉴 및 버튼의 언어",
-      "translationDescription": "Hacker News 콘텐츠가 번역될 언어",
+      "translationDescription": "news 콘텐츠가 번역될 언어",
       "independentNote": "이 두 설정은 완전히 독립적입니다"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "데이터 처리",
-      "description": "수동으로 Hacker News 데이터를 가져와 처리합니다.",
+      "description": "수동으로 news 데이터를 가져와 처리합니다.",
       "fetchButton": "데이터 가져오기 시작",
       "reprocessButton": "미번역 재처리",
       "statusText": "처리 중... 기다려 주세요."
@@ -72,7 +72,7 @@
     "fetch": {
       "title": "가져오기 설정",
       "hour": "시",
-      "minute": "분",
+      "minute": "ë¶"",
       "days": "요일",
       "monday": "월요일",
       "tuesday": "화요일",
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 Hacker News에서 <b>{count}개의 새 이야기</b>가 요약되어 읽을 준비가 되었습니다!",
+      "new_stories": "📰 news에서 <b>{count}개의 새 이야기</b>가 요약되어 읽을 준비가 되었습니다!",
       "check_link": "🔗 <a href=\"{url}\">지금 보기</a>",
-      "no_stories": "🫡 오늘 Hacker News에 새로운 이야기가 없습니다. 다음 스캔에서 만나요!",
+      "no_stories": "🫡 오늘 news에 새로운 이야기가 없습니다. 다음 스캔에서 만나요!",
       "errors": "⚠️ <b>{count}개의 오류</b>가 발생했습니다."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

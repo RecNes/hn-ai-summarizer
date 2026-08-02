@@ -18,7 +18,7 @@
 ## Project Structure
 
 ```
-hn-ai-summarizer/
+nunti/
 ├── app/
 │   ├── api/           # FastAPI routes (REST endpoints)
 │   ├── core/          # Config, database, dependency injection
@@ -114,25 +114,25 @@ The scheduler is a long-running, **self-contained** Python process that runs a s
 ```
 [Scheduler Start]
        │
-       ▼
+       â–¼
 ┌──────────────────┐
 │ Load Schedule    │──── Reads cron from Redis; falls back to DB → writes to Redis
 │ & Version        │
 └────────┬─────────┘
           │
-          ▼
+          â–¼
 ┌──────────────────┐
 │ Calculate        │──── _calculate_next_run(cron, tz) → next fire datetime
 │ Next Run         │
 └────────┬─────────┘
           │
-          ▼
+          â–¼
 ┌──────────────────┐
 │ Cleanup Old      │──── Delete AiActivityLog records older than 30 days
 │ Logs             │
 └────────┬─────────┘
           │
-          ▼
+          â–¼
 ┌──────────────────────────────────────────────────────────────┐
 │ Main Loop (while True)                                       │
 │                                                              │
@@ -225,8 +225,8 @@ The scheduler uses Redis directly (without a separate `ScheduleManager` class) t
 
 | Redis Key | Type | Purpose |
 |-----------|------|---------|
-| `hn_reader:schedule:config` | String (JSON) | Current schedule configuration: `{"cron_schedule": "..."}` |
-| `hn_reader:schedule:version` | String (integer) | Monotonically increasing version counter for change detection |
+| `nunti:schedule:config` | String (JSON) | Current schedule configuration: `{"cron_schedule": "..."}` |
+| `nunti:schedule:version` | String (integer) | Monotonically increasing version counter for change detection |
 
 ### 2.3 Helper Functions
 
@@ -235,15 +235,15 @@ All Redis interaction is done through short-lived connection pools (created/clos
 | Function | Purpose |
 |----------|---------|
 | `_get_redis_pool()` | Creates a short-lived Arq Redis connection pool |
-| `_get_schedule_from_redis() -> dict` | Reads and parses `hn_reader:schedule:config` |
-| `_get_schedule_version() -> str` | Reads `hn_reader:schedule:version` |
+| `_get_schedule_from_redis() -> dict` | Reads and parses `nunti:schedule:config` |
+| `_get_schedule_version() -> str` | Reads `nunti:schedule:version` |
 | `_write_schedule_to_redis(cron)` | Writes config JSON + bumps version counter |
 
 ### 2.4 Version-Based Change Detection
 
 The scheduler polls Redis version **inline during sleep** (every 30 seconds in `_sleep_with_schedule_check`), not via a separate background task:
 
-1. Sleep 30 seconds → read `hn_reader:schedule:version`
+1. Sleep 30 seconds → read `nunti:schedule:version`
 2. Compare with local `current_version`
 3. If changed → reload cron from Redis (or DB fallback) → recalculate `next_run`
 4. Update local `current_version` to match Redis (prevents re-detection)
@@ -255,7 +255,7 @@ The scheduler polls Redis version **inline during sleep** (every 30 seconds in `
 
 ### 3.1 Purpose
 
-The worker is an **Arq**-based background process that consumes jobs from the Redis queue. It processes Hacker News stories through the AI pipeline: fetching content, translating titles, summarizing articles, and analyzing comments.
+The worker is an **Arq**-based background process that consumes jobs from the Redis queue. It processes news stories through the AI pipeline: fetching content, translating titles, summarizing articles, and analyzing comments.
 
 ### 3.2 Arq Worker Configuration
 
@@ -279,13 +279,13 @@ class WorkerSettings:
 ```
 fetch_and_process_stories (triggered by scheduler)
                     │
-                    ▼
+                    â–¼
           ┌──────────────────┐
           │ Fetch top 100    │──── HN Firebase API
           │ story IDs        │
           └────────┬─────────┘
                    │
-                   ▼
+                   â–¼
           ┌──────────────────┐
           │ Process each     │──── Concurrent fetcher.process_story()
           │ story            │     - Fetch details
@@ -293,20 +293,20 @@ fetch_and_process_stories (triggered by scheduler)
           │                  │     - Fetch comments
           └────────┬─────────┘
                    │
-                   ▼
+                   â–¼
           ┌──────────────────┐
           │ Filter by        │──── Skip stories below min_score
           │ min_score        │
           └────────┬─────────┘
                    │
-                   ▼
+                   â–¼
           ┌──────────────────────────────────────────┐
           │ Enqueue individual process_story jobs    │──── One job per story
           │ via ctx["redis"].enqueue_job(...)        │     in Redis queue
           └──────────────────────────────────────────┘
                                       │
                     ┌─────────────────┴─────────────────┐
-                    ▼                                   ▼
+                    â–¼                                   â–¼
           ┌──────────────────┐                ┌──────────────────┐
           │ process_story    │                │ process_story    │
           │ (Story #1)       │                │ (Story #2)       │
@@ -392,7 +392,7 @@ AIService._call_ai(system_prompt, user_prompt)
   │
   ├── Scheduler enqueues: fetch_and_process_stories
   │
-  ▼
+  â–¼
 Worker picks up fetch_and_process_stories
   │
   ├── Fetcher gets top 100 HN story IDs
@@ -401,7 +401,7 @@ Worker picks up fetch_and_process_stories
   │
   ├── Enqueue process_story for each filtered story
   │
-  ▼
+  â–¼
 Worker picks up process_story #1
   │
   ├── Check DB: exists? → yes, needs translation?
@@ -411,7 +411,7 @@ Worker picks up process_story #1
   │
   └── Save to DB → is_translated = True
   │
-  ▼
+  â–¼
 User opens http://localhost:8000
   │
   ├── Jinja2 renders story list
@@ -429,23 +429,23 @@ When a user updates the schedule via the web interface:
 ```
 User: changes cron to "0 14 * * 1,3,5" (14:00 on Mon/Wed/Fri)
   │
-  ▼
+  â–¼
 POST /api/settings/ { cron_schedule: "0 14 * * 1,3,5" }
   │
-  ▼
+  â–¼
 Server process:
   ├── Save to database (Setting.cron_schedule)
   ├── Write to Redis directly:
-  │     ├── SET hn_reader:schedule:config = {"cron_schedule": "0 14 * * 1,3,5"}
-  │     ├── INCR hn_reader:schedule:version
+  │     ├── SET nunti:schedule:config = {"cron_schedule": "0 14 * * 1,3,5"}
+  │     ├── INCR nunti:schedule:version
   │
   └── Response: 200 OK
   │
-  ▼
+  â–¼
 Scheduler process (checking every 30s during sleep):
-  ├── GET hn_reader:schedule:version → "5"
+  ├── GET nunti:schedule:version → "5"
   ├── Compare with local version "4" → different!
-  ├── GET hn_reader:schedule:config → {"cron_schedule": "0 14 * * 1,3,5"}
+  ├── GET nunti:schedule:config → {"cron_schedule": "0 14 * * 1,3,5"}
   ├── Calculate new next_run with updated cron
   ├── Update local version to "5"
   │
@@ -486,7 +486,7 @@ Bash equivalent for Linux/macOS/Git Bash. Same service modes, with `--no-mig` fl
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | Integer (PK) | Auto-increment ID |
-| `hacker_news_id` | String (unique) | Original HN item ID |
+| `hacker_news_id` | String (unique) | Original news item ID |
 | `title` | Text | Original English title |
 | `title_tr` | Text | AI-translated title |
 | `url` | Text | Story URL |

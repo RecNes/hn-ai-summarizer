@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
 job_timeout = 600  # 10 minutes in seconds
 
 # Redis key for tracking model health status
-REDIS_AI_HEALTH_KEY = "hn_reader:ai:health"
-REDIS_WORKER_LOG_CHANNEL = "hn_reader:worker_log"
-REDIS_WORKER_LOG_KEY = "hn_reader:worker_logs:recent"
+REDIS_AI_HEALTH_KEY = "nunti:ai:health"
+REDIS_WORKER_LOG_CHANNEL = "nunti:worker_log"
+REDIS_WORKER_LOG_KEY = "nunti:worker_logs:recent"
 
 
 def _format_processing_log(
@@ -44,7 +44,7 @@ def _format_processing_log(
     parts = [f"● {status!r}"]
     if reason:
         parts.append(f"({reason})")
-    parts.append(f" HN#{hn_id}")
+    parts.append(f" news#{hn_id}")
     if db_id is not None:
         parts.append(f" DB#{db_id}")
     parts.append(f' "{title}"')
@@ -205,7 +205,7 @@ async def process_story(ctx, story_data):
                 db_id = existing_story.id
                 if not existing_story.is_translated:
                     logger.info(
-                        "Story HN#%s (DB#%s) exists but needs AI processing...",
+                        "Story news#%s (DB#%s) exists but needs AI processing...",
                         hn_id, db_id,
                     )
 
@@ -351,7 +351,7 @@ async def process_story(ctx, story_data):
             return "processed"
         except Exception as e:
             error_msg = str(e)
-            logger.error("Error processing story HN#%s: %s", hn_id, error_msg)
+            logger.error("Error processing story news#%s: %s", hn_id, error_msg)
 
             # Determine error code
             error_code = "WORKER_ERROR"
@@ -382,7 +382,7 @@ async def process_story(ctx, story_data):
             )
             if is_conn_error and existing_story is None:
                 # Not in DB yet - re-enqueue to retry after delay
-                logger.info("  Will retry story HN#%s after delay...", hn_id)
+                logger.info("  Will retry story news#%s after delay...", hn_id)
                 await ctx["redis"].enqueue_job(
                     "process_story", story_data,
                     _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
@@ -392,7 +392,7 @@ async def process_story(ctx, story_data):
 
 
 async def fetch_and_process_stories(ctx, send_notification: bool = True, trigger_source: str = "auto"):
-    """Fetch and process stories from Hacker News
+    """Fetch and process stories from the news source
 
     Args:
         ctx: Arq worker context.
@@ -420,14 +420,14 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True, trigger
 
     # Re-enqueue failed stories to retry after delay
     for failed in fetcher.failed_stories:
-        logger.info("  Re-enqueuing failed story HN#%s for retry...", failed['hacker_news_id'])
+        logger.info("  Re-enqueuing failed story news#%s for retry...", failed['hacker_news_id'])
         try:
             await ctx["redis"].enqueue_job(
                 "process_story", failed,
                 _defer_until=asyncio.get_event_loop().time() + app_settings.AI_RETRY_INTERVAL,
             )
         except Exception as e:
-            logger.error("  Failed to re-enqueue story HN#%s: %s", failed['hacker_news_id'], e)
+            logger.error("  Failed to re-enqueue story news#%s: %s", failed['hacker_news_id'], e)
 
     await fetcher.close()
 
@@ -459,7 +459,7 @@ async def fetch_and_process_stories(ctx, send_notification: bool = True, trigger
     # Redis Pub/Sub: yeni içerik kanalına mesaj yayınla
     try:
         await ctx["redis"].publish(
-            "hn_reader:sync:new_content",
+            "nunti:sync:new_content",
             json.dumps({
                 "type": "new_content",
                 "story_count": processed_count,
@@ -549,7 +549,7 @@ async def reprocess_untranslated_stories(ctx):
                 try:
                     title_preview = (story.title or "")[:80]
                     logger.info(
-                        "Reprocessing story HN#%s (DB#%s, \"%s\")...",
+                        "Reprocessing story news#%s (DB#%s, \"%s\")...",
                         hn_id, story.id, title_preview,
                     )
 
@@ -563,7 +563,7 @@ async def reprocess_untranslated_stories(ctx):
                         int(hn_id), story.url or ""
                     )
                     if not fresh_data:
-                        logger.error("Failed to refetch data for story HN#%s", hn_id)
+                        logger.error("Failed to refetch data for story news#%s", hn_id)
                         log_data = await _log_worker_event(
                             db, "story_reprocess", story.id, hn_id, story.title or "",
                             "error", None, error="Failed to refetch data",
@@ -609,7 +609,7 @@ async def reprocess_untranslated_stories(ctx):
                         comments_summary=comments_summary,
                     )
                     reprocessed_count += 1
-                    logger.info("Successfully reprocessed story HN#%s (DB#%s)", hn_id, story.id)
+                    logger.info("Successfully reprocessed story news#%s (DB#%s)", hn_id, story.id)
 
                     log_data = await _log_worker_event(
                         db, "story_reprocess", story.id, hn_id, story.title or "",
@@ -619,7 +619,7 @@ async def reprocess_untranslated_stories(ctx):
 
                 except Exception as e:
                     error_msg = str(e)
-                    logger.error("Error reprocessing story HN#%s: %s", hn_id, error_msg)
+                    logger.error("Error reprocessing story news#%s: %s", hn_id, error_msg)
                     log_data = await _log_worker_event(
                         db, "story_reprocess", story.id, hn_id, story.title or "",
                         "error", None, error=error_msg,
@@ -685,7 +685,7 @@ async def reprocess_all_stories(ctx):
                 ai_service = AIService(story_id=int(hn_id))
                 try:
                     if not story.is_translated:
-                        logger.info("Reprocessing story HN#%s (DB#%s)...", hn_id, story.id)
+                        logger.info("Reprocessing story news#%s (DB#%s)...", hn_id, story.id)
 
                         log_data = await _log_worker_event(
                             db, "story_reprocess", story.id, hn_id, story.title or "",
@@ -697,7 +697,7 @@ async def reprocess_all_stories(ctx):
                             int(hn_id), story.url or ""
                         )
                         if not fresh_data:
-                            logger.error("Failed to refetch data for story HN#%s", hn_id)
+                            logger.error("Failed to refetch data for story news#%s", hn_id)
                             continue
 
                         await StoryService.update_from_fetch(db, story, fresh_data)
@@ -737,7 +737,7 @@ async def reprocess_all_stories(ctx):
                             comments_summary=comments_summary,
                         )
                         reprocessed_count += 1
-                        logger.info("Successfully reprocessed story HN#%s", hn_id)
+                        logger.info("Successfully reprocessed story news#%s", hn_id)
 
                         log_data = await _log_worker_event(
                             db, "story_reprocess", story.id, hn_id, story.title or "",
@@ -745,11 +745,11 @@ async def reprocess_all_stories(ctx):
                         )
                         await _publish_log_to_redis(ctx, log_data)
                     else:
-                        logger.info("Story HN#%s is already fully processed", hn_id)
+                        logger.info("Story news#%s is already fully processed", hn_id)
 
                 except Exception as e:
                     error_msg = str(e)
-                    logger.error("Error reprocessing story HN#%s: %s", hn_id, error_msg)
+                    logger.error("Error reprocessing story news#%s: %s", hn_id, error_msg)
                     log_data = await _log_worker_event(
                         db, "story_reprocess", story.id, hn_id, story.title or "",
                         "error", None, error=error_msg,

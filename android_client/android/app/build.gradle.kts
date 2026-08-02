@@ -1,10 +1,10 @@
-plugins {
+﻿plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
-    namespace = "com.hnstakeaway.app"
+    namespace = "com.nontigo"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.hnstakeaway.app"
+        applicationId = "com.nontigo"
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

@@ -14,8 +14,8 @@ from app.core.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
-SCHEDULE_KEY = "hn_reader:schedule:config"
-VERSION_KEY = "hn_reader:schedule:version"
+SCHEDULE_KEY = "nunti:schedule:config"
+VERSION_KEY = "nunti:schedule:version"
 
 
 async def _get_redis_pool():

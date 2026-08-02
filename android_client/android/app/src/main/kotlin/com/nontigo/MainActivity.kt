@@ -1,4 +1,4 @@
-package com.hnstakeaway.app
+﻿package com.nontigo
 
 import io.flutter.embedding.android.FlutterActivity
 

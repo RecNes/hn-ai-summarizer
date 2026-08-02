@@ -1,4 +1,4 @@
-# Deploy docs/ to GitHub Pages
+﻿# Deploy docs/ to GitHub Pages
 # https://pages.github.com/
 #
 # On push to main/master, this workflow builds a static site
@@ -42,14 +42,14 @@ jobs:
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>HN-AI-Summarizer</title>
-            <meta http-equiv="refresh" content="0; url=https://github.com/RecNes/hn-ai-summarizer">
+            <title>Nunti</title>
+            <meta http-equiv="refresh" content="0; url=https://github.com/RecNes/nunti">
             <style>
               body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #666; }
             </style>
           </head>
           <body>
-            <p>Redirecting to <a href="https://github.com/RecNes/hn-ai-summarizer">github.com/RecNes/hn-ai-summarizer</a>...</p>
+            <p>Redirecting to <a href="https://github.com/RecNes/nunti">github.com/RecNes/nunti</a>...</p>
           </body>
           </html>
           EOF

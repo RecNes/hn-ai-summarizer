@@ -86,7 +86,7 @@ async def _reprocess_ai(story_id: int, db: AsyncSession):
             comments_summary=comments_summary,
         )
         logger.info(
-            "[Background] Successfully reprocessed story %s (HN=%s)", story_id, hn_id
+            "[Background] Successfully reprocessed story %s (news_id=%s)", story_id, hn_id
         )
     except Exception as e:
         logger.error("[Background] Error reprocessing story %s: %s", story_id, e)
@@ -382,19 +382,19 @@ async def reprocess_story(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    """Reprocess a single story: refetch from HN, re-translate, re-summarize"""
+    """Reprocess a single story: refetch from the news source, re-translate, re-summarize"""
     story = await StoryService.get_by_id(db, story_id)
     if not story:
         raise HTTPException(status_code=404, detail="Story not found")
 
     hn_id = story.hacker_news_id
     if not hn_id:
-        raise HTTPException(status_code=400, detail="Story has no HN id")
+        raise HTTPException(status_code=400, detail="Story has no news id")
 
     fetcher = FetcherService()
     fresh_data = await fetcher.refetch_story_content(int(hn_id), story.url or "")
     if not fresh_data or not fresh_data.get("title"):
-        raise HTTPException(status_code=500, detail="Failed to refetch story from HN")
+        raise HTTPException(status_code=500, detail="Failed to refetch story from the news source")
 
     await StoryService.update_from_fetch(db, story, fresh_data)
 

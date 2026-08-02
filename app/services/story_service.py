@@ -50,7 +50,7 @@ class StoryService:
     async def get_by_hn_id(
         session: AsyncSession, hn_id: str
     ) -> Story | None:
-        """Hacker News ID'ye göre story getir."""
+        """News ID'ye göre story getir."""
         return await StoryService._get_by_field(session, "hacker_news_id", hn_id)
 
     @staticmethod
@@ -93,7 +93,7 @@ class StoryService:
                           comments_summary, hn_created_at, is_blocked, is_translated
 
         Returns:
-            Oluşturulan Story nesnesi
+            OluÅŸturulan Story nesnesi
 
         Raises:
             StoryServiceError: Kayıt sırasında hata oluşursa
@@ -116,7 +116,7 @@ class StoryService:
                 hn_created_at=story_data.get("hn_created_at"),
                 is_blocked=story_data.get("is_blocked", False),
             )
-            # is_translated belirtilmemişse otomatik hesapla
+            # is_translated belirtilmemiÅŸse otomatik hesapla
             is_translated = story_data.get("is_translated")
             if is_translated is None:
                 story.is_translated = bool(
@@ -261,7 +261,7 @@ class StoryService:
             await session.rollback()
             logger.error(f"Failed to toggle story read status: {e}")
             raise StoryServiceError(
-                f"Story okuma durumu değiştirilemedi: {e}"
+                f"Story okuma durumu deÄŸiÅŸtirilemedi: {e}"
             ) from e
 
     @staticmethod

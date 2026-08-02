@@ -1,5 +1,5 @@
-name: hn_take_away
-description: "HNS Take Away — Kişisel Hacker News özetleyiciniz için günlük AI-özetli makaleleri çevrimdışı olarak yanınıza almanızı sağlayan mobil uygulama."
+﻿name: nunti_go
+description: "Nunti Go - Kişisel haber özetleyiciniz için günlük AI-özetli makaleleri çevrimdışı olarak yanınıza almanızı sağlayan mobil uygulama."
 publish_to: 'none'
 version: 0.0.0+1
 

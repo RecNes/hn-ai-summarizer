@@ -1,7 +1,7 @@
 """mDNS beacon: Zeroconf ile ağda 'ben buradayım' yayını yapar.
 
-Android client'ın hn-reader sunucusunu otomatik bulmasını sağlar.
-Servis tipi: _hnreader._tcp
+Android client'ın Nunti sunucusunu otomatik bulmasını sağlar.
+Servis tipi: _nunti._tcp
 """
 
 import asyncio
@@ -12,8 +12,8 @@ from app.core.config import settings as app_settings
 
 logger = logging.getLogger(__name__)
 
-SERVICE_TYPE = "_hnreader._tcp.local."
-SERVICE_NAME = "HN Reader"
+SERVICE_TYPE = "_nunti._tcp.local."
+SERVICE_NAME = "Nunti"
 
 
 async def start_mdns_beacon():

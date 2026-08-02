@@ -1,4 +1,4 @@
-"""Health check endpoints for the HN-AI-Summerizer API."""
+"""Health check endpoints for the Nunti API."""
 
 import json
 import logging
@@ -32,7 +32,7 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     return {
         "status": "healthy" if db_status == "healthy" else "unhealthy",
         "database": db_status,
-        "service": "HN-AI-Summerizer API",
+        "service": "Nunti API",
     }
 
 
@@ -53,7 +53,7 @@ async def ai_health_status():
         redis = Redis.from_url(redis_url, decode_responses=True)
         await redis.ping()
 
-        raw = await redis.get("hn_reader:ai:health")
+        raw = await redis.get("nunti:ai:health")
         await redis.aclose()
 
         if raw:

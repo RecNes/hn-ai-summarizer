@@ -33,17 +33,17 @@ def run_all():
     try:
         # Start worker
         print("Starting worker...")
-        worker_proc = subprocess.Popen(["hn-ai-summerizer", "worker"])
+        worker_proc = subprocess.Popen(["nunti", "worker"])
         processes.append(worker_proc)
 
         # Start scheduler
         print("Starting scheduler...")
-        scheduler_proc = subprocess.Popen(["hn-ai-summerizer", "scheduler"])
+        scheduler_proc = subprocess.Popen(["nunti", "scheduler"])
         processes.append(scheduler_proc)
 
         # Start server (this will block)
         print("Starting server...")
-        server_proc = subprocess.Popen(["hn-ai-summerizer", "server"])
+        server_proc = subprocess.Popen(["nunti", "server"])
         processes.append(server_proc)
 
         # Wait for server to finish (Ctrl+C)
@@ -92,7 +92,7 @@ def test_schedule_sync():
             import json
             from app.tasks.schedule_manager import _get_redis_pool
             pool = await _get_redis_pool()
-            raw = await pool.get("hn_reader:schedule:config")
+            raw = await pool.get("nunti:schedule:config")
             config = json.loads(raw) if raw else None
             await pool.aclose()
 
@@ -110,7 +110,7 @@ def test_schedule_sync():
 def main():
     """Main CLI entry point"""
     if len(sys.argv) < 2:
-        print("Usage: hn-ai-summerizer [server|worker|scheduler|all|test-schedule]")
+        print("Usage: nunti [server|worker|scheduler|all|test-schedule]")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -127,7 +127,7 @@ def main():
         test_schedule_sync()
     else:
         print(f"Unknown command: {command}")
-        print("Usage: hn-ai-summerizer [server|worker|scheduler|all|test-schedule]")
+        print("Usage: nunti [server|worker|scheduler|all|test-schedule]")
         sys.exit(1)
 
 

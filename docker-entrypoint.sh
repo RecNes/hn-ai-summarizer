@@ -1,7 +1,7 @@
-#!/bin/bash
+﻿#!/bin/bash
 set -e
 
-echo "[ENTRYPOINT] Starting HN-AI-Summerizer..."
+echo "[ENTRYPOINT] Starting Nunti..."
 
 # Run Alembic migrations
 echo "[ENTRYPOINT] Running database migrations..."

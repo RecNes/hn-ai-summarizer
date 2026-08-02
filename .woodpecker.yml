@@ -59,11 +59,11 @@ steps:
         APP_VERSION="${APP_VERSION:-${CI_COMMIT_SHA:0:8}}"
         echo "Building Docker image with version: $APP_VERSION"
         docker build --build-arg APP_VERSION="$APP_VERSION" \
-          -t "$DOCKER_REGISTRY/hn-reader:$APP_VERSION" \
-          -t "$DOCKER_REGISTRY/hn-reader:latest" .
-        echo "Docker Image: $DOCKER_REGISTRY/hn-reader:$APP_VERSION"
-        docker push "$DOCKER_REGISTRY/hn-reader:$APP_VERSION"
-        docker push "$DOCKER_REGISTRY/hn-reader:latest"
+          -t "$DOCKER_REGISTRY/nunti:$APP_VERSION" \
+          -t "$DOCKER_REGISTRY/nunti:latest" .
+        echo "Docker Image: $DOCKER_REGISTRY/nunti:$APP_VERSION"
+        docker push "$DOCKER_REGISTRY/nunti:$APP_VERSION"
+        docker push "$DOCKER_REGISTRY/nunti:latest"
     when:
       event: [push]
       branch: [main, master]
@@ -81,14 +81,14 @@ steps:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      HN_READER_ENV_FILE:
-        from_secret: HN_READER_ENV_FILE
+      NUNTI_ENV_FILE:
+        from_secret: NUNTI_ENV_FILE
       DOCKER_REGISTRY:
         from_secret: DOCKER_REGISTRY
     commands:
       - |
         . .env_versions 2>/dev/null || true
-        printf '%s' "$HN_READER_ENV_FILE" > /tmp/.env
+        printf '%s' "$NUNTI_ENV_FILE" > /tmp/.env
         cp /tmp/.env .env 2>/dev/null || true
         docker compose --env-file /tmp/.env pull
         docker compose --env-file /tmp/.env up -d --remove-orphans --no-build

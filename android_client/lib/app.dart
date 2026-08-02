@@ -10,15 +10,15 @@ import 'screens/splash_screen.dart';
 import 'services/discovery_service.dart';
 import 'services/pairing_service.dart';
 
-class HnsTakeAwayApp extends StatelessWidget {
-  const HnsTakeAwayApp({super.key});
+class NuntiGoApp extends StatelessWidget {
+  const NuntiGoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(
       builder: (context, settings, _) {
         return MaterialApp(
-          title: 'HNS Take Away',
+          title: 'Nunti Go',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme(settings.fontSize),
           darkTheme: AppTheme.darkTheme(settings.fontSize),

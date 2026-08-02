@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI摘要工具",
-    "description": "AI驱动的Hacker News摘要工具",
-    "footer": "HN AI摘要工具 - AI驱动的Hacker News摘要工具"
+    "title": "Nunti",
+    "description": "AI驱动的news摘要工具",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "首页",
@@ -39,7 +39,7 @@
       "uiLabel": "界面语言",
       "translationLabel": "内容翻译语言",
       "uiDescription": "界面、菜单和按钮使用的语言",
-      "translationDescription": "Hacker News内容将被翻译成的语言",
+      "translationDescription": "news内容将被翻译成的语言",
       "independentNote": "这两个设置完全独立"
     },
     "ai": {
@@ -47,11 +47,11 @@
       "description": "API密钥通过.env文件配置。仅列出已配置密钥的提供商。",
       "providerLabel": "AI提供商",
       "providerPlaceholder": "-- 选择提供商 --",
-      "configLabel": "提供商地址（可选）",
+      "configLabel": "提供商地址(可选)",
       "configPlaceholder": "http://localhost:11434",
-      "configHelp": "输入本地提供商（如LM Studio或Ollama）的地址",
+      "configHelp": "输入本地提供商(如LM Studio或Ollama)的地址",
       "keyConfigured": "✔ 已在.env中配置API密钥",
-      "keyLocal": "ℹ 本地提供商（无需API密钥）",
+      "keyLocal": "ℹ 本地提供商(无需API密钥)",
       "modelLabel": "AI模型",
       "modelPlaceholder": "-- 选择模型 --",
       "modelSelectFirst": "-- 请先选择提供商 --",
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "数据处理",
-      "description": "手动获取和处理Hacker News数据。",
+      "description": "手动获取和处理news数据。",
       "fetchButton": "开始获取数据",
       "reprocessButton": "重新处理未翻译的",
       "statusText": "正在处理...请稍候。"
@@ -84,7 +84,7 @@
       "daysHelp": "选择运行天数",
       "minScore": "最低分数",
       "minScoreHelp": "只有分数高于此的故事会被处理",
-      "retentionDays": "数据保留（天）",
+      "retentionDays": "数据保留(天)",
       "retentionDaysHelp": "更早的数据将被自动删除"
     },
     "preferences": {
@@ -98,18 +98,18 @@
     },
     "telegram": {
       "title": "Telegram通知",
-      "description": "请在.env文件中添加您的Telegram机器人令牌，格式为 TELEGRAM_BOT_TOKEN=。该令牌不会发送到前端，只会由服务器读取。",
+      "description": "请在.env文件中添加您的Telegram机器人令牌,格式为 TELEGRAM_BOT_TOKEN=。该令牌不会发送到前端,只会由服务器读取。",
       "chatIdLabel": "Telegram聊天ID",
       "chatIdPlaceholder": "1234567890",
-      "chatIdHelp": "向您的机器人发送消息，然后访问 https://api.telegram.org/bot<TOKEN>/getUpdates 来查找您的聊天ID。",
+      "chatIdHelp": "向您的机器人发送消息,然后访问 https://api.telegram.org/bot<TOKEN>/getUpdates 来查找您的聊天ID。",
       "enabledLabel": "启用Telegram通知",
-      "enabledHelp": "启用后，每批新处理的故事都会发送Telegram通知。"
+      "enabledHelp": "启用后,每批新处理的故事都会发送Telegram通知。"
     },
     "save": "保存设置",
     "saving": "保存中...",
-    "saveSuccess": "设置已成功保存！",
+    "saveSuccess": "设置已成功保存!",
     "saveError": "保存设置时发生错误。",
-    "timezoneWarning": "TIMEZONE 未配置。请在 .env 文件中设置 TIMEZONE。示例：TIMEZONE=Europe/Istanbul。调度器将使用 UTC 作为后备。"
+    "timezoneWarning": "TIMEZONE 未配置。请在 .env 文件中设置 TIMEZONE。示例:TIMEZONE=Europe/Istanbul。调度器将使用 UTC 作为后备。"
   },
   "display": {
     "title": "显示设置",
@@ -138,19 +138,19 @@
   "theme": {
     "light": "浅色模式",
     "dark": "深色模式",
-    "system": "自动（系统）"
+    "system": "自动(系统)"
   },
   "worker": {
-    "started": "数据获取已开始！处理可能需要几分钟。",
-    "reprocessStarted": "重新处理已开始！内容和评论正在刷新。",
+    "started": "数据获取已开始!处理可能需要几分钟。",
+    "reprocessStarted": "重新处理已开始!内容和评论正在刷新。",
     "error": "无法启动工作程序。",
     "reprocessError": "无法启动重新处理。",
     "starting": "正在开始获取数据...",
     "reprocessUnknownError": "未知错误",
     "processingLabel": "{current} / {total} 处理中",
     "completedPercent": "%{pct} 已完成",
-    "reprocessComplete": "重新处理完成！已处理 {processed} 篇文章。",
-    "reprocessCancelled": "重新处理已取消（{current}/{total}）。",
+    "reprocessComplete": "重新处理完成!已处理 {processed} 篇文章。",
+    "reprocessCancelled": "重新处理已取消({current}/{total})。",
     "reprocessAborted": "用户已中止操作。",
     "reprocessConnectionError": "连接错误。请刷新页面后重试。",
     "totalProgress": "总计: {total} | 已处理: {processed} | 错误: {errors}"
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 Hacker News 上 <b>{count} 篇新故事</b> 已摘要完毕，随时可读！",
+      "new_stories": "📰 news 上 <b>{count} 篇新故事</b> 已摘要完毕,随时可读!",
       "check_link": "🔗 <a href=\"{url}\">立即查看</a>",
-      "no_stories": "🫡 今天 Hacker News 没有新故事。下次扫描再见！",
+      "no_stories": "🫡 今天 news 没有新故事。下次扫描再见!",
       "errors": "⚠️ 发生了 <b>{count} 个错误</b>。"
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

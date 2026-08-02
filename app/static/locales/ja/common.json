@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI要約ツール",
-    "description": "AI搭載のHacker News要約ツール",
-    "footer": "HN AI要約ツール - AI搭載のHacker News要約ツール"
+    "title": "Nunti",
+    "description": "AI搭載のnews要約ツール",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "ホーム",
@@ -39,7 +39,7 @@
       "uiLabel": "インターフェース言語",
       "translationLabel": "コンテンツ翻訳言語",
       "uiDescription": "インターフェース、メニュー、ボタンの言語",
-      "translationDescription": "Hacker Newsのコンテンツを翻訳する言語",
+      "translationDescription": "newsのコンテンツを翻訳する言語",
       "independentNote": "これらの2つの設定は完全に独立しています"
     },
     "ai": {
@@ -47,11 +47,11 @@
       "description": "APIキーは.envファイルで設定します。設定済みのキーを持つプロバイダーのみが表示されます。",
       "providerLabel": "AIプロバイダー",
       "providerPlaceholder": "-- プロバイダーを選択 --",
-      "configLabel": "プロバイダーアドレス（オプション）",
+      "configLabel": "プロバイダーアドレス(オプション)",
       "configPlaceholder": "http://localhost:11434",
       "configHelp": "LM StudioやOllamaなどのローカルプロバイダーのアドレスを入力",
       "keyConfigured": "✔ .envでAPIキー設定済み",
-      "keyLocal": "ℹ ローカルプロバイダー（APIキー不要）",
+      "keyLocal": "ℹ ローカルプロバイダー(APIキー不要)",
       "modelLabel": "AIモデル",
       "modelPlaceholder": "-- モデルを選択 --",
       "modelSelectFirst": "-- 最初にプロバイダーを選択 --",
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "データ処理",
-      "description": "手動でHacker Newsのデータを取得して処理します。",
+      "description": "手動でnewsのデータを取得して処理します。",
       "fetchButton": "データ取得を開始",
       "reprocessButton": "未翻訳を再処理",
       "statusText": "処理中...お待ちください。"
@@ -84,7 +84,7 @@
       "daysHelp": "実行する曜日を選択",
       "minScore": "最低スコア",
       "minScoreHelp": "このスコア以上のストーリーのみ処理されます",
-      "retentionDays": "データ保持期間（日）",
+      "retentionDays": "データ保持期間(日)",
       "retentionDaysHelp": "より古いデータは自動的に削除されます"
     },
     "preferences": {
@@ -107,7 +107,7 @@
     },
     "save": "設定を保存",
     "saving": "保存中...",
-    "saveSuccess": "設定を保存しました！",
+    "saveSuccess": "設定を保存しました!",
     "saveError": "設定の保存中にエラーが発生しました。",
     "timezoneWarning": "TIMEZONEが設定されていません。.envファイルにTIMEZONEを設定してください。例: TIMEZONE=Europe/Istanbul。スケジューラーはフォールバックとしてUTCを使用します。"
   },
@@ -138,19 +138,19 @@
   "theme": {
     "light": "ライトモード",
     "dark": "ダークモード",
-    "system": "自動（システム）"
+    "system": "自動(システム)"
   },
   "worker": {
-    "started": "データ取得を開始しました！処理に数分かかる場合があります。",
-    "reprocessStarted": "再処理を開始しました！コンテンツとコメントを更新中です。",
+    "started": "データ取得を開始しました!処理に数分かかる場合があります。",
+    "reprocessStarted": "再処理を開始しました!コンテンツとコメントを更新中です。",
     "error": "ワーカーを開始できませんでした。",
     "reprocessError": "再処理を開始できませんでした。",
     "starting": "データ取得を開始しています...",
     "reprocessUnknownError": "不明なエラー",
     "processingLabel": "{current} / {total} 処理中",
     "completedPercent": "%{pct} 完了",
-    "reprocessComplete": "再処理が完了しました！{processed}件のストーリーを処理しました。",
-    "reprocessCancelled": "再処理がキャンセルされました（{current}/{total}）。",
+    "reprocessComplete": "再処理が完了しました!{processed}件のストーリーを処理しました。",
+    "reprocessCancelled": "再処理がキャンセルされました({current}/{total})。",
     "reprocessAborted": "ユーザーによって操作が中断されました。",
     "reprocessConnectionError": "接続エラー。ページを更新してもう一度お試しください。",
     "totalProgress": "合計: {total} | 処理済み: {processed} | エラー: {errors}"
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 Hacker Newsで<b>{count}件の新着ストーリー</b>が要約され、読めるようになりました！",
+      "new_stories": "📰 newsで<b>{count}件の新着ストーリー</b>が要約され、読めるようになりました!",
       "check_link": "🔗 <a href=\"{url}\">今すぐ見る</a>",
-      "no_stories": "🫡 今日Hacker Newsに新しいストーリーはありません。次のスキャンでお会いしましょう！",
+      "no_stories": "🫡 今日newsに新しいストーリーはありません。次のスキャンでお会いしましょう!",
       "errors": "⚠️ <b>{count}件のエラー</b>が発生しました。"
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -63,7 +63,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => storyProvider),
         ChangeNotifierProvider(create: (_) => syncProvider),
       ],
-      child: const HnsTakeAwayApp(),
+      child: const NuntiGoApp(),
     ),
   );
 }

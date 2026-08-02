@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI Samenvatter",
-    "description": "AI-gestuurde Hacker News-samenvatter",
-    "footer": "HN AI Samenvatter - AI-gestuurde Hacker News-samenvatter"
+    "title": "Nunti",
+    "description": "AI-gestuurde news-samenvatter",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "Startpagina",
@@ -39,7 +39,7 @@
       "uiLabel": "Interface-taal",
       "translationLabel": "Inhoudsvertalingstaal",
       "uiDescription": "Taal voor de interface, menu's en knoppen",
-      "translationDescription": "Taal waarin Hacker News-inhoud wordt vertaald",
+      "translationDescription": "Taal waarin news-inhoud wordt vertaald",
       "independentNote": "Deze twee instellingen zijn volledig onafhankelijk"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "Gegevensverwerking",
-      "description": "Handmatig Hacker News-gegevens ophalen en verwerken.",
+      "description": "Handmatig news-gegevens ophalen en verwerken.",
       "fetchButton": "Start gegevens ophalen",
       "reprocessButton": "Onvertaalde opnieuw verwerken",
       "statusText": "Bezig met verwerken... Even wachten."
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 <b>{count} nieuwe verhalen</b> samengevat op Hacker News en klaar om te lezen!",
+      "new_stories": "📰 <b>{count} nieuwe verhalen</b> samengevat op news en klaar om te lezen!",
       "check_link": "🔗 <a href=\"{url}\">Bekijk nu</a>",
-      "no_stories": "🫡 Vandaag geen nieuwe verhalen op Hacker News. Tot de volgende scan!",
+      "no_stories": "🫡 Vandaag geen nieuwe verhalen op news. Tot de volgende scan!",
       "errors": "⚠️ Er zijn <b>{count} fouten</b> opgetreden."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

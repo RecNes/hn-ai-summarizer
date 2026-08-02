@@ -1,4 +1,4 @@
-"""Service to fetch and process Hacker News stories and comments."""
+"""Service to fetch and process news stories and comments."""
 
 import asyncio
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class FetcherService:
-    """Service to fetch and process Hacker News stories and comments."""
+    """Service to fetch and process news stories and comments."""
 
     HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
 
@@ -53,7 +53,7 @@ class FetcherService:
             await asyncio.sleep(delay)
 
     async def fetch_top_stories(self, limit: int = 100) -> list[int]:
-        """Fetch top story IDs from Hacker News"""
+        """Fetch top story IDs from the news source"""
         client = await self._get_client()
         try:
             response = await client.get(f"{self.HN_API_BASE}/topstories.json")

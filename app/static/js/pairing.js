@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════
-// HN AI Summarizer — Device Pairing Page JS
+// Nunti — Device Pairing Page JS
 // ═══════════════════════════════════════════
 
 // ── Global pairing state ─────────────────────────

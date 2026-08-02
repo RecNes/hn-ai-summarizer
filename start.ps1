@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    HN-AI-Summerizer başlatma scripti (Docker'sız native çalıştırma)
+    Nunti başlatma scripti (Docker'sız native çalıştırma)
 
 .DESCRIPTION
     .env dosyasını okuyup backend servislerini native olarak başlatır.
@@ -65,7 +65,7 @@ function Write-Error {
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ProjectRoot
 
-Write-Info "Proje: HN-AI-Summerizer"
+Write-Info "Proje: Nunti"
 Write-Info "Kök dizin: $ProjectRoot"
 
 # ──────────────────────────────────────────────
@@ -155,18 +155,18 @@ if (-not $redisRunning -and ($Mode -in @("all", "full", "worker", "scheduler")))
     try {
         $dockerCheck = docker info 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            $existing = docker ps --filter "name=hn-redis" --format "{{.ID}}" 2>&1
+            $existing = docker ps --filter "name=nunti-redis" --format "{{.ID}}" 2>&1
             if (-not $existing) {
-                docker run -d --name hn-redis -p 6379:6379 redis:6-alpine 2>&1 | Out-Null
+                docker run -d --name nunti-redis -p 6379:6379 redis:6-alpine 2>&1 | Out-Null
                 if ($LASTEXITCODE -eq 0) {
-                    Write-Success "Redis container başlatıldı (hn-redis, port 6379)"
+                    Write-Success "Redis container başlatıldı (nunti-redis, port 6379)"
                     Start-Sleep 2
                     $redisRunning = $true
                 } else {
                     Write-Warn "Redis container başlatılamadı. Worker çalışmaz."
                 }
             } else {
-                Write-Success "Redis container zaten çalışıyor (hn-redis)"
+                Write-Success "Redis container zaten çalışıyor (nunti-redis)"
                 $redisRunning = $true
             }
         } else {
@@ -183,7 +183,7 @@ if ($redisRunning) {
 } else {
     if ($Mode -in @("all", "full", "worker", "scheduler")) {
         Write-Warn "REDIS OLMADAN WORKER ÇALIŞMAZ. Sadece server modunu kullan."
-        Write-Info "Veri çekmek için: docker run -d --name hn-redis -p 6379:6379 redis:6-alpine"
+        Write-Info "Veri çekmek için: docker run -d --name nunti-redis -p 6379:6379 redis:6-alpine"
     }
 }
 

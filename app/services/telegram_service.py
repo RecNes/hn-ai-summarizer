@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 # Locale dosyalarının konumu: çalışma dizini (WORKDIR) altındaki app/static/locales
 # Docker'da WORKDIR=/app → /app/static/locales
-# Yerelde proje kökü → C:/.../hn-reader/static/locales
+# Yerelde proje kökü → C:/.../nunti/static/locales
 # İkinci seçenek olarak LOCALE_DIR env var veya __file__ tabanlı fallback
 _cwd = Path(os.getcwd())
 # Docker'da WORKDIR=/app → /app/static/locales
-# Yerelde proje kökü → C:/.../hn-reader/app/static/locales veya C:/.../hn-reader/static/locales
+# Yerelde proje kökü → C:/.../nunti/app/static/locales veya C:/.../nunti/static/locales
 for _candidate in [
     _cwd / "static" / "locales",  # Docker: /app/static/locales
     _cwd / "app" / "static" / "locales",  # Yerel: proje/app/static/locales
@@ -68,9 +68,9 @@ def _get_locale_message(key: str, language_code: str, **kwargs) -> str:
         logger.warning(f"Fallback locale (en) also failed: {e}")
         # Hardcoded fallback (son çare)
         fallbacks = {
-            "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
+            "new_stories": "📰 <b>{count} new stories</b> summarized and ready to read!",
             "check_link": '🔗 <a href="{url}">Check them out</a>',
-            "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
+            "no_stories": "🫡 No new stories today. See you at the next scan!",
             "errors": "⚠️ <b>{count} errors</b> occurred.",
             "ai_unreachable": "⚠️ AI model is currently unreachable. Stories will be processed when it becomes available again.",
             "ai_reachable": "✅ AI model is back online. Normal processing has resumed.",

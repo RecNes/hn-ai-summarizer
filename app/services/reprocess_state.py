@@ -10,7 +10,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-REDIS_REPROCESS_STATUS_KEY = "hn_reader:reprocess:status"
+REDIS_REPROCESS_STATUS_KEY = "nunti:reprocess:status"
 
 # Bir stream bağlantısı bu süre (saniye) boyunca heartbeat göndermezse
 # stuck kabul edilir ve 409 yerine yeni stream'e izin verilir.

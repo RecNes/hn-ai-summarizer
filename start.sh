@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# HN-AI-Summerizer başlatma scripti (Bash sürümü - Linux/macOS/Git Bash/WSL)
+# Nunti başlatma scripti (Bash sürümü - Linux/macOS/Git Bash/WSL)
 # Docker'sız native çalıştırma için.
 #
 # Kullanım:
@@ -128,7 +128,7 @@ if [ "$NO_MIGRATION" = false ]; then
 fi
 
 # ──────────────────────────────────────────────
-# Servisi başlat
+# Servisi baÅŸlat
 # ──────────────────────────────────────────────
 start_server() {
     info "Web sunucusu başlatılıyor (http://localhost:8000)..."

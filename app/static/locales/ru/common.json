@@ -1,8 +1,8 @@
-{
+﻿{
   "app": {
-    "title": "HN AI Суммаризатор",
-    "description": "Суммаризатор Hacker News на базе ИИ",
-    "footer": "HN AI Суммаризатор - Суммаризатор Hacker News на базе ИИ"
+    "title": "Nunti",
+    "description": "Суммаризатор news на базе ИИ",
+    "footer": "Nunti"
   },
   "nav": {
     "home": "Главная",
@@ -39,7 +39,7 @@
       "uiLabel": "Язык интерфейса",
       "translationLabel": "Язык перевода контента",
       "uiDescription": "Язык для интерфейса, меню и кнопок",
-      "translationDescription": "Язык, на который будет переведён контент Hacker News",
+      "translationDescription": "Язык, на который будет переведён контент news",
       "independentNote": "Эти две настройки полностью независимы"
     },
     "ai": {
@@ -64,7 +64,7 @@
     },
     "data": {
       "title": "Обработка данных",
-      "description": "Вручную получить и обработать данные Hacker News.",
+      "description": "Вручную получить и обработать данные news.",
       "fetchButton": "Начать получение данных",
       "reprocessButton": "Переобработать непереведённые",
       "statusText": "Обработка... Пожалуйста, подождите."
@@ -167,9 +167,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 <b>{count} новых историй</b> на Hacker News готовы к чтению!",
+      "new_stories": "📰 <b>{count} новых историй</b> на news готовы к чтению!",
       "check_link": "🔗 <a href=\"{url}\">Посмотреть</a>",
-      "no_stories": "🫡 Сегодня на Hacker News нет новых историй. До следующей проверки!",
+      "no_stories": "🫡 Сегодня на news нет новых историй. До следующей проверки!",
       "errors": "⚠️ Произошло <b>{count} ошибок</b>."
     }
   },
@@ -206,7 +206,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

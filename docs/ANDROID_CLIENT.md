@@ -1,16 +1,16 @@
-# HNS Take Away — Android Client
+# Nunti Go — Android Client
 
-Setup & usage guide for the HNS Take Away Android app.
+Setup & usage guide for the Nunti Go Android app.
 
 ## Overview
 
-HNS Take Away is the **offline-first** mobile companion for the HN Reader web application running in your home lab. It stores articles locally on your device so you can read them **without an internet connection**, and automatically syncs your reading progress back to the web app when you are on the same network again.
+Nunti Go is the **offline-first** mobile companion for the Nunti web application running in your home lab. It stores articles locally on your device so you can read them **without an internet connection**, and automatically syncs your reading progress back to the web app when you are on the same network again.
 
 ## Requirements
 
 - **Flutter SDK 3.24+** (e.g. `C:\Users\sence\Personal-Projects\flutter`)
 - **Android SDK**: API 26+ (Android 8.0+)
-- **Web app**: hn-reader running on your network
+- **Web app**: nunti running on your network
 
 ## Setup (Flutter)
 
@@ -34,7 +34,7 @@ flutter run
    - If you scan the QR code, the server URL and pairing code are filled automatically and pairing starts immediately
 5. When pairing completes you are taken to the home screen and the first sync starts automatically
 
-> **Note:** HNS Take Away keeps the code shown in the web UI and the code used by the device in sync.
+> **Note:** Nunti Go keeps the code shown in the web UI and the code used by the device in sync.
 > The `register` request sends the code produced on the web (`pairing_code` field) to the server,
 > and the device is paired with that code. This eliminates any mismatch between the QR/manual code
 > and the server-side code.
@@ -66,7 +66,7 @@ flutter run
 
 Can be triggered in two ways:
 
-1. **From the Android app**: Settings > **"Yeniden Eşleştir"** (with confirmation dialog)
+1. **From the Android app**: Settings > **"Yeniden EÅŸleÅŸtir"** (with confirmation dialog)
 2. **From the web app**: Pairing page > "Revoke" on the device list
 
 In both cases:

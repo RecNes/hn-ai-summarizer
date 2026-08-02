@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}HN AI Summarizer - Settings{% endblock %}
+{% block title %}Nunti - Settings{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
@@ -24,7 +24,7 @@
                 <select id="translation_language" name="translation_language" class="w-full p-2 border rounded">
                     <!-- filled by JS -->
                 </select>
-                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.translationDescription">Language that Hacker News content will be translated to</p>
+                <p class="text-sm text-gray-500 mt-1" data-i18n="settings.language.translationDescription">Language that news content will be translated to</p>
             </div>
             
             <p class="text-xs text-gray-400 italic" data-i18n="settings.language.independentNote">These two settings are completely independent</p>
@@ -33,7 +33,7 @@
         <!-- Worker Control Section -->
         <div class="bg-white p-4 rounded-lg shadow">
             <h3 class="text-lg font-bold mb-4" data-i18n="settings.data.title">Data Processing</h3>
-            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.data.description">Manually fetch and process Hacker News data.</p>
+            <p class="text-gray-600 mb-4 text-sm" data-i18n="settings.data.description">Manually fetch and process news data.</p>
             
             <div class="flex flex-wrap gap-2 mb-4">
                 <button id="trigger-worker" class="btn-success px-4 py-2 rounded disabled:opacity-50 inline-flex items-center gap-2">

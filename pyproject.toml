@@ -3,9 +3,9 @@ requires = ["setuptools>=68.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hn-ai-summerizer"
+name = "nunti"
 version = "0.0.0"
-description = "AI-powered Hacker News summarizer with Turkish translation"
+description = "AI-powered news summarizer with multilingual translation"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -54,7 +54,7 @@ dev = [
 ]
 
 [project.scripts]
-hn-ai-summerizer = "app.cli:main"
+nunti = "app.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["app*"]

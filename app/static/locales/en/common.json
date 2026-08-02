@@ -1,8 +1,8 @@
 {
   "app": {
-    "title": "HN AI Summarizer",
-    "description": "AI-powered Hacker News summarizer",
-    "footer": "HN AI Summarizer - AI-powered Hacker News summarizer"
+    "title": "Nunti",
+    "description": "AI-powered news summarizer",
+    "footer": "Nunti - AI-powered news summarizer"
   },
   "nav": {
     "home": "Home",
@@ -90,7 +90,7 @@
       "uiLabel": "Application Language",
       "translationLabel": "Content Translation Language",
       "uiDescription": "Language for the user interface, menus, and buttons",
-      "translationDescription": "Language that Hacker News content will be translated to",
+      "translationDescription": "Language that news content will be translated to",
       "independentNote": "These two settings are completely independent"
     },
     "ai": {
@@ -115,7 +115,7 @@
     },
     "data": {
       "title": "Data Processing",
-      "description": "Manually fetch and process Hacker News data.",
+      "description": "Manually fetch and process news data.",
       "fetchButton": "Start Data Fetch",
       "reprocessButton": "Reprocess Untranslated",
       "statusText": "Processing... Please wait."
@@ -221,9 +221,9 @@
   },
   "telegram": {
     "notification": {
-      "new_stories": "📰 <b>{count} new stories</b> summarized on Hacker News and ready to read!",
+      "new_stories": "📰 <b>{count} new stories</b> summarized on news and ready to read!",
       "check_link": "🔗 <a href=\"{url}\">Check them out</a>",
-      "no_stories": "🫡 No new stories on Hacker News today. See you at the next scan!",
+      "no_stories": "🫡 No new stories on news today. See you at the next scan!",
       "errors": "⚠️ <b>{count} errors</b> occurred.",
       "ai_unreachable": "⚠️ AI model is currently unreachable. Stories will be queued until it becomes available.",
       "ai_reachable": "✅ AI model is back online. Normal processing has resumed."
@@ -238,7 +238,7 @@
     "serverLabel": "Server: ",
     "refreshQr": "Refresh Code",
     "manualTitle": "Manual Pairing Code",
-    "manualDescription": "If you can’t scan the QR code, enter this code manually in the Android app:",
+    "manualDescription": "If you can't scan the QR code, enter this code manually in the Android app:",
     "copyButton": "Copy",
     "copiedButton": "Copied!",
     "codeExpiry": "Click the refresh code button to get a new code.",

@@ -1,17 +1,17 @@
-services:
+﻿services:
   db:
     profiles: ["internal"]
     image: postgres:13
     environment:
-      POSTGRES_DB: hn_ai_summerizer_db
-      POSTGRES_USER: postgres
+      POSTGRES_DB: nunti_db
+      POSTGRES_USER: nunti
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U nunti"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -34,9 +34,9 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_HOST=db
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=hn_ai_summerizer_db
+      - DATABASE_USER=nunti
+      - DATABASE_PASSWORD=nunti
+      - DATABASE_NAME=nunti_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_USERNAME=
@@ -61,9 +61,9 @@ services:
     build: .
     environment:
       - DATABASE_HOST=db
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=hn_ai_summerizer_db
+      - DATABASE_USER=nunti
+      - DATABASE_PASSWORD=nunti
+      - DATABASE_NAME=nunti_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_USERNAME=
@@ -83,9 +83,9 @@ services:
     build: .
     environment:
       - DATABASE_HOST=db
-      - DATABASE_USER=postgres
+      - DATABASE_USER=nunti
       - ps1PASSWORD=postgres
-      - DATABASE_NAME=hn_ai_summerizer_db
+      - DATABASE_NAME=nunti_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_USERNAME=

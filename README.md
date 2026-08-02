@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="app/static/images/logo.png" alt="HN AI Summarizer" width="120">
+  <img src="app/static/images/logo.png" alt="Nunti" width="120">
 </p>
 
-<h1 align="center">HN AI Summarizer</h1>
+<h1 align="center">Nunti</h1>
 
 <p align="center">
-  <strong>Turn hours of Hacker News reading into a personalized daily briefing.</strong>
+  <strong>Turn hours of news reading into a personalized daily briefing.</strong>
 </p>
 
 <p align="center">
@@ -22,9 +22,9 @@
 
 ---
 
-> Every day, Hacker News publishes more great content than most of us have time to read.
+> Every day, news publishes more great content than most of us have time to read.
 >
-> **HN AI Summarizer** automatically reads the top stories, summarizes them with AI, translates them into your language, and delivers a personalized digest every morning.
+> **Nunti** automatically reads the top stories, summarizes them with AI, translates them into your language, and delivers a personalized digest every morning.
 
 > **Spend less time reading. Keep more of what matters.**
 
@@ -32,9 +32,9 @@
 
 ## 🏡 Built for Your Homelab
 
-HN AI Summarizer is designed to run quietly in the background on your own server.
+Nunti is designed to run quietly in the background on your own server.
 
-Whether it's a Raspberry Pi, a mini PC, a NAS, or a home lab, it continuously fetches, summarizes, and translates Hacker News stories while you focus on other things.
+Whether it's a Raspberry Pi, a mini PC, a NAS, or a home lab, it continuously fetches, summarizes, and translates news stories while you focus on other things.
 
 Unlike cloud services, your setup stays entirely under your control:
 
@@ -44,7 +44,7 @@ Unlike cloud services, your setup stays entirely under your control:
 - ⚙️ Fully automated daily operation
 - 📦 One Docker Compose deployment
 
-Think of it as your own personal Hacker News appliance.
+Think of it as your own personal news appliance.
 
 ---
 
@@ -68,14 +68,14 @@ Telegram Notification
 
 # Why?
 
-Most Hacker News readers face the same problem:
+Most news readers face the same problem:
 
 - There are too many interesting stories.
 - Popular discussions easily reach hundreds of comments.
 - Great articles disappear before you have time to read them.
 - Reading everything simply isn't realistic.
 
-HN AI Summarizer solves that problem by doing the reading for you.
+Nunti solves that problem by doing the reading for you.
 
 ---
 
@@ -127,7 +127,7 @@ Only the stories you care about stand out.
 
 Receive a notification as soon as your daily briefing is ready.
 
-No need to remember checking Hacker News.
+No need to remember checking news.
 
 ---
 
@@ -144,7 +144,7 @@ Run everything on your own server.
 
 ## 🔄 Fully Automated
 
-While you sleep, HN AI Summarizer:
+While you sleep, Nunti:
 
 - fetches new stories
 - summarizes them
@@ -171,9 +171,9 @@ Designed for long reading sessions.
 # 🚀 Quick Start
 
 ```bash
-git clone https://github.com/RecNes/hn-ai-summarizer.git
+git clone https://github.com/RecNes/nunti.git
 
-cd hn-ai-summarizer
+cd nunti
 
 cp .env.example .env
 
@@ -248,7 +248,7 @@ Supports 20+ languages including:
 
 # 🛣 Roadmap
 
-* Takeaway mobile app
+* Nunti Go mobile app
 * PDF export
 * Email Delivery
 * More Personalization

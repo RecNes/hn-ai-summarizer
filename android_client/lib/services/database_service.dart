@@ -1,4 +1,4 @@
-import 'package:sqflite/sqflite.dart';
+﻿import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 import '../models/story.dart';
@@ -10,7 +10,7 @@ class DatabaseService {
   Future<void> initialize() async {
     final dbPath = await getDatabasesPath();
     _db = await openDatabase(
-      join(dbPath, 'hns_takeaway.db'),
+      join(dbPath, 'nunti.db'),
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''

@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -6,7 +6,7 @@ import '../models/device.dart';
 import 'api_service.dart';
 import 'settings_service.dart';
 
-/// Manages device pairing with the HN Reader server.
+/// Manages device pairing with the Nunti server.
 /// Uses dual-storage: flutter_secure_storage (primary) + shared_preferences (fallback).
 class PairingService {
   final ApiService apiService;
@@ -19,13 +19,13 @@ class PairingService {
     required this.settingsService,
   });
 
-  // ── Storage keys ───────────────────────────
+  // â”€â”€ Storage keys â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static const _keyAuthToken = 'auth_token';
   static const _keyServerUrl = 'server_url';
   static const _keyDeviceId = 'device_id';
   static const _keyDeviceName = 'device_name';
 
-  // ── Token check (dual read) ────────────────
+  // â”€â”€ Token check (dual read) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Check if device has a stored pairing token.
   Future<bool> hasStoredToken() async {
@@ -59,7 +59,7 @@ class PairingService {
     }
   }
 
-  // ── QR code parsing ────────────────────────
+  // â”€â”€ QR code parsing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Extract pairing data from QR code content.
   Map<String, String?>? extractPairingData(String qrData) {
@@ -75,7 +75,7 @@ class PairingService {
     }
   }
 
-  // ── Pairing flow ───────────────────────────
+  // â”€â”€ Pairing flow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Register device on server, returns pairing code.
   ///
@@ -112,7 +112,7 @@ class PairingService {
     );
   }
 
-  // ── Token persistence (dual write) ─────────
+  // â”€â”€ Token persistence (dual write) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   /// Save pairing result to both secure storage AND shared preferences.
   Future<void> savePairing(DeviceInfo device) async {
