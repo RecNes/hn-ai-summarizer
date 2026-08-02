@@ -1,0 +1,11 @@
+# Normalize line endings for CI-critical and shell files
+* text=auto
+
+# Force LF for files that must stay LF on all platforms
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+Dockerfile text eol=lf
+docker-entrypoint.sh text eol=lf
+start.sh text eol=lf
