@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/settings_service.dart';
 
 /// Manages application-wide settings.
@@ -24,11 +25,12 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set UI language (persisted).
+  /// Set UI language (persisted). Also reloads localizations instantly.
   Future<void> setUiLanguage(String lang) async {
     if (lang == _uiLanguage) return;
     _uiLanguage = lang;
     await _settingsService.setUiLanguage(lang);
+    await AppLocalizations.instance.load(lang);
     notifyListeners();
   }
 

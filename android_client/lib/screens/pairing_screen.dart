@@ -6,6 +6,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/sync_provider.dart';
 import '../services/discovery_service.dart';
 import '../services/pairing_service.dart';
@@ -26,13 +27,11 @@ class PairingScreen extends StatefulWidget {
 }
 
 class _PairingScreenState extends State<PairingScreen> {
-  // ── Controllers (created once, disposed properly) ──
   final _codeController = TextEditingController();
   final _serverController = TextEditingController();
   final _deviceNameController = TextEditingController();
   final MobileScannerController _cameraController = MobileScannerController();
 
-  // ── State ───────────────────────────────
   String _deviceName = '';
   bool _isProcessing = false;
   String? _errorMessage;
@@ -65,12 +64,10 @@ class _PairingScreenState extends State<PairingScreen> {
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _deviceName = 'Android Cihaz');
+        setState(() => _deviceName = '');
       }
     }
   }
-
-  // ── QR detection ────────────────────────
 
   void _onQrDetected(BarcodeCapture capture) {
     if (_qrProcessed || _isProcessing) return;
@@ -83,20 +80,15 @@ class _PairingScreenState extends State<PairingScreen> {
 
     _qrProcessed = true;
 
-    // Auto-fill fields
     _serverController.text = data['server_url'] ?? '';
     if (data['pairing_code'] != null) {
       _codeController.text = data['pairing_code']!;
     }
 
-    // Auto-trigger pairing
     _startPairing();
   }
 
-  // ── Server discovery modal ──────────────
-
   Future<void> _onServerFieldTap() async {
-    // Show discovery modal
     showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -113,14 +105,13 @@ class _PairingScreenState extends State<PairingScreen> {
     });
   }
 
-  // ── Pairing flow ────────────────────────
-
   Future<void> _startPairing() async {
+    final l10n = context.read<AppLocalizations>();
     final code = _codeController.text.trim();
     final serverUrl = _serverController.text.trim();
 
     if (code.isEmpty || serverUrl.isEmpty) {
-      setState(() => _errorMessage = 'Lütfen eşleştirme kodu ve sunucu adresini girin.');
+      setState(() => _errorMessage = l10n.t('pairing.errorMissing'));
       return;
     }
 
@@ -131,10 +122,10 @@ class _PairingScreenState extends State<PairingScreen> {
 
     try {
       final deviceId = const Uuid().v4();
-      final deviceName = _deviceName.isNotEmpty ? _deviceName : 'Android Cihaz';
+      final deviceName = _deviceName.isNotEmpty
+          ? _deviceName
+          : l10n.t('pairing.defaultDeviceName');
 
-      // Step 1: Register device on server with the web-visible pairing code.
-      // The server uses this code so the web UI code and device code match.
       final pairingCode = await widget.pairingService.initiatePairing(
         serverUrl,
         deviceName,
@@ -142,10 +133,8 @@ class _PairingScreenState extends State<PairingScreen> {
         pairingCode: code,
       );
 
-      // Step 2: Confirm pairing with the same code
       final device = await widget.pairingService.confirmPairing(deviceId, pairingCode);
 
-      // Success — save & notify
       await widget.pairingService.savePairing(device);
 
       if (mounted) {
@@ -157,50 +146,47 @@ class _PairingScreenState extends State<PairingScreen> {
         setState(() {
           _isProcessing = false;
           _qrProcessed = false;
-          _errorMessage = '"$serverName" sunucusu ile eşleşme başarısız';
+          _errorMessage = l10n.t('pairing.errorFailed', args: {'server': serverName});
         });
       }
     }
   }
 
-  // ── Build ───────────────────────────────
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.watch<AppLocalizations>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Cihaz Eşleştirme')),
+      appBar: AppBar(title: Text(l10n.t('pairing.title'))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── QR Vizör ──────────────────
               _buildQrViewer(),
               const SizedBox(height: 16),
 
-              // ── Device Name Input ─────────
               TextField(
                 controller: _deviceNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Cihaz Adı',
-                  hintText: 'Cihazına bir isim ver',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone_android),
+                decoration: InputDecoration(
+                  labelText: l10n.t('pairing.deviceNameLabel'),
+                  hintText: l10n.t('pairing.deviceNameHint'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.phone_android),
                 ),
                 enabled: !_isProcessing,
                 onChanged: (v) => _deviceName = v,
               ),
               const SizedBox(height: 12),
 
-              // ── Pairing Code Input ────────
               TextField(
                 controller: _codeController,
-                decoration: const InputDecoration(
-                  labelText: 'Eşleştirme Kodu',
-                  hintText: '6 haneli kodu girin',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.key),
+                decoration: InputDecoration(
+                  labelText: l10n.t('pairing.codeLabel'),
+                  hintText: l10n.t('pairing.codeHint'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.key),
                 ),
                 keyboardType: TextInputType.number,
                 maxLength: 6,
@@ -208,14 +194,13 @@ class _PairingScreenState extends State<PairingScreen> {
               ),
               const SizedBox(height: 12),
 
-              // ── Server URL Input ──────────
               TextField(
                 controller: _serverController,
-                decoration: const InputDecoration(
-                  labelText: 'Sunucu Adresi',
-                  hintText: 'https://... veya dokunup ağda ara',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.dns),
+                decoration: InputDecoration(
+                  labelText: l10n.t('pairing.serverLabel'),
+                  hintText: l10n.t('pairing.serverHint'),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.dns),
                 ),
                 keyboardType: TextInputType.url,
                 enabled: !_isProcessing,
@@ -223,7 +208,6 @@ class _PairingScreenState extends State<PairingScreen> {
               ),
               const SizedBox(height: 16),
 
-              // ── Error message ─────────────
               if (_errorMessage != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -248,14 +232,13 @@ class _PairingScreenState extends State<PairingScreen> {
                 const SizedBox(height: 16),
               ],
 
-              // ── Continue button / Loader ──
               if (_isProcessing)
-                const Center(
+                Center(
                   child: Column(
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 12),
-                      Text('Eşleştirme yapılıyor...'),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 12),
+                      Text(l10n.t('pairing.processing')),
                     ],
                   ),
                 )
@@ -263,7 +246,7 @@ class _PairingScreenState extends State<PairingScreen> {
                 ElevatedButton.icon(
                   onPressed: _startPairing,
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Devam Et'),
+                  label: Text(l10n.t('pairing.continueBtn')),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     textStyle: const TextStyle(fontSize: 16),
@@ -275,8 +258,6 @@ class _PairingScreenState extends State<PairingScreen> {
       ),
     );
   }
-
-  // ── QR Viewer Widget ────────────────────
 
   Widget _buildQrViewer() {
     return ClipRRect(
@@ -333,6 +314,8 @@ class _ServerDiscoverySheetState extends State<_ServerDiscoverySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.watch<AppLocalizations>();
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -340,19 +323,19 @@ class _ServerDiscoverySheetState extends State<_ServerDiscoverySheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Ağda Sunucu Ara',
+            l10n.t('discovery.title'),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           if (_searching)
-            const Center(
+            Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 12),
-                    Text('Sunucular aranıyor...'),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 12),
+                    Text(l10n.t('discovery.searching')),
                   ],
                 ),
               ),
@@ -364,7 +347,8 @@ class _ServerDiscoverySheetState extends State<_ServerDiscoverySheet> {
                 children: [
                   Icon(Icons.search_off, size: 40, color: Colors.grey[400]),
                   const SizedBox(height: 8),
-                  Text('Hiç sunucu bulunamadı.\nAdresi elle girebilirsiniz.',
+                  Text(
+                    l10n.t('discovery.noneFound'),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
@@ -372,7 +356,7 @@ class _ServerDiscoverySheetState extends State<_ServerDiscoverySheet> {
               ),
             )
           else ...[
-            const Text('Bulunan sunucular:'),
+            Text(l10n.t('discovery.found')),
             const SizedBox(height: 8),
             ..._servers.map((url) => ListTile(
               leading: const Icon(Icons.dns),
@@ -383,7 +367,7 @@ class _ServerDiscoverySheetState extends State<_ServerDiscoverySheet> {
           const SizedBox(height: 16),
           OutlinedButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Kapat'),
+            child: Text(l10n.t('discovery.close')),
           ),
         ],
       ),

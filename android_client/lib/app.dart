@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'config/theme.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/settings_provider.dart';
 import 'providers/sync_provider.dart';
 import 'screens/home_screen.dart';
@@ -15,15 +17,33 @@ class NuntiGoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsProvider>(
-      builder: (context, settings, _) {
-        return MaterialApp(
-          title: 'Nunti Go',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme(settings.fontSize),
-          darkTheme: AppTheme.darkTheme(settings.fontSize),
-          themeMode: settings.themeMode,
-          home: const _AppEntry(),
+    // Rebuild whole app when locale changes.
+    return Consumer<AppLocalizations>(
+      builder: (context, l10n, _) {
+        return Consumer<SettingsProvider>(
+          builder: (context, settings, _) {
+            return MaterialApp(
+              title: 'Nunti Go',
+              debugShowCheckedModeBanner: false,
+              locale: Locale(l10n.currentLanguage),
+              supportedLocales: const [
+                Locale('ar'), Locale('bn'), Locale('cs'), Locale('de'),
+                Locale('en'), Locale('es'), Locale('fa'), Locale('hi'),
+                Locale('it'), Locale('ja'), Locale('ko'), Locale('nl'),
+                Locale('pl'), Locale('pt'), Locale('ru'), Locale('tr'),
+                Locale('uk'), Locale('zh', 'CN'), Locale('zh', 'TW'),
+              ],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              theme: AppTheme.lightTheme(settings.fontSize),
+              darkTheme: AppTheme.darkTheme(settings.fontSize),
+              themeMode: settings.themeMode,
+              home: const _AppEntry(),
+            );
+          },
         );
       },
     );

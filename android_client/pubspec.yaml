@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cupertino_icons: ^1.0.8
 
   # State Management
@@ -40,7 +42,7 @@ dependencies:
   mobile_scanner: ^5.2.3
 
   # Utilities
-  intl: ^0.19.0
+  intl: ^0.20.2
   uuid: ^4.5.1
   device_info_plus: ^10.1.2
   url_launcher: ^6.3.1
@@ -54,5 +56,22 @@ flutter:
   uses-material-design: true
   assets:
     - assets/logo.png
+    - assets/locales/ar.json
+    - assets/locales/bn.json
+    - assets/locales/cs.json
+    - assets/locales/de.json
     - assets/locales/en.json
+    - assets/locales/es.json
+    - assets/locales/fa.json
+    - assets/locales/hi.json
+    - assets/locales/it.json
+    - assets/locales/ja.json
+    - assets/locales/ko.json
+    - assets/locales/nl.json
+    - assets/locales/pl.json
+    - assets/locales/pt.json
+    - assets/locales/ru.json
     - assets/locales/tr.json
+    - assets/locales/uk.json
+    - assets/locales/zh-CN.json
+    - assets/locales/zh-TW.json

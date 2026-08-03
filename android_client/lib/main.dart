@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/settings_provider.dart';
 import 'providers/story_provider.dart';
 import 'providers/sync_provider.dart';
@@ -45,6 +46,9 @@ void main() async {
   final settingsProvider = SettingsProvider(settingsService);
   await settingsProvider.load();
 
+  // Initialize localization with the stored (or default English) language.
+  await AppLocalizations.instance.load(settingsProvider.uiLanguage);
+
   final storyProvider = StoryProvider(databaseService);
   final syncProvider = SyncProvider(
     syncService,
@@ -59,6 +63,8 @@ void main() async {
         Provider.value(value: apiService),
         Provider.value(value: pairingService),
         Provider.value(value: discoveryService),
+        // Expose the localization service as a provider so widgets can rebuild on locale change.
+        ChangeNotifierProvider.value(value: AppLocalizations.instance),
         ChangeNotifierProvider(create: (_) => settingsProvider),
         ChangeNotifierProvider(create: (_) => storyProvider),
         ChangeNotifierProvider(create: (_) => syncProvider),

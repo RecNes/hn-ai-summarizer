@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/story.dart';
 import '../providers/story_provider.dart';
 import '../utils/date_formatter.dart';
@@ -32,10 +33,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   Future<void> _load() async {
     final provider = context.read<StoryProvider>();
 
-    // Get from in-memory cache first
     Story? story = provider.storyById(widget.storyId);
 
-    // Mark as read
     if (story != null && !story.isRead) {
       await provider.markAsRead(story);
       story = provider.storyById(widget.storyId);
@@ -56,19 +55,22 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     final uri = Uri.tryParse(url);
     if (uri == null) return;
 
+    final l10n = context.read<AppLocalizations>();
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bağlantı açılamadı')),
+        SnackBar(content: Text(l10n.t('detail.linkOpenFailed'))),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.watch<AppLocalizations>();
+
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Makale Detayı')),
+        appBar: AppBar(title: Text(l10n.t('detail.title'))),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -76,8 +78,8 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     final story = _story;
     if (story == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Makale Detayı')),
-        body: const Center(child: Text('Makale bulunamadı')),
+        appBar: AppBar(title: Text(l10n.t('detail.title'))),
+        body: Center(child: Text(l10n.t('detail.notFound'))),
       );
     }
 
@@ -90,7 +92,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         story.commentsSummary != null && story.commentsSummary!.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Makale Detayı')),
+      appBar: AppBar(title: Text(l10n.t('detail.title'))),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -114,7 +116,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 if (story.score != null)
                   _MetaChip(
                     icon: Icons.arrow_upward,
-                    text: '${story.score} puan',
+                    text: l10n.t('detail.points', args: {'count': story.score}),
                   ),
                 if (story.author != null)
                   _MetaChip(
@@ -133,7 +135,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Türkçe Çeviri',
+                      l10n.t('detail.translatedBadge'),
                       style: textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.onSecondaryContainer,
@@ -148,7 +150,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             if (hasContent) ...[
               _SectionHeader(
                 icon: Icons.translate,
-                title: 'İçerik',
+                title: l10n.t('detail.content'),
               ),
               const SizedBox(height: 8),
               Text(
@@ -171,7 +173,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'Bu içerik yapay zeka ile çevrilmiştir.',
+                    l10n.t('detail.aiTranslated'),
                     style: textTheme.bodySmall?.copyWith(
                       fontStyle: FontStyle.italic,
                       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -185,7 +187,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
             if (hasCommentsSummary) ...[
               _SectionHeader(
                 icon: Icons.forum_outlined,
-                title: 'Yorum Analizi',
+                title: l10n.t('detail.comments'),
               ),
               const SizedBox(height: 8),
               Container(
@@ -216,7 +218,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                 child: FilledButton.icon(
                   onPressed: _openOriginal,
                   icon: const Icon(Icons.open_in_new),
-                  label: const Text('Orijinal Makaleyi Aç'),
+                  label: Text(l10n.t('detail.openOriginal')),
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),

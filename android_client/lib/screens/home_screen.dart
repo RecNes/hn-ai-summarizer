@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/story_provider.dart';
 import '../providers/sync_provider.dart';
 import '../widgets/story_card.dart';
@@ -21,46 +22,39 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load stories from local DB + pull new ones from server on first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initialLoad();
     });
   }
 
-  /// First load: read local DB, then pull fresh data from server.
   Future<void> _initialLoad() async {
     final storyProvider = context.read<StoryProvider>();
 
-    // Show local stories immediately (offline-first)
     await storyProvider.loadStories();
 
-    // Pull new stories from server (if network available)
     if (!_initialSyncDone) {
       _initialSyncDone = true;
       await _syncAndRefresh();
     }
   }
 
-  /// Pull from server, then reload local list.
   Future<void> _syncAndRefresh() async {
     final storyProvider = context.read<StoryProvider>();
     final syncProvider = context.read<SyncProvider>();
+    final l10n = context.read<AppLocalizations>();
 
-    // Fetch new stories from API → upsert into local DB
     final newCount = await syncProvider.syncNow();
 
-    // Reload list from local DB (shows new + existing stories)
     await storyProvider.loadStories();
 
-    // If sync failed, surface the real error message
     if (mounted && newCount < 0) {
       final err = syncProvider.lastSyncError;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             err != null
-                ? 'Senkronizasyon hatası: $err'
-                : 'Sunucuya ulaşılamadı. Çevrimdışı makaleler gösteriliyor.',
+                ? l10n.t('home.syncError', args: {'message': err})
+                : l10n.t('home.serverUnreachable'),
           ),
           duration: const Duration(seconds: 4),
         ),
@@ -82,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => StoryDetailScreen(storyId: storyId),
       ),
     ).then((_) {
-      // Refresh on return (read status may have changed)
       if (mounted) provider.refresh();
     });
   }
@@ -90,31 +83,29 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<StoryProvider>();
+    final l10n = context.watch<AppLocalizations>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nunti Go'),
         centerTitle: false,
         actions: [
-          // Settings: sağ üst köşede
           IconButton(
             icon: const Icon(Icons.settings),
-            tooltip: 'Ayarlar',
+            tooltip: l10n.t('home.settingsTooltip'),
             onPressed: _openSettings,
           ),
         ],
       ),
-      body: _buildBody(provider),
+      body: _buildBody(provider, l10n),
     );
   }
 
-  Widget _buildBody(StoryProvider provider) {
-    // Loading
+  Widget _buildBody(StoryProvider provider, AppLocalizations l10n) {
     if (provider.isLoading && provider.stories.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // Error with no data
     if (provider.error != null && provider.stories.isEmpty) {
       return Center(
         child: Padding(
@@ -133,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
               OutlinedButton.icon(
                 onPressed: _syncAndRefresh,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Tekrar Dene'),
+                label: Text(l10n.t('home.retry')),
               ),
             ],
           ),
@@ -141,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Empty state
     if (provider.stories.isEmpty) {
       return RefreshIndicator(
         onRefresh: _syncAndRefresh,
@@ -150,23 +140,23 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: const Center(
+              child: Center(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.article_outlined, size: 56, color: Colors.grey),
-                      SizedBox(height: 16),
+                      const Icon(Icons.article_outlined, size: 56, color: Colors.grey),
+                      const SizedBox(height: 16),
                       Text(
-                        'Henüz makale yok.\nAşağı çekerek sunucudan\nmakaleleri çekebilirsiniz.',
+                        l10n.t('home.empty'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey, fontSize: 15),
+                        style: const TextStyle(color: Colors.grey, fontSize: 15),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
-                        'Çek bırak ile yenileyin.',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        l10n.t('home.emptyPull'),
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],
                   ),
@@ -178,7 +168,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Story list
     return RefreshIndicator(
       onRefresh: _syncAndRefresh,
       child: ListView.builder(

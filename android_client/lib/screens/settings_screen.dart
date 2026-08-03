@@ -1,45 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
+import '../l10n/supported_locales.dart';
 import '../providers/settings_provider.dart';
 import '../providers/sync_provider.dart';
 
-/// Settings screen — theme, language, font size, connection management.
+/// Settings screen — theme, language (20 locales), font size, connection.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.watch<AppLocalizations>();
     final settings = context.watch<SettingsProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ayarlar')),
+      appBar: AppBar(title: Text(l10n.t('settings.title'))),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // ── Theme ────────────────────────
           _SectionTitle(
             icon: Icons.palette_outlined,
-            title: 'Tema',
+            title: l10n.t('settings.theme'),
           ),
           const SizedBox(height: 8),
           SegmentedButton<ThemeMode>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: ThemeMode.system,
-                label: Text('Sistem'),
-                icon: Icon(Icons.brightness_auto),
+                label: Text(l10n.t('settings.theme.system')),
+                icon: const Icon(Icons.brightness_auto),
               ),
               ButtonSegment(
                 value: ThemeMode.light,
-                label: Text('Açık'),
-                icon: Icon(Icons.light_mode),
+                label: Text(l10n.t('settings.theme.light')),
+                icon: const Icon(Icons.light_mode),
               ),
               ButtonSegment(
                 value: ThemeMode.dark,
-                label: Text('Koyu'),
-                icon: Icon(Icons.dark_mode),
+                label: Text(l10n.t('settings.theme.dark')),
+                icon: const Icon(Icons.dark_mode),
               ),
             ],
             selected: {settings.themeMode},
@@ -49,10 +52,10 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // ── Language ─────────────────────
+          // ── Language (20 locales) ────────
           _SectionTitle(
             icon: Icons.language,
-            title: 'Dil',
+            title: l10n.t('settings.language'),
           ),
           const SizedBox(height: 8),
           Card(
@@ -61,16 +64,13 @@ class SettingsScreen extends StatelessWidget {
               onChanged: (v) {
                 if (v != null) settings.setUiLanguage(v);
               },
-              child: const Column(
+              child: Column(
                 children: [
-                  RadioListTile<String>(
-                    title: Text('English'),
-                    value: 'en',
-                  ),
-                  RadioListTile<String>(
-                    title: Text('Türkçe'),
-                    value: 'tr',
-                  ),
+                  for (final loc in SupportedLocale.all)
+                    RadioListTile<String>(
+                      title: Text(loc.name),
+                      value: loc.code,
+                    ),
                 ],
               ),
             ),
@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
           // ── Font size ────────────────────
           _SectionTitle(
             icon: Icons.format_size,
-            title: 'Yazı Boyutu',
+            title: l10n.t('settings.fontSize'),
           ),
           Row(
             children: [
@@ -103,7 +103,7 @@ class SettingsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              'Önizleme: ${settings.fontSize.round()} pt',
+              l10n.t('settings.fontPreview', args: {'size': settings.fontSize.round()}),
               style: TextStyle(fontSize: settings.fontSize),
             ),
           ),
@@ -112,7 +112,7 @@ class SettingsScreen extends StatelessWidget {
           // ── Connection ───────────────────
           _SectionTitle(
             icon: Icons.link,
-            title: 'Bağlantı',
+            title: l10n.t('settings.connection'),
           ),
           const SizedBox(height: 8),
           Card(
@@ -120,15 +120,15 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 ListTile(
                   leading: Icon(Icons.dns, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                  title: const Text('Sunucu'),
-                  subtitle: const Text('Bağlı cihaz'),
+                  title: Text(l10n.t('settings.server')),
+                  subtitle: Text(l10n.t('settings.connectedDevice')),
                   trailing: const Icon(Icons.check_circle, color: Colors.green, size: 20),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: Icon(Icons.link_off, color: isDark ? Colors.grey[400] : Colors.grey[600]),
-                  title: const Text('Yeniden EÅŸleÅŸtir'),
-                  subtitle: const Text('Mevcut eşleşmeyi kaldır'),
+                  title: Text(l10n.t('settings.repair')),
+                  subtitle: Text(l10n.t('settings.repairSubtitle')),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => _confirmRePair(context),
                 ),
@@ -153,22 +153,20 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> _confirmRePair(BuildContext context) async {
+    final l10n = context.read<AppLocalizations>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Yeniden EÅŸleÅŸtir'),
-        content: const Text(
-          'Mevcut eşleşme kaldırılacak ve yeni bir cihaz eşleştirme işlemi başlayacak. '
-          'Devam etmek istiyor musunuz?',
-        ),
+        title: Text(l10n.t('settings.repairConfirmTitle')),
+        content: Text(l10n.t('settings.repairConfirmMsg')),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.t('settings.cancel')),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Eşleştirmeyi Kaldır'),
+            child: Text(l10n.t('settings.removePairing')),
           ),
         ],
       ),

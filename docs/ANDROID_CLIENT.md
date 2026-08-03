@@ -66,7 +66,7 @@ flutter run
 
 Can be triggered in two ways:
 
-1. **From the Android app**: Settings > **"Yeniden EÅŸleÅŸtir"** (with confirmation dialog)
+1. **From the Android app**: Settings > **"Re-Pair"** (with confirmation dialog)
 2. **From the web app**: Pairing page > "Revoke" on the device list
 
 In both cases:

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/sync_service.dart';
 import '../services/pairing_service.dart';
 import '../services/api_service.dart';
@@ -118,13 +119,13 @@ class SyncProvider extends ChangeNotifier {
     } on DioException catch (e) {
       // Log the real error for debugging
       debugPrint('Sync DioException: type=${e.type} msg=${e.message} uri=${e.requestOptions.uri}');
-      _lastSyncError = 'Bağlantı hatası: ${e.message}';
+      _lastSyncError = AppLocalizations.instance.t('sync.error', args: {'message': e.message ?? ''});
       _status = SyncStatus.error;
       notifyListeners();
       return -1;
     } catch (e) {
       debugPrint('Sync error: $e');
-      _lastSyncError = 'Senkronizasyon hatası: $e';
+      _lastSyncError = AppLocalizations.instance.t('sync.error', args: {'message': '$e'});
       _status = SyncStatus.error;
       notifyListeners();
       return -1;

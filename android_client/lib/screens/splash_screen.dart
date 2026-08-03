@@ -1,8 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../utils/constants.dart';
 
 /// Splash screen shown on app startup.
@@ -22,39 +21,16 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  String _description = '';
-
   @override
   void initState() {
     super.initState();
-    _loadLocale();
     // Navigate after 5 seconds
     Future.delayed(const Duration(seconds: 5), widget.onFinished);
   }
 
-  Future<void> _loadLocale() async {
-    try {
-      final lang = widget.uiLanguage;
-      String data;
-      try {
-        data = await rootBundle.loadString('assets/locales/$lang.json');
-      } catch (_) {
-        data = await rootBundle.loadString('assets/locales/en.json');
-      }
-      final json = jsonDecode(data) as Map<String, dynamic>;
-      final splash = json['splash'] as Map<String, dynamic>;
-      setState(() {
-        _description = splash['description'] as String? ?? '';
-      });
-    } catch (_) {
-      setState(() {
-        _description = 'Take your daily AI-summarized\narticles offline with you';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.watch<AppLocalizations>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
@@ -77,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                _description,
+                l10n.t('splash.description'),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
