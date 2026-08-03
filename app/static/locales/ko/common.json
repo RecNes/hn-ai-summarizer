@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Nunti",
     "description": "AI 기반 news 요약기",
@@ -72,7 +72,7 @@
     "fetch": {
       "title": "가져오기 설정",
       "hour": "시",
-      "minute": "ë¶"",
+      "minute": "분",
       "days": "요일",
       "monday": "월요일",
       "tuesday": "화요일",

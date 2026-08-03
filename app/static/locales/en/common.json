@@ -67,7 +67,7 @@
     "readToggleUnread": "Mark as unread",
     "reloading": "Refreshing...",
     "reprocessFail": "Refresh failed",
-    "reprocessStarted": "HN data fetched, AI translation started. Updating...",
+    "reprocessStarted": "News data fetched, AI translation started. Updating...",
     "reprocessDone": "Story updated!",
     "reprocessTimeout": "AI translation could not be completed, please refresh the page.",
     "reprocessNetworkError": "An error occurred while refreshing.",

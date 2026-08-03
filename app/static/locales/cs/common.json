@@ -1,4 +1,4 @@
-﻿{
+{
   "app": {
     "title": "Nunti",
     "description": "Shrnovač news s AI",
@@ -77,7 +77,7 @@
       "monday": "Pondělí",
       "tuesday": "Úterý",
       "wednesday": "Středa",
-      "thursday": "ÄŒtvrtek",
+      "thursday": "Čtvrtek",
       "friday": "Pátek",
       "saturday": "Sobota",
       "sunday": "Neděle",
